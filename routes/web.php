@@ -23,5 +23,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', function () {
         return View::make('layouts.master');
     });
+
+     /* CATEGORIA */
+     Route::post('categoria/buscar', 'CategoriaController@buscar')->name('categoria.buscar');
+     Route::get('categoria/eliminar/{id}/{listarluego}', 'CategoriaController@eliminar')->name('categoria.eliminar');
+     Route::resource('categoria', 'CategoriaController', array('except' => array('show')));
+     
 });
 

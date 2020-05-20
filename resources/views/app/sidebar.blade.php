@@ -96,7 +96,7 @@ function generarMenu($idtipousuario)
                 if (strtoupper($aux[$i]['nombre']) === 'SEPARADOR') {
                     //$cadenaMenu .= '<li class="divider"></li>';
                 }else{
-                    $cadenaMenu .= '<li class="nav-item"><a href="#" id="opt'.$aux[$i]['id'].'" onclick="cargarRutaLink(\''.URL::to($aux[$i]['link']).'\', \'container\',\''.$catPrincipal->id.'\',\''.$aux[$i]['id'].'\');" class="opts nav-link"><i class="fas fa-angle-right nav-icon"></i><p>'.$aux[$i]['nombre'].'</p></a></li>';
+                    $cadenaMenu .= '<li class="nav-item ml-2"><a href="#" id="opt'.$aux[$i]['id'].'" onclick="cargarRutaLink(\''.URL::to($aux[$i]['link']).'\', \'container\',\''.$catPrincipal->id.'\',\''.$aux[$i]['id'].'\');" class="opts nav-link"><i class="fas fa-angle-right nav-icon"></i><p>'.$aux[$i]['nombre'].'</p></a></li>';
                 }
             }
             if (count($aux) > 0 && $hijos != '' ) {
@@ -146,13 +146,13 @@ function buscarHijos($categoriaopcionmenu_id, $tipousuario_id)
         if ($hijos != '' || $usar === true ) {
 
             $cadenaMenu .= '<li class="nav-item has-treeview">';
-            $cadenaMenu .= '<a href="#" class="nav-link"><i class="nav-icon '.$catHijo->icon.'"></i> <p>'.$catHijo->name.'<i class="right fas fa-angle-left"></i></p></a>';
+            $cadenaMenu .= '<a href="#" class="nav-link"><i class="nav-icon  '.$catHijo->icon.'"></i> <p>'.$catHijo->name.'<i class="right fas fa-angle-left"></i></p></a>';
             $cadenaMenu .= '<ul class="nav nav-treeview">';
             for ($i=0; $i < count($aux); $i++) { 
                 if (strtoupper($aux[$i]['nombre']) === 'SEPARADOR') {
                     //$cadenaMenu .= '<li class="divider"></li>';
                 } else {
-                    $cadenaMenu .= '<li class="nav-item"><a onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');" class="nav-link"><i class="'.$aux[$i]['icono'].'"></i><p>'.$aux[$i]['nombre'].'</p></a></li>';
+                    $cadenaMenu .= '<li class="nav-item "><a onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');" class="nav-link "><i class="'.$aux[$i]['icono'].'"></i><p>'.$aux[$i]['nombre'].'</p></a></li>';
                 }
             }
             if (count($aux) > 0 && $hijos != '' ) {
