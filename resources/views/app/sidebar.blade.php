@@ -40,7 +40,7 @@ $person                = Person::find($user->person_id);
           
           <li class="nav-item">
             <a href="#" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="nav-link">
-              <i class="nav-icon fas fa-sign-out-alt"></i>
+              <i class="nav-icon fas fa-sign-out-alt" style="color:red"></i>
               <p>
                 Cerrar Sesión
                 {{-- <span class="right badge badge-danger">New</span> --}}
