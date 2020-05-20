@@ -50,7 +50,7 @@
                           </div>
                         </div>
                       </form>
-                    <table class="table table-hover table-striped table-sm  text-nowrap">
+                    <table class="table table-striped table-condensed table-hover">
                       <thead>
                         <tr>
                           <th>ID</th>
@@ -198,6 +198,6 @@
 @endsection
 <style lang="css">
     .select-numfilas{
-      
+        
     }
   </style>
