@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="container">
+<div class="">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card mt-4">
@@ -51,7 +51,7 @@
                           </div>
                         </div>
                       </form>
-                    <table class="table table-hover table-striped table-sm  text-nowrap">
+                    <table class="table table-striped table-condensed table-hover">
                       <thead>
                         <tr>
                           <th>ID</th>
