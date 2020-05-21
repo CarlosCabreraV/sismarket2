@@ -1,55 +1,79 @@
-<!-- Content Header (Page header) -->
-<section class="content-header">
-	<h1>
-		{{ $title }}
-		{{-- <small>Descripción</small> --}}
-	</h1>
-	{{--
-	<ol class="breadcrumb">
-		<li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-		<li><a href="#">Tables</a></li>
-		<li class="active">Data tables</li>
-	</ol>
-	--}}
-</section>
-
-<!-- Main content -->
-<section class="content">
-	<div class="row">
-		<div class="col-xs-12">
-			<div class="box">
-				<div class="box-header">
-					<div class="row">
-						<div class="col-xs-12">
-							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+<div class="content-wrapper p-2 ml-0 " id="container"  >
+	<!-- Content Header (Page header) -->
+	
+	  <div class="content-header mb-none">
+		<div class="container-fluid">
+		  <div class="row mb-2">
+			<div class="col-sm-6">
+			  <h1 class="m-0 text-dark">{{$title}}</h1>
+			</div><!-- /.col -->
+			<div class="col-sm-6">
+			  <ol class="breadcrumb float-sm-right">
+				<li class="breadcrumb-item"><a href="#">Administracion</a></li>
+				<li class="breadcrumb-item active">{{$entidad}}</li>
+			  </ol>
+			</div><!-- /.col -->
+		  </div><!-- /.row -->
+		</div><!-- /.container-fluid -->
+	  </div>
+	  <!-- /.content-header -->
+  
+	  <!-- Main content -->
+	  <div class="content ">
+		<div class="container-fluid">
+		  <div class="">
+			  <div class="row justify-content-center">
+				  <div class="col-12">
+					  <div class="card mt-4">
+						<div class="card-body">
+						  <div class="row">
+							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'w-100 d-md-flex d-lg-flex d-sm-inline-block', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-							<div class="form-group">
+							
+							<div class="col-lg-4 col-md-4 form-group">
 								{!! Form::label('nombre', 'Nombre:') !!}
 								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
 							</div>
-							<div class="form-group">
-								{!! Form::label('filas', 'Filas a mostrar:')!!}
+							<div class="col-lg-2 col-md-2 form-group" style="min-width: 150px;">
+								{!! Form::label('nombre', 'Filas a mostrar') !!}
 								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
-							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
-							{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 							{!! Form::close() !!}
+						  </div>
 						</div>
-					</div>
-				</div>
-				<!-- /.box-header -->
-				<div class="box-body" id="listado{{ $entidad }}">
-				</div>
-				<!-- /.box-body -->
-			</div>
-			<!-- /.box -->
-		</div>
-		<!-- /.col -->
-	</div>
-	<!-- /.row -->
-</section>
-<!-- /.content -->	
+					  </div>
+					  <div class="row mt-2" >
+						<div class="col-md-12 col-lg-12">
+						  <div class="card">
+							<div class="card-header">
+							  <h3 class="card-title">{{$title}}</h3>
+							  <div class="card-tools">
+								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+							  </div>
+							</div>
+							<!-- /.card-header -->
+							<div class="card-body table-responsive px-3">
+								<div id="listado{{ $entidad }}">
+								</div>
+							</div>
+							<!-- /.card-body -->
+							   
+			  
+						  </div>
+						  <!-- /.card -->
+						</div>
+					  </div>
+					  
+				  </div>
+			  </div>
+		  </div>
+		  <!-- /.row -->
+		</div><!-- /.container-fluid -->
+	  </div>
+	  <!-- /.content -->
+	
+  </div>
 <script>
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
