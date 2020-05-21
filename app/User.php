@@ -37,4 +37,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function scopelistar($query, $login)
+    {
+        return $query->where(function($subquery) use($login)
+                    {
+                        if (!is_null($login)) {
+                            $subquery->where('login', 'LIKE', '%'.$login.'%');
+                        }
+                    })
+                    ->orderBy('login', 'ASC');
+    }
+
+    public function usertype()
+    {
+        return $this->belongsTo('App\Usertype', 'usertype_id');
+    }
+
+    public function person(){
+        return $this->belongsTo('App\Person', 'person_id');
+    }
 }

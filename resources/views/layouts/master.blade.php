@@ -74,6 +74,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
 
+<script src="plugins/inputmask/jquery.inputmask.js"></script>
+<script src="plugins/inputmask/inputmask/inputmask.extensions.js"></script>
+<script src="plugins/inputmask/inputmask/inputmask.date.extensions.js"></script>
+<script src="plugins/inputmask/inputmask/inputmask.numeric.extensions.js"></script>
+{{-- jquery.inputmask: para mascaras en cajas de texto --}}
+
 <script src="/js/app.js"></script>
 </body>
 </html>

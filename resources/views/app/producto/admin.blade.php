@@ -42,13 +42,13 @@
 								</div>
 								<div class="col-lg-4 col-md-4 form-group">
 									{!! Form::label('categoria', 'Categoria:') !!}
-									{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria')) !!}
+									{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
 							</div>
 							<div class="row w-100 d-flex">
 								<div class="col-lg-4 col-md-4 form-group">
 									{!! Form::label('marca', 'Marca:') !!}
-									{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control input-xs', 'id' => 'marca')) !!}
+									{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control input-xs', 'id' => 'marca' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
 								<div class="col-lg-4 col-md-4 form-group">
 									{!! Form::label('precio', 'Opciones precio:') !!}
