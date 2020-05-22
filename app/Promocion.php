@@ -21,4 +21,6 @@ class Promocion extends Model
 		return $this->belongsTo('App\Categoria', 'categoria_id');
 	}
     
+  
+    
 }

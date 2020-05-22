@@ -10,6 +10,11 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
+    // Ignores notices and reports all other kinds... and warnings
+    error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+    // error_reporting(E_ALL ^ E_WARNING); // Maybe this is enough
+    }
 
 Route::get('/', function () {
     return view('auth.login');
@@ -70,6 +75,59 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('producto/presentacion/{id}/{listarluego}', 'ProductoController@presentacion')->name('producto.presentacion');
     Route::post('producto/presentaciones', 'ProductoController@presentaciones')->name('producto.presentaciones');
     Route::post('producto/archivos','ProductoController@archivos')->name('producto.archivos');
+    
+    /* COMPRA */
+    Route::post('compra/buscar', 'CompraController@buscar')->name('compra.buscar');
+    Route::get('compra/eliminar/{id}/{listarluego}', 'CompraController@eliminar')->name('compra.eliminar');
+    Route::get('compra/buscarproducto', array('as' => 'compra.buscarproducto', 'uses' => 'CompraController@buscarproducto'));
+    Route::get('compra/personautocompletar/{searching}', 'CompraController@personautocompletar')->name('compra.personautocompletar');
+    Route::resource('compra', 'CompraController');
+
+    /* MOVIMIENTO ALMACEN */
+    Route::post('movimientoalmacen/buscar', 'MovimientoalmacenController@buscar')->name('movimientoalmacen.buscar');
+    Route::get('movimientoalmacen/eliminar/{id}/{listarluego}', 'MovimientoalmacenController@eliminar')->name('movimientoalmacen.eliminar');
+    Route::get('movimientoalmacen/buscarproducto', array('as' => 'movimientoalmacen.buscarproducto', 'uses' => 'MovimientoalmacenController@buscarproducto'));
+    Route::resource('movimientoalmacen', 'MovimientoalmacenController');
+    Route::post('movimientoalmacen/generarNumero', 'MovimientoalmacenController@generarNumero')->name('movimientoalmacen.generarNumero');
+    
+    /* PROMOCION */
+    Route::post('promocion/buscar', 'PromocionController@buscar')->name('promocion.buscar');
+    Route::get('promocion/eliminar/{id}/{listarluego}', 'PromocionController@eliminar')->name('promocion.eliminar');
+    Route::post('promocion/buscarpromocion', 'PromocionController@buscarproducto')->name('promocion.buscarproducto');
+    Route::resource('promocion', 'PromocionController', array('except' => array('show')));
+    Route::get('promocion/productoautocompletar/{searching}', 'PromocionController@productoautocompletar')->name('promocion.productoautocompletar');
+
+     /* CONCEPTOPAGO */
+     Route::post('concepto/buscar', 'ConceptoController@buscar')->name('concepto.buscar');
+     Route::get('concepto/eliminar/{id}/{listarluego}', 'ConceptoController@eliminar')->name('concepto.eliminar');
+     Route::resource('concepto', 'ConceptoController', array('except' => array('show')));
+    
+     /* CAJA */
+    Route::post('caja/buscar', 'CajaController@buscar')->name('caja.buscar');
+    Route::post('caja/buscarcontrol', 'CajaController@buscarControl')->name('caja.buscarcontrol');
+    Route::get('caja/eliminar/{id}/{listarluego}', 'CajaController@eliminar')->name('caja.eliminar');
+    Route::resource('caja', 'CajaController', array('except' => array('show')));
+    Route::get('caja/apertura', 'CajaController@apertura')->name('caja.apertura');
+    Route::post('caja/aperturar', 'CajaController@aperturar')->name('caja.aperturar');
+    Route::get('caja/cierre', 'CajaController@cierre')->name('caja.cierre');
+    Route::post('caja/cerrar', 'CajaController@cerrar')->name('caja.cerrar');
+    Route::post('caja/generarConcepto', 'CajaController@generarConcepto')->name('caja.generarconcepto');
+    Route::post('caja/generarNumero', 'CajaController@generarNumero')->name('caja.generarnumero');
+    Route::get('caja/personautocompletar/{searching}', 'CajaController@personautocompletar')->name('caja.personautocompletar');
+    Route::get('caja/pdfCierre', 'CajaController@pdfCierre')->name('caja.pdfCierre');
+    Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
+    Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');
+
+    /* VENTA */
+    Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');
+    Route::get('venta/eliminar/{id}/{listarluego}', 'VentaController@eliminar')->name('venta.eliminar');
+    Route::resource('venta', 'VentaController');
+    Route::post('venta/buscarproducto', 'VentaController@buscarproducto')->name('venta.buscarproducto');
+    Route::post('venta/buscarproductobarra', 'VentaController@buscarproductobarra')->name('venta.buscarproductobarra');
+    Route::post('venta/generarNumero', 'VentaController@generarNumero')->name('venta.generarNumero');
+    Route::get('venta/personautocompletar/{searching}', 'VentaController@personautocompletar')->name('venta.personautocompletar');
+    Route::post('venta/imprimirVenta', 'VentaController@imprimirVenta')->name('venta.imprimirVenta');
+    Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
 
 });
 

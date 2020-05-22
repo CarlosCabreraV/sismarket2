@@ -9,7 +9,7 @@
 			</div><!-- /.col -->
 			<div class="col-sm-6">
 			  <ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item"><a href="#">Administracion</a></li>
+				<li class="breadcrumb-item"><a href="#">Usuarios</a></li>
 				<li class="breadcrumb-item active">{{$entidad}}</li>
 			  </ol>
 			</div><!-- /.col -->

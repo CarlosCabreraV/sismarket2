@@ -1,19 +1,19 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($categoria, $formData) !!}	
+{!! Form::model($concepto, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	<div class="form-group">
-		{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-		<div class="col-lg-12 col-md-12 col-sm-12">
+		{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		<div class="col-lg-8 col-md-8 col-sm-8">
 			{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre')) !!}
 		</div>
 	</div>
-	<div class="form-group">
-		{!! Form::label('categoria_id', 'Categoria Ref.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-		<div class="col-lg-12 col-md-12 col-sm-12">
-			{!! Form::select('categoria_id',$cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
+    <div class="form-group">
+		{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		<div class="col-lg-4 col-md-4 col-sm-4">
+			{!! Form::select('tipo', $cboTipo, null, array('class' => 'form-control input-xs', 'id' => 'tipo')) !!}
 		</div>
 	</div>
-    <div class="form-group">
+	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
 			{!! Form::button('<i class="fa fa-check "></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
 			{!! Form::button('<i class="fa fa-undo "></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
@@ -22,7 +22,7 @@
 {!! Form::close() !!}
 <script type="text/javascript">
 $(document).ready(function() {
-	configurarAnchoModal('400');
+	configurarAnchoModal('450');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 }); 
 </script>

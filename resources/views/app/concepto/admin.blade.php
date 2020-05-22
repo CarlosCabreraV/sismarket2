@@ -9,7 +9,7 @@
 			</div><!-- /.col -->
 			<div class="col-sm-6">
 			  <ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item"><a href="#">Usuarios</a></li>
+				<li class="breadcrumb-item"><a href="#">Ventas</a></li>
 				<li class="breadcrumb-item active">{{$entidad}}</li>
 			  </ol>
 			</div><!-- /.col -->
@@ -32,12 +32,12 @@
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							
 							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('login', 'Login:') !!}
-								{!! Form::text('login', '', array('class' => 'form-control input-xs', 'id' => 'login')) !!}
+								{!! Form::label('nombre', 'Nombre') !!}
+								{!! Form::text('nombre', '', array('class' => 'form-control ', 'id' => 'nombre')) !!}
 							</div>
 							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('nombre', 'Nombre:') !!}
-								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+								{!! Form::label('tipo', 'Tipo:') !!}
+								{!! Form::select('tipo', $cboTipo, null, array('class' => 'form-control input-xs', 'id' => 'tipo','onchange' =>'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
 								{!! Form::label('nombre', 'Filas a mostrar') !!}
@@ -79,16 +79,11 @@
 	
   </div>
 
+  
 <script>
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
 		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="login"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
-		});
 		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').keyup(function (e) {
 			var key = window.event ? e.keyCode : e.which;
 			if (key == '13') {

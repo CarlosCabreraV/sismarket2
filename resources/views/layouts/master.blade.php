@@ -3,19 +3,28 @@
 This is a starter template page. Use this page to start your new project from
 scratch. This page gets rid of all links and provides the needed markup only.
 -->
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>AdminLTE 3 | Starter</title>
-
+  <title>{{ config('app.name', 'Mercadito') }}</title>
+  
+  <style>
+    body{
+      font-family: Nunito, sans-serif !important;
+      font-size: .9rem !important;
+    }
+  </style>
+  
+  <link  rel="icon"   href="dist/img/logo2.png" type="image/png" />
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
@@ -73,13 +82,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
-
+{{-- typeahead.js-bootstrap: para autocompletar --}}
+<script src="dist/js/typeahead.bundle.min.js"></script>
+<script src="dist/js/bloodhound.min.js"></script>
 <script src="plugins/inputmask/jquery.inputmask.js"></script>
 <script src="plugins/inputmask/inputmask/inputmask.extensions.js"></script>
 <script src="plugins/inputmask/inputmask/inputmask.date.extensions.js"></script>
 <script src="plugins/inputmask/inputmask/inputmask.numeric.extensions.js"></script>
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
-
 <script src="/js/app.js"></script>
+ 
 </body>
 </html>

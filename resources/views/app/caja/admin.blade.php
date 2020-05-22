@@ -9,7 +9,7 @@
 			</div><!-- /.col -->
 			<div class="col-sm-6">
 			  <ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item"><a href="#">Usuarios</a></li>
+				<li class="breadcrumb-item"><a href="#">Administracion</a></li>
 				<li class="breadcrumb-item active">{{$entidad}}</li>
 			  </ol>
 			</div><!-- /.col -->
@@ -31,14 +31,6 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							
-							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('login', 'Login:') !!}
-								{!! Form::text('login', '', array('class' => 'form-control input-xs', 'id' => 'login')) !!}
-							</div>
-							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('nombre', 'Nombre:') !!}
-								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
-							</div>
 							<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
 								{!! Form::label('nombre', 'Filas a mostrar') !!}
 								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
@@ -53,7 +45,6 @@
 							<div class="card-header">
 							  <h3 class="card-title">{{$title}}</h3>
 							  <div class="card-tools">
-								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 							  </div>
 							</div>
 							<!-- /.card-header -->
@@ -79,21 +70,40 @@
 	
   </div>
 
+  
+<!-- /.content -->	
 <script>
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
 		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="login"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
-		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
-		});
 	});
+
+    function imprimir(){
+        window.open("caja/pdfCierre","_blank");
+    }
+
+    function imprimirDetalle(){
+        window.open("caja/pdfDetalleCierre","_blank");
+    }
+    
+    function modalCaja (controlador, titulo) {
+    	var idContenedor = "divModal" + contadorModal;
+    	var divmodal     = "<div id=\"" + idContenedor + "\"></div>";
+    	var box          = bootbox.dialog({
+    		message: divmodal,
+    		className: 'modal' +  contadorModal,
+    		title: titulo,
+    		closeButton: false
+    	});
+    	box.prop('id', 'modal'+contadorModal);
+    	/*$('#modal'+contadorModal).draggable({
+    		handle: ".modal-header"
+    	});*/
+    	modales[contadorModal] = box;
+    	contadorModal          = contadorModal + 1;
+    	setTimeout(function(){
+    		cargarRuta(controlador+"&saldo="+$( '#saldo').val(), idContenedor);
+    	},400);
+    }
+
 </script>
