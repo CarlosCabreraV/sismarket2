@@ -5,6 +5,7 @@
 .form-group{
     margin-bottom: 8px !important;
 }
+
 </style>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($movimiento, $formData) !!}	
@@ -12,38 +13,45 @@
     {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
 
         <!--DATOS VENTA -->
-        <p>DATOS VENTA</p>
-        <div class="row">
-            <div class="col-md-6 col-lg-6 col-sm-6">
+        <div class="row   py-2 px-1 my-2">
+            <div class="col-md-6 col-lg-4 col-sm-4">
                 <div class="form-group">
-                    {!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    {!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12">
                         {!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-6 col-sm-6">
+            <div class="col-md-6 col-lg-4 col-sm-4">
                 <div class="form-group">
-                    {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    {!! Form::label('numero', 'Numero', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12">
                         {!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 col-sm-4">
+                <div class="form-group">
+                    {!! Form::label('lbltipodoc', 'Tipo doc.', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero();')) !!}
                     </div>
                 </div>
             </div>
         </div>
         <!--DATOS VENTA -->
         <!--DATOS CLIENTE -->
-        <div class="row">
+        <div class="row   py-2 px-1 my-2">
             <div class="col-md-6 col-lg-6 col-sm-6">
                 <div class="form-group">
-                    {!! Form::label('persona', 'Cliente:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12 input-group">
                     {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
                     {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
                     {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
                     {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
                     <span class="input-group-append">
-                        {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-outline-info btn-sm', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                        {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-sm', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
                     </span>
                 </div>
                 </div>
@@ -51,8 +59,8 @@
         </div>
         <!--DATOS CLIENTE -->
 
-
-    <div class="row">
+        <!--DATOS PRODUCTO -->
+    <div class="row   py-2 px-1 my-2">
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
                 {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
@@ -71,15 +79,14 @@
             
          </div>     
      </div>
+    <!--DATOS PRODUCTO -->
+
      <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
      </div>
-     <div class="box">
-        <div class="box-header">
-            <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle </h2>
-        </div>
-        <div class="box-body">
-            <table class="table table-condensed table-border" id="tbDetalle">
-                <thead>
+
+        <div class="row   py-2 px-1 my-2">
+            <table class="table table-sm table-condensed table-striped" id="tbDetalle">
+                <thead class="bg-navy">
                     <th class="text-center">Cant.</th>
                     <th class="text-center">Cod. Barra</th>
                     <th class="text-center">Producto</th>
@@ -88,51 +95,72 @@
                 </thead>
                 <tbody>
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th class="text-right" colspan="4" style="color: green;font-size:30px;">Total</th>
-                        <th class="text-center" align="center" style="color: green;font-size:30px;">{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 100px;font-size:30px;color:green;')) !!}</th>
-                    </tr>
-                    <tr>
-                        <th class="text-right" colspan="4" style="color: red;font-size:30px;">Dinero</th>
-                        <th class="text-center">{!! Form::text('dinero', null, array('class' => 'form-control input-xs', 'id' => 'dinero', 'size' => 3, 'style' => 'width: 100px;font-size:30px;color:red;', 'onkeyup' => 'calcularVuelto();')) !!}</th>
-                    </tr>
-                    <tr>
-                        <th class="text-right" colspan="4" style="color: blue;font-size:30px;">Vuelto</th>
-                        <th class="text-center">
-                            {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 100px;font-size:30px;color:blue;')) !!}
-                            <input type="hidden" name="acuenta" id="acuenta" value="N">
-                            <input type="checkbox" onclick="aCuenta(this.checked);" />
-                            <label>A Cuenta</label>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="text-right" colspan="3" style="color: green;font-size:30px;">Efectivo</th>
-                        <th class="text-center" align="center" style="color: green;font-size:30px;">{!! Form::text('totalpagado', null, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 100px;font-size:30px;color:green;')) !!}</th>
-                        <th class="text-right" style="color: blue;font-size:30px;">VISA</th>
-                        <th class="text-center" align="center" style="color: blue;font-size:30px;">{!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'width: 100px;font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}</th>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="text-right">Tipo Doc.:</th>
-                        <th><div class="col-lg-7 col-md-7 col-sm-7">
-                            {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero();')) !!}
-                            </div>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th colspan="4"></th>
-                        <th><div class="form-group">
-                                <div class="col-lg-12 col-md-12 col-sm-12 text-right">
-                                    {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPago(\''.$entidad.'\', this);')) !!}
-                                    {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
-                                </div>
-                            </div>
-                        </th>
-                    </tr>
-                </tfoot>
+                
             </table>
         </div>
-     </div>
+            <!--TOTAL , DINERO , VUELTO-->
+             <div class="row   py-2 px-1 my-2">
+                 <div class="col-md-3 col-lg-3 ">
+                     <div class="form-group">
+                         {!! Form::label('lbltotal', 'Total', array('class' => 'col-lg-12 col-md-12 col-sm-12   bold' )) !!}
+                         <div class="col-lg-12 col-md-12 col-sm-12 ">
+                             {!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'false', 'style' => 'font-size:20px;color:darkgreen;')) !!}
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-md-3 col-lg-3">
+                     <div class="form-group">
+                         {!! Form::label('lbldinero', 'Dinero', array('class' => 'col-lg-12 col-md-12 col-sm-12  bold')) !!}
+                         <div class="col-lg-12 col-md-12 col-sm-12 ">
+                             {!! Form::text('dinero', null, array('class' => 'form-control input-xs', 'id' => 'dinero', 'size' => 3, 'style' => 'font-size:20px; color:darkred;', 'onkeyup' => 'calcularVuelto();')) !!}
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-md-3 col-lg-3">
+                     <div class="form-group">
+                         {!! Form::label('lblvuelto', 'Vuelto', array('class' => 'col-lg-12 col-md-12 col-sm-12 bold')) !!}
+                         <div class="col-lg-12 col-md-12 col-sm-12">
+                             {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:20px;color:darkblue;')) !!}
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-md-2 col-lg-3">
+                     <div class="form-group ">
+                             <input type="hidden" name="acuenta" id="acuenta" value="N">
+                             {!! Form::label('lblcuenta', 'A cuenta', array('class' => 'col-lg-12 col-md-12 col-sm-12 bold')) !!}
+                             <div class="col-lg-12 col-md-12 col-sm-12">
+                                 <input type="checkbox"  onclick="aCuenta(this.checked);" />
+                             </div>
+                     </div>
+                 </div>
+             </div>
+            <!--TOTAL , DINERO , VUELTO-->
+               <!--EFECTIVO , VISA-->
+             <div class="row   py-2 px-1 my-2">
+                 <div class="col-lg-6 col-md-6">
+                     <div class="form-group">
+                            <label>EFECTIVO</label>
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                {!! Form::text('totalpagado', null, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:30px;color:green;')) !!}
+                            </div>
+                     </div>
+                 </div>
+                 <div class="col-lg-6 col-md-6">
+                     <div class="form-group">
+                            <label>VISA</label>
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                {!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
+                            </div>
+                     </div>
+                 </div>
+             </div>
+           <!--EFECTIVO, VISA-->
+     <div class="form-group">
+        <div class="col-lg-12 col-md-12 col-sm-12 text-right">
+            {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPago(\''.$entidad.'\', this);')) !!}
+            {!! Form::button('<i class="fa fa-undo fa-lg"></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+        </div>
+    </div>
 {!! Form::close() !!}
 <script type="text/javascript">
 var valorbusqueda="";

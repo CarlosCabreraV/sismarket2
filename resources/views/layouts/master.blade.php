@@ -83,12 +83,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
 {{-- typeahead.js-bootstrap: para autocompletar --}}
-<script src="dist/js/typeahead.bundle.min.js"></script>
+<script src="dist/js/bootstrap3-typeahead.min.js"></script>
+<script src="dist/js/bootstrap3-typeahead.js"></script>
 <script src="dist/js/bloodhound.min.js"></script>
-<script src="plugins/inputmask/jquery.inputmask.js"></script>
-<script src="plugins/inputmask/inputmask/inputmask.extensions.js"></script>
-<script src="plugins/inputmask/inputmask/inputmask.date.extensions.js"></script>
-<script src="plugins/inputmask/inputmask/inputmask.numeric.extensions.js"></script>
+    {{-- jquery.inputmask: para mascaras en cajas de texto --}}
+
+<script src="plugins/input-mask/jquery.inputmask.js"></script>
+<script src="plugins/input-mask/jquery.inputmask.extensions.js"></script>
+<script src="plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
+<script src="plugins/input-mask/jquery.inputmask.numeric.extensions.js"></script>
+<script src="plugins/input-mask/jquery.inputmask.phone.extensions.js"></script>
+<script src="plugins/input-mask/jquery.inputmask.regex.extensions.js"></script>
+
+
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
 <script src="/js/app.js"></script>
  
