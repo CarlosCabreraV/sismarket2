@@ -4,15 +4,15 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('codigobarra', 'Cod. Barra:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				{!! Form::label('codigobarra', 'Cod. Barra', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
 				</div>
 			</div>
 		</div>
 		<div class="col-md-6 col-lg-6">
-			<div class="form-group" hidden="">
-				{!! Form::label('imagen', 'Imagen:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="form-group" >
+				{!! Form::label('imagen', 'Imagen', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::file('imagen', null, array('class' => 'form-control input-xs', 'id' => 'imagen')) !!}
 				</div>
@@ -23,7 +23,7 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('nombre', 'Nombre', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre')) !!}
 				</div>
@@ -31,7 +31,7 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('abreviatura', 'Abreviatura:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('abreviatura', 'Abreviatura', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::text('abreviatura', null, array('class' => 'form-control input-xs', 'id' => 'abreviatura', 'placeholder' => 'Ingrese abreviatura')) !!}
 				</div>
@@ -41,7 +41,7 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('categoria_id', 'Categoria:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('categoria_id', 'Subcategoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::select('categoria_id', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
 				</div>
@@ -49,7 +49,7 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('marca_id', 'Marca:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('marca_id', 'Marca', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::select('marca_id', $cboMarca, null, array('class' => 'form-control input-xs', 'id' => 'marca_id')) !!}
 				</div>
@@ -59,7 +59,7 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-					{!! Form::label('unidad_id', 'Unidad:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+					{!! Form::label('unidad_id', 'Unidad', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 					<div class="col-lg-12 col-md-12 col-sm-12">
 						{!! Form::select('unidad_id', $cboUnidad, null, array('class' => 'form-control input-xs', 'id' => 'unidad_id')) !!}
 					</div>
@@ -67,7 +67,7 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-					{!! Form::label('preciocompra', 'P. Compra:', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+					{!! Form::label('preciocompra', 'Precio compra', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
 					<div class="col-lg-12 col-md-12 col-sm-12">
 						{!! Form::text('preciocompra', null, array('class' => 'form-control input-xs', 'id' => 'preciocompra', 'onblur' => 'calcularPrecio();')) !!}
 					</div>
@@ -77,7 +77,7 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('ganancia', '% Ganancia:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				{!! Form::label('ganancia', '% Ganancia', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 					<div class="col-lg-12 col-md-12 col-sm-12">
 						{!! Form::text('ganancia', null, array('class' => 'form-control input-xs', 'id' => 'ganancia', 'onblur' => 'calcularPrecio();')) !!}
 					</div>
@@ -85,7 +85,7 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('precioventa', 'P. Venta:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				{!! Form::label('precioventa', 'Precio venta', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::text('precioventa', null, array('class' => 'form-control input-xs', 'id' => 'precioventa')) !!}
 				</div>
@@ -96,7 +96,7 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('igv', 'IGV:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				{!! Form::label('igv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::hidden('igv', null, array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
 					<input type="checkbox" name="chkIGV" id="chkIGV" onclick="igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
@@ -106,7 +106,7 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('stockminimo', 'Stock Minimo:', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+				{!! Form::label('stockminimo', 'Stock minimo', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::text('stockminimo', null, array('class' => 'form-control input-xs', 'id' => 'stockminimo')) !!}
 				</div>

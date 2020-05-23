@@ -41,8 +41,8 @@
 	</div>
     <div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardar(\''.$entidad.'\', this)')) !!}
-			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardar(\''.$entidad.'\', this)')) !!}
+			{!! Form::button('<i class="fa fa-undo fa-lg"></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>
 	</div>
 {!! Form::close() !!}
@@ -57,6 +57,7 @@ $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombre"]').focus();
 
 
     var producto2 = new Bloodhound({
+		
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
 		},

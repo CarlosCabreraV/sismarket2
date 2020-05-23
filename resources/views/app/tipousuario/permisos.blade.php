@@ -2,6 +2,7 @@
 use App\Menuoptioncategory;
 use App\Usertype;
 use App\Menuoption;
+use Illuminate\Support\Facades\Input;
 
 $categoriasPadre = Menuoptioncategory::whereNull('menuoptioncategory_id')->get();
 $asignados       = array();
@@ -18,7 +19,7 @@ function generarArbol($idcategoria, $nivel, $asignados){
 	$categorias = Menuoptioncategory::where('menuoptioncategory_id', '=', $idcategoria)->orderBy('order', 'ASC')->get();
 	$opcionmenus = Menuoption::where('menuoptioncategory_id', '=', $idcategoria)->orderBy('order', 'ASC')->get();
 ?>
-	@foreach( $opcionmenus as $key => $opcionmenu)
+	 <?php foreach( $opcionmenus as $key => $opcionmenu){ ?>
 		@if(in_array($opcionmenu->id, $asignados))
 			{!! $sangria !!}
 			@if(strtoupper($opcionmenu->name) === 'SEPARADOR')
@@ -42,26 +43,25 @@ function generarArbol($idcategoria, $nivel, $asignados){
 			{!! Form::hidden('idopcionmenu[]', $opcionmenu->id, array('id' => 'idopcionmenu'.$opcionmenu->id)) !!}
 			{!! '<br>' !!}
 		@endif
-	@endforeach
-
-	@foreach($categorias as $key => $categoria)
+	 <?php }?>
+	 <?php foreach($categorias as $key => $categoria) { ?>
 		{!! $sangria !!}
 		{!! "<b><u><span class='text-info'>".$categoria->name."</span></u></b>" !!}
 		{!! '<br>' !!}
 		<?php generarArbol($categoria->id, $nivel+1, $asignados); ?>
-	@endforeach
+	 <?php } ?>
 <?php } ?>
 {!! Form::open(array('route' => array('tipousuario.guardarpermisos', $tipousuario->id), 'id' => 'formMantenimiento'.$entidad)) !!}
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	<div class="form-group border">
-		@foreach($categoriasPadre as $key => $categoria)
+		<?php foreach($categoriasPadre as $key => $categoria){ ?>
 			{!! '<b><u><span class=\'text-info\'>'.$categoria->name.'<span></u></b><br>' !!}
 			<?php generarArbol($categoria->id, 2, $asignados); ?>
-		@endforeach
+			<?php } ?>
 	</div>
-	<div class="form-group text-center">
-		{!! Form::button('Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
-		{!! Form::button('Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal((contadorModal - 1));')) !!}
+	<div class="form-group text-right">
+		{!! Form::button('Guardar', array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+		{!! Form::button('Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal((contadorModal - 1));')) !!}
 	</div>
 {!! Form::close() !!}
 

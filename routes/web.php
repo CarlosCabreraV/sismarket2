@@ -60,6 +60,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('marca/buscar', 'MarcaController@buscar')->name('marca.buscar');
     Route::get('marca/eliminar/{id}/{listarluego}', 'MarcaController@eliminar')->name('marca.eliminar');
     Route::resource('marca', 'MarcaController', array('except' => array('show')));
+    /* Category -> Categoria padre */
+    Route::post('category/buscar', 'CategoryController@buscar')->name('category.buscar');
+    Route::get('category/eliminar/{id}/{listarluego}', 'CategoryController@eliminar')->name('category.eliminar');
+    Route::resource('category', 'CategoryController', array('except' => array('show')));
 
      /* PERSONA */
      Route::post('persona/buscar', 'PersonaController@buscar')->name('persona.buscar');

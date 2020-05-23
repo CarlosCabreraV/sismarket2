@@ -11,8 +11,8 @@ class Categoria extends Model
     protected $table = 'categoria';
     protected $dates = ['deleted_at'];
     
-    public function categoriaref()
+    public function categoriapadre()
 	{
-		return $this->belongsTo('App\Categoria', 'categoria_id');
+		return $this->belongsTo('App\Category', 'categoria_id');
 	}
 }

@@ -43,19 +43,25 @@
         <!--DATOS CLIENTE -->
         <div class="row   py-2 px-1 my-2">
             <div class="col-md-6 col-lg-6 col-sm-6">
-                <div class="form-group">
+                <div class="form-group ">
                     {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12 input-group">
-                    {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
-                    {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
-                    {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
-                    {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
-                    <span class="input-group-append">
-                        {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-sm', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
-                    </span>
-                </div>
+                        {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
+                        {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
+                        {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
+                        <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                            {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                        </div>
+                        <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                            <span class="input-group-append">
+                                {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                             </span>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
+           
         </div>
         <!--DATOS CLIENTE -->
 

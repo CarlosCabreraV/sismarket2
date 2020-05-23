@@ -1,7 +1,7 @@
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
-{!! $paginacion !!}
+{!! $paginacion  !!}
 <table id="example1" class="table table-sm text-center table-striped  table-hover">
 
 	<thead>
@@ -16,16 +16,15 @@
 		$contador = $inicio + 1;
 		?>
 		@foreach ($lista as $key => $value)
-        @if($value->situacion=="A")
-		  <tr style="background-color:rgba(0,255,0,0.5)" title="A&ntilde;o Actual">
+		@if($value->situacion=="A")
+		  <tr style="background-color:rgba(0,255,0,0.5)" title="Periodo Actual">
         @else
             <tr>
         @endif
 			<td>{{ $contador }}</td>
 			<td>{{ $value->nombre }}</td>
-			<td>{{ (($value->categoria_id>0 && !is_null($value->categoriapadre))?$value->categoriapadre->nombre:'-') }}</td>
-            <td>{!! Form::button('<div class="fas fa-edit"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success')) !!}</td>
-            <td>{!! Form::button('<div class="fas fa-trash-alt"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger')) !!}</td>
+			<td >{!! Form::button('<div class="fas fa-edit"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success')) !!}</td>
+            <td >{!! Form::button('<div class="fas fa-trash-alt"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger')) !!}</td>
 		</tr>
 		<?php
 		$contador = $contador + 1;
@@ -40,5 +39,5 @@
 		</tr>
 	</tfoot>
 </table>
-{!! $paginacion !!}
+{!! $paginacion  !!}
 @endif

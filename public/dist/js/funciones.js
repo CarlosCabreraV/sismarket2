@@ -184,7 +184,7 @@ function modal (controlador, titulo) {
 		message: divmodal,
 		className: 'modal' +  contadorModal,
 		title: titulo,
-		closeButton: false
+		closeButton: true
 	});
 	box.prop('id', 'modal'+contadorModal);
 	/*$('#modal'+contadorModal).draggable({

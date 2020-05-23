@@ -24,6 +24,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <!-- Theme style -->
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="dist/css/typeaheadjs.css">
   
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -78,15 +79,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <!-- Bootstrap 4 -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
+
 <script src="dist/js/adminlte.min.js"></script>
+<script src="/js/app.js"></script>
 
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
 {{-- typeahead.js-bootstrap: para autocompletar --}}
 <script src="dist/js/bootstrap3-typeahead.min.js"></script>
 <script src="dist/js/bootstrap3-typeahead.js"></script>
+<script src="dist/js/typeahead.bundle.min.js"></script>
 <script src="dist/js/bloodhound.min.js"></script>
-    {{-- jquery.inputmask: para mascaras en cajas de texto --}}
+{{-- jquery.inputmask: para mascaras en cajas de texto --}}
 
 <script src="plugins/input-mask/jquery.inputmask.js"></script>
 <script src="plugins/input-mask/jquery.inputmask.extensions.js"></script>
@@ -97,7 +101,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
-<script src="/js/app.js"></script>
  
 </body>
 </html>

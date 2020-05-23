@@ -1,16 +1,10 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($categoria, $formData) !!}	
+{!! Form::model($category, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	<div class="form-group">
-		{!! Form::label('nombre', 'Nombre', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-		<div class="col-lg-12 col-md-12 col-sm-12">
+		{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		<div class="col-lg-12 col-md-12 col-sm-12 ">
 			{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre')) !!}
-		</div>
-	</div>
-	<div class="form-group">
-		{!! Form::label('categoria_id', 'Categoria', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-		<div class="col-lg-12 col-md-12 col-sm-12">
-			{!! Form::select('categoria_id',$cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
 		</div>
 	</div>
     <div class="form-group">
@@ -22,7 +16,7 @@
 {!! Form::close() !!}
 <script type="text/javascript">
 $(document).ready(function() {
-	configurarAnchoModal('400');
+	configurarAnchoModal('350');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 }); 
 </script>

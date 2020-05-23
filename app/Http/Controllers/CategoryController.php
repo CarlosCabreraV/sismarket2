@@ -6,24 +6,23 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\Http\Requests;
-use App\Categoria;
 use App\Category;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
-class CategoriaController extends Controller
+class CategoryController extends Controller
 {
-    protected $folderview      = 'app.categoria';
-    protected $tituloAdmin     = 'Subcategoria';
-    protected $tituloRegistrar = 'Registrar subcategoria';
-    protected $tituloModificar = 'Modificar subcategoria';
-    protected $tituloEliminar  = 'Eliminar subcategoria';
-    protected $rutas           = array('create' => 'categoria.create', 
-            'edit'   => 'categoria.edit', 
-            'delete' => 'categoria.eliminar',
-            'search' => 'categoria.buscar',
-            'index'  => 'anio.index',
+    protected $folderview      = 'app.category';
+    protected $tituloAdmin     = 'Categoria';
+    protected $tituloRegistrar = 'Registrar categoria';
+    protected $tituloModificar = 'Modificar categoria';
+    protected $tituloEliminar  = 'Eliminar categoria';
+    protected $rutas           = array('create' => 'category.create', 
+            'edit'   => 'category.edit', 
+            'delete' => 'category.eliminar',
+            'search' => 'category.buscar',
+            'index'  => 'category.index',
         );
 
 
@@ -49,13 +48,12 @@ class CategoriaController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Categoria';
         $nombre             = Libreria::getParam($request->input('nombre'));
-        $resultado        = Categoria::where('nombre', 'LIKE', '%'.strtoupper($nombre).'%')->orderBy('nombre', 'ASC');
+        $resultado        = Category::where('nombre', 'LIKE', '%'.strtoupper($nombre).'%')->orderBy('nombre', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Categoria', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -96,16 +94,11 @@ class CategoriaController extends Controller
     {
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $entidad  = 'Categoria';
-        $categoria = null;
-        $cboCategoria = array('' => 'NINGUNO');
-        $categoriaref = Category::orderBy('nombre','asc')->get();
-        foreach($categoriaref as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
-        $formData = array('categoria.store');
+        $category = null;
+        $formData = array('category.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('categoria', 'formData', 'entidad', 'boton', 'listar', 'cboCategoria'));
+        return view($this->folderview.'.mant')->with(compact('category', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     /**
@@ -126,11 +119,9 @@ class CategoriaController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request){
-            $categoria = new Categoria();
-            $categoria->nombre= strtoupper($request->input('nombre'));
-            if($request->input('categoria_id')!="")
-                $categoria->categoria_id = $request->input('categoria_id');
-            $categoria->save();
+            $category = new Category();
+            $category->nombre = strtoupper($request->input('nombre'));
+            $category->save();
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -154,22 +145,17 @@ class CategoriaController extends Controller
      */
     public function edit($id, Request $request)
     {
-        $existe = Libreria::verificarExistencia($id, 'categoria');
+        $existe = Libreria::verificarExistencia($id, 'category');
         if ($existe !== true) {
             return $existe;
         }
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
-        $categoria = Categoria::find($id);
+        $category = Category::find($id);
         $entidad  = 'Categoria';
-        $cboCategoria = array('' => 'NINGUNO');
-        $categoriaref = Category::where('id','<>',$categoria->categoria_id)->orderBy('nombre','asc')->get();
-        foreach($categoriaref as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
-        $formData = array('categoria.update', $id);
+        $formData = array('category.update', $id);
         $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('categoria', 'formData', 'entidad', 'boton', 'listar', 'cboCategoria'));
+        return view($this->folderview.'.mant')->with(compact('category', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     /**
@@ -181,7 +167,7 @@ class CategoriaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $existe = Libreria::verificarExistencia($id, 'categoria');
+        $existe = Libreria::verificarExistencia($id, 'category');
         if ($existe !== true) {
             return $existe;
         }
@@ -194,11 +180,9 @@ class CategoriaController extends Controller
             return $validacion->messages()->toJson();
         } 
         $error = DB::transaction(function() use($request, $id){
-            $categoria = Categoria::find($id);
-            $categoria->nombre= strtoupper($request->input('nombre'));
-            if($request->input('categoria_id')!="")
-                $categoria->categoria_id = $request->input('categoria_id');
-            $categoria->save();
+            $category = Category::find($id);
+            $category->nombre = strtoupper($request->input('nombre'));
+            $category->save();
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -211,20 +195,20 @@ class CategoriaController extends Controller
      */
     public function destroy($id)
     {
-        $existe = Libreria::verificarExistencia($id, 'categoria');
+        $existe = Libreria::verificarExistencia($id, 'category');
         if ($existe !== true) {
             return $existe;
         }
         $error = DB::transaction(function() use($id){
-            $categoria = Categoria::find($id);
-            $categoria->delete();
+            $marca= Category::find($id);
+            $marca->delete();
         });
         return is_null($error) ? "OK" : $error;
     }
 
     public function eliminar($id, $listarLuego)
     {
-        $existe = Libreria::verificarExistencia($id, 'categoria');
+        $existe = Libreria::verificarExistencia($id, 'category');
         if ($existe !== true) {
             return $existe;
         }
@@ -232,53 +216,10 @@ class CategoriaController extends Controller
         if (!is_null(Libreria::obtenerParametro($listarLuego))) {
             $listar = $listarLuego;
         }
-        $modelo   = Categoria::find($id);
-        $entidad  = 'Categoria';
-        $formData = array('route' => array('categoria.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $modelo   = Category::find($id);
+        $entidad  = 'Category';
+        $formData = array('route' => array('category.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
-    }
-    
-    public function aceptar($id)
-    {
-        $existe = Libreria::verificarExistencia($id, 'anio');
-        if ($existe !== true) {
-            return $existe;
-        }
-        $error = DB::transaction(function() use($id){
-            $Anio = Anio::find($id);
-            $Anio->situacion="A";//Actual
-            /*$arr=explode(",",$Caja->listapago);
-            for($c=0;$c<count($arr);$c++){
-                $Detalle = Detallemovcaja::find($arr[$c]);
-                if($Caja->conceptopago_id==6){//CAJA
-                    $Detalle->situacion='C';//confirmado;
-                }elseif($Caja->conceptopago_id==17){//SOCIO
-                    $Detalle->situacion='C';//confirmado;
-                }elseif($Caja->conceptopago_id==15 || $Caja->conceptopago_id==21){//TARJETA Y BOLETEO TOTAL
-                    $Detalle->situacion='C';//confirmado;
-                }
-                $Detalle->save();
-            }*/
-            $Anio->save();
-        });
-        return is_null($error) ? "OK" : $error;
-    }
-
-    public function acept($id, $listarLuego)
-    {
-        $existe = Libreria::verificarExistencia($id, 'anio');
-        if ($existe !== true) {
-            return $existe;
-        }
-        $listar = "NO";
-        if (!is_null(Libreria::obtenerParametro($listarLuego))) {
-            $listar = $listarLuego;
-        }
-        $modelo   = Anio::find($id);
-        $entidad  = 'Anio';
-        $formData = array('route' => array('anio.aceptar', $id), 'method' => 'Acept', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Actual';
-        return view('app.confirmar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
 }
