@@ -19,10 +19,12 @@
             <?php 
             if($value->situacion=='A'){
                 $title='Anulado';
-                $color='background:#f73232d6';
+				$color='background:#f73232d6';
+				$btno ='-';
             }else{
                 $title='';
-                $color='';
+				$color='';
+				$btno='-';
             }
             ?>
 		<tr title="{{ $title }}" style="{{ $color }};">
@@ -34,13 +36,13 @@
             <td>{{ $value->cliente }}</td>
 			<td>{{ number_format($value->total,2,'.','') }}</td>
             <td>{{ $value->responsable2 }}</td>
-            <td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-            <td>{!! Form::button('<div class="glyphicon glyphicon-print"></div> Imprimir', array('onclick' => 'imprimirVenta('. $value->id.')', 'class' => 'btn btn-xs btn-info')) !!}</td>
-            <!--td>{!! Form::button('<div class="glyphicon glyphicon-file"></div> Declarar', array('onclick' => 'declarar (\''.$value->id.'\','.$value->tipodocumento_id.' );', 'class' => 'btn btn-xs btn-warning')) !!}</td-->
+            <td>{!! Form::button('<div class="fas fa-eye"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-sm btn'.$btno.'info')) !!}</td>
+            <td>{!! Form::button('<div class="fas fa-print"></div> Imprimir', array('onclick' => 'imprimirVenta('. $value->id.')', 'class' => 'btn btn-sm btn'.$btno.'info')) !!}</td>
+            {{--{!! Form::button('<div class="glyphicon glyphicon-file"></div> Declarar', array('onclick' => 'declarar (\''.$value->id.'\','.$value->tipodocumento_id.' );', 'class' => 'btn btn-xs btn-warning')) !!}--}}
             @if($value->situacion!='A')
-                <td>{!! Form::button('<div class="glyphicon glyphicon-minus"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+                <td>{!! Form::button('<div class="fas fa-minus"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn'.$btno.'danger')) !!}</td>
             @else
-                <td align="center"> - </td>
+				<td>{!! Form::button('<div class="fas fa-minus"></div> Anular', array('onclick' => 'return false', 'class' => 'disabled btn btn-sm btn'.$btno.'default')) !!}</td>
             @endif
 		</tr>
 		<?php

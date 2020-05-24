@@ -4,16 +4,16 @@
     <div class="row">
     	<div class="col-lg-12 col-md-12 col-sm-12">
     		<div class="form-group">
-        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+        		{!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+        		<div class="col-lg-6 col-md-6 col-sm-6 mb-2">
         			{!! Form::date('fecha', $venta->fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipodocumento',$cboTipoDocumento, $venta->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true')) !!}
+                {!! Form::label('tipodocumento', 'Tipo Documento', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+        		<div class="col-lg-6 col-md-6 col-sm-6 mb-2">
+        			{!! Form::select('tipodocumento',$cboTipoDocumento, $venta->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true','disabled'=>'true')) !!}
         		</div>
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
+                {!! Form::label('numero', 'Numero', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+        		<div class="col-lg-6 col-md-6 col-sm-6">
         			{!! Form::text('numero', $venta->numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
         	</div>
@@ -22,21 +22,20 @@
         		<div class="col-lg-9 col-md-9 col-sm-9">
                 {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
                 {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
-        		{!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+        		{!! Form::text('persona', $venta->persona->apellidopaterno." ".$venta->persona->apellidomaterno." ".$venta->persona->nombres , array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente','disabled'=>'true')) !!}
         		</div>
         	</div>
     	</div>
      </div>
 	<div class="box">
         <div class="box-header">
-            <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle </h2>
+            <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle</h2>
         </div>
         <div class="box-body">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
                     <th class="text-center">Cant.</th>
-                    <th class="text-center">Cod. Barra</th>
-                    <th class="text-center">Producto</th>
+                    <th class="text-left">Producto</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">Subtotal</th>
                 </thead>
@@ -45,10 +44,8 @@
 					<tr>
                         <td class="text-center">{!! number_format($value->cantidad,2,'.','') !!}</td>
                         @if(!is_null($value->producto_id) && $value->producto_id>0)
-                            <td class="text-center">{!! $value->producto->codigobarra !!}</td>
                             <td class="text-left">{!! $value->producto->nombre !!}</td>
                         @else
-                            <td class="text-center"> - </td>
                             <td class="text-left">{!! $value->promocion->nombre !!}</td>
                         @endif
 						<td class="text-center">{!! number_format($value->precioventa,2,'.','') !!}</td>
@@ -57,7 +54,7 @@
                 @endforeach
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="4">Total</th>
+                    <th class="text-right" colspan="3">Total</th>
                     <th class="text-center" align="center">{!! number_format($venta->total,2,'.','') !!}</th>
                 </tfoot>
             </table>
@@ -66,7 +63,7 @@
     <br>
 	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">	
-			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+			{!! Form::button('<i class="fa fa-undo fa-lg"></i> Cancelar', array('class' => 'btn btn-primary btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>
 	</div>
 {!! Form::close() !!}

@@ -211,6 +211,8 @@ class CajaController extends Controller
             $movimiento->totalpagado=str_replace(",","",$request->input('total')); 
             $movimiento->tipomovimiento_id=4;
             $movimiento->tipodocumento_id=$request->input('tipodocumento');
+            $movimiento->voucher='';
+            $movimiento->tarjeta='';
             $movimiento->concepto_id=$request->input('concepto');
             $movimiento->comentario=$request->input('comentario');
             $movimiento->situacion='N';
@@ -2161,6 +2163,9 @@ class CajaController extends Controller
             $movimiento->tipomovimiento_id=4;
             $movimiento->tipodocumento_id=6;
             $movimiento->concepto_id=1;
+            $movimiento->voucher='';
+            $movimiento->tarjeta='';
+            $movimiento->totalpagado='0.00';
             $movimiento->comentario=$request->input('comentario');
             $movimiento->situacion='N';
             $movimiento->save();
@@ -2271,6 +2276,9 @@ class CajaController extends Controller
             $movimiento->tipomovimiento_id=4;
             $movimiento->tipodocumento_id=6;
             $movimiento->concepto_id=2;
+            $movimiento->voucher='';
+            $movimiento->totalpagado='0.00';
+            $movimiento->tarjeta='';
             $movimiento->comentario=$request->input('comentario');
             $movimiento->situacion='N';
             $movimiento->save();

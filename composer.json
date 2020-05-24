@@ -14,7 +14,8 @@
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^5.7.0",
-        "laraveles/spanish": "^1.4"
+        "laraveles/spanish": "^1.4",
+        "mike42/escpos-php": "^3.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

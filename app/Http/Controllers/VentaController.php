@@ -90,7 +90,7 @@ class VentaController extends Controller
         $cabecera[]       = array('valor' => 'Cliente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -158,9 +158,13 @@ class VentaController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $reglas     = array('persona' => 'required|max:500');
+        $reglas     = array(
+                            'persona' => 'required|max:500',
+                            'listProducto'=>'required'
+                        );
         $mensajes = array(
-            'nombre.required'         => 'Debe ingresar un cliente'
+            'nombre.required'         => 'Debe ingresar un cliente',
+            'listProducto.required'=>'Agrega al menos un producto'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -196,6 +200,7 @@ class VentaController extends Controller
             $Venta->tipodocumento_id=$request->input('tipodocumento');
             $Venta->persona_id = $request->input('persona_id')=="0"?1:$request->input('persona_id');
             $Venta->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
+            $Venta->voucher = '';
             $Venta->comentario = '';
             $Venta->responsable_id=$user->person_id;
             $Venta->save();
@@ -269,6 +274,7 @@ class VentaController extends Controller
             $movimiento->tipomovimiento_id=4;
             $movimiento->tipodocumento_id=6;
             $movimiento->concepto_id=3;
+            $movimiento->voucher='';
             $movimiento->comentario='Pago de Documento de Venta '.$Venta->numero;
             $movimiento->situacion='N';
             $movimiento->movimiento_id=$Venta->id;
@@ -293,7 +299,7 @@ class VentaController extends Controller
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $venta = Movimiento::find($id);
         $entidad             = 'Venta';
-        $cboTipoDocumento        = Tipodocumento::lists('nombre', 'id')->all();
+        $cboTipoDocumento        = Tipodocumento::pluck('nombre', 'id')->all();
         $formData            = array('venta.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
