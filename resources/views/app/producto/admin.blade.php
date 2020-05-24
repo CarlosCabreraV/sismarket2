@@ -32,7 +32,7 @@
 								
 							<div class="row w-100 d-flex">
 								
-								<div class="col-lg-4 col-md-4 form-group">
+								<div class="col-lg-4 col-md-4 form-group d-none">
 									{!! Form::label('codigobarra', 'Cod. Barra:') !!}
 									{!! Form::text('codigobarra', '', array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
 								</div>
@@ -44,12 +44,12 @@
 									{!! Form::label('categoria', 'Categoria:') !!}
 									{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
-							</div>
-							<div class="row w-100 d-flex">
 								<div class="col-lg-4 col-md-4 form-group">
 									{!! Form::label('marca', 'Marca:') !!}
 									{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control input-xs', 'id' => 'marca' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
+							</div>
+							<div class="row w-100 d-flex">
 								<div class="col-lg-4 col-md-4 form-group">
 									{!! Form::label('precio', 'Opciones precio:') !!}
 									{!! Form::select('precio', ['S'=>'Sin precio' , 'C'=>'Con precio'], 'C', array('class' => 'form-control input-xs', 'id' => 'precio', 'onChange'=>'buscar(\''.$entidad.'\')')) !!}

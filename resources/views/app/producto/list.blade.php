@@ -18,7 +18,6 @@
 		@foreach ($lista as $key => $value)
 		<tr>
 			<td>{{ $contador }}</td>
-            <td>{{ $value->codigobarra }}</td>
             <td>{{ $value->nombre }}</td>
 			<td>{{ $value->categoria2 }}</td>
             <td>{{ $value->marca2 }}</td>

@@ -16,6 +16,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
       font-family: Nunito, sans-serif !important;
       font-size: .9rem !important;
     }
+    .mostrarScroll{
+    overflow-y:scroll !important;
+    }
+    .ocultarScroll{
+    overflow-y:hidden !important;
+    }
   </style>
   
   <link  rel="icon"   href="dist/img/logo2.png" type="image/png" />
@@ -78,11 +84,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
 <!-- AdminLTE App -->
 
 <script src="dist/js/adminlte.min.js"></script>
 <script src="/js/app.js"></script>
-
+<script src="plugins/datatables/jquery.dataTables.js"></script>
+<script src="plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
 {{-- typeahead.js-bootstrap: para autocompletar --}}
