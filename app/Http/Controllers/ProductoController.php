@@ -182,7 +182,7 @@ class ProductoController extends Controller
             $producto = new Producto();
             $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
-            $producto->abreviatura = $request->input('abreviatura');
+            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'),'');
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');
@@ -275,7 +275,7 @@ class ProductoController extends Controller
             $producto = Producto::find($id);
             $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
-            $producto->abreviatura = $request->input('abreviatura');
+            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'),'');
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');

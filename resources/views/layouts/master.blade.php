@@ -90,7 +90,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <script src="dist/js/adminlte.min.js"></script>
 
-<script src="/js/app.js"></script>
+<script src="js/app.js"></script>
 <script src="plugins/datatables/jquery.dataTables.js"></script>
 <script src="plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="dist/js/funciones.js"></script>

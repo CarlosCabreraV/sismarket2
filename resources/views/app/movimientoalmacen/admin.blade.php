@@ -39,15 +39,15 @@
 									{!! Form::date('fechafin', '', array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
 								</div>
 								<div class="col-lg-4 col-md-4  form-group">
-									{!! Form::label('proveedor', 'Proveedor:') !!}
-									{!! Form::text('proveedor', '', array('class' => 'form-control input-xs', 'id' => 'proveedor')) !!}
-								</div>
-							</div>
-							<div class="row w-100">
-								<div class="col-lg-4 col-md-4  form-group">
 									{!! Form::label('tipodocumento', 'Tipo Doc.:') !!}
 									{!! Form::select('tipodocumento', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
 								</div>
+								{{-- <div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('proveedor', 'Proveedor:') !!}
+									{!! Form::text('proveedor', '', array('class' => 'form-control input-xs', 'id' => 'proveedor')) !!}
+								</div> --}}
+							</div>
+							<div class="row w-100">
 								<div class="col-lg-4 col-md-4  form-group">
 									{!! Form::label('numero', 'Nro:') !!}
 									{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
@@ -96,17 +96,26 @@
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
 		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="proveedor"]').keyup(function (e) {
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="numero"]').keyup(function (e) {
 			var key = window.event ? e.keyCode : e.which;
 			if (key == '13') {
 				buscar('{{ $entidad }}');
 			}
 		});
-        $(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="numero"]').keyup(function (e) {
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').keyup(function (e) {
 			var key = window.event ? e.keyCode : e.which;
 			if (key == '13') {
 				buscar('{{ $entidad }}');
 			}
 		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').keyup(function (e) {
+			var key = window.event ? e.keyCode : e.which;
+			if (key == '13') {
+				buscar('{{ $entidad }}');
+			}
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipodocumento"]').change(function (e) {
+            buscar('{{ $entidad }}');
+        });
 	});
 </script>

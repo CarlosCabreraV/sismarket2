@@ -68,6 +68,12 @@ class MovimientoalmacenController extends Controller
         if($request->input('fechafin')!=""){
             $resultado = $resultado->where('fecha','<=',$request->input('fechafin'));
         }
+        if($request->input('tipodocumento')!=""){
+            $resultado = $resultado->where('tipodocumento_id','=',$request->input('tipodocumento'));
+        }
+        if($request->input('numero')!=""){
+            $resultado = $resultado->where('numero','LIKE',"%".$request->input('numero')."%");
+        }
         $lista            = $resultado->select('movimiento.*',DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'),DB::raw('responsable.nombres as responsable2'))->orderBy('fecha', 'ASC')->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -123,7 +129,7 @@ class MovimientoalmacenController extends Controller
     public function create(Request $request)
     {
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
-        $entidad  = 'Compra';
+        $entidad  = 'Movimientoalmacen';
         $movimiento = null;
         $cboTipoDocumento = array();
         $tipodocumento = Tipodocumento::where('tipomovimiento_id','=',3)->orderBy('nombre','asc')->get();
@@ -166,8 +172,11 @@ class MovimientoalmacenController extends Controller
             $Venta->tipodocumento_id=$request->input('tipodocumento');
             $Venta->persona_id = $request->input('persona_id')=="0"?1:$request->input('persona_id');
             $Venta->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
-            $Venta->comentario = $request->input('comentario');
+            $Venta->comentario = Libreria::getParam($request->input('comentario'), '');
             $Venta->responsable_id=$user->person_id;
+            $Venta->voucher = '';
+            $Venta->totalpagado = 0;
+            $Venta->tarjeta = '';
             $Venta->save();
             $arr=explode(",",$request->input('listProducto'));
             for($c=0;$c<count($arr);$c++){
@@ -245,8 +254,8 @@ class MovimientoalmacenController extends Controller
         }
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $venta = Movimiento::find($id);
-        $entidad             = 'Compra';
-        $cboTipoDocumento        = Tipodocumento::lists('nombre', 'id')->all();
+        $entidad             = 'Movimientoalmacen';
+        $cboTipoDocumento        = Tipodocumento::pluck('nombre', 'id')->all();
         $formData            = array('venta.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
@@ -401,7 +410,7 @@ class MovimientoalmacenController extends Controller
         $entidad  = 'Movimientoalmacen';
         $formData = array('route' => array('movimientoalmacen.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
-        return view('app.confirmarAnular')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+        return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
     
     public function buscarproducto(Request $request)

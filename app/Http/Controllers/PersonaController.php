@@ -123,9 +123,11 @@ class PersonaController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $reglas     = array('nombres' => 'required|max:50');
+        $reglas     = array('nombres' => 'required|max:50',
+                            'roles'=>'required');
         $mensajes = array(
-            'nombre.required'         => 'Debe ingresar un nombre'
+            'nombre.required'         => 'Debe ingresar un nombre',
+            'roles.required'         => 'Debe seleccionar al menos un Rol'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -208,9 +210,11 @@ class PersonaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $reglas     = array('nombres' => 'required|max:50');
+        $reglas     = array('nombres' => 'required|max:50',
+                            'roles'=>'required');
         $mensajes = array(
-            'nombre.required'         => 'Debe ingresar un nombre'
+            'nombre.required'         => 'Debe ingresar un nombre',
+            'roles.required'         => 'Debe seleccionar al menos un Rol'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {

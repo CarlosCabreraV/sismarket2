@@ -285,7 +285,7 @@ function guardarPago (entidad, idboton) {
 function buscarProductoBarra(barra){
     $.ajax({
         type: "POST",
-        url: "venta/buscarproductobarra",
+        url: "compra/buscarproductobarra",
         data: "codigobarra="+barra+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
@@ -299,7 +299,7 @@ var valorinicial="";
 function buscarProducto(valor){
     $.ajax({
         type: "POST",
-        url: "venta/buscarproducto",
+        url: "compra/buscarproducto",
         data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
@@ -444,7 +444,7 @@ function agregarDetalle(id){
 function buscarProducto2(valor){
     $.ajax({
         type: "POST",
-        url: "venta/buscarproducto",
+        url: "compra/buscarproducto",
         data: "descripcion=PRUEBA&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);

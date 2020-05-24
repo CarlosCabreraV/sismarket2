@@ -83,15 +83,19 @@ Route::group(['middleware' => 'auth'], function () {
     /* COMPRA */
     Route::post('compra/buscar', 'CompraController@buscar')->name('compra.buscar');
     Route::get('compra/eliminar/{id}/{listarluego}', 'CompraController@eliminar')->name('compra.eliminar');
-    Route::get('compra/buscarproducto', array('as' => 'compra.buscarproducto', 'uses' => 'CompraController@buscarproducto'));
+    // Route::get('compra/buscarproducto', array('as' => 'compra.buscarproducto', 'uses' => 'CompraController@buscarproducto'));
     Route::get('compra/personautocompletar/{searching}', 'CompraController@personautocompletar')->name('compra.personautocompletar');
+    Route::post('compra/buscarproducto', 'CompraController@buscarproducto')->name('compra.buscarproducto');
+    Route::post('compra/buscarproductobarra', 'CompraController@buscarproductobarra')->name('compra.buscarproductobarra');
     Route::resource('compra', 'CompraController');
 
     /* MOVIMIENTO ALMACEN */
     Route::post('movimientoalmacen/buscar', 'MovimientoalmacenController@buscar')->name('movimientoalmacen.buscar');
     Route::get('movimientoalmacen/eliminar/{id}/{listarluego}', 'MovimientoalmacenController@eliminar')->name('movimientoalmacen.eliminar');
-    Route::get('movimientoalmacen/buscarproducto', array('as' => 'movimientoalmacen.buscarproducto', 'uses' => 'MovimientoalmacenController@buscarproducto'));
+    // Route::get('movimientoalmacen/buscarproducto', array('as' => 'movimientoalmacen.buscarproducto', 'uses' => 'MovimientoalmacenController@buscarproducto'));
     Route::resource('movimientoalmacen', 'MovimientoalmacenController');
+    Route::post('movimientoalmacen/buscarproducto', 'MovimientoalmacenController@buscarproducto')->name('movimientoalmacen.buscarproducto');
+    Route::post('movimientoalmacen/buscarproductobarra', 'MovimientoalmacenController@buscarproductobarra')->name('movimientoalmacen.buscarproductobarra');
     Route::post('movimientoalmacen/generarNumero', 'MovimientoalmacenController@generarNumero')->name('movimientoalmacen.generarNumero');
     
     /* PROMOCION */
