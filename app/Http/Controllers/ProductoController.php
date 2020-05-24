@@ -446,11 +446,13 @@ class ProductoController extends Controller
  
         //obtenemos el nombre del archivo
         $nombre = $file->getClientOriginalName();
- 
+        /*
         $carpeta = '/P'.$request->input('id');
         if (!file_exists($carpeta)) {
             \Storage::makeDirectory($carpeta);
         }
+        */
+        
         
         $path = public_path('image/'.$request->input('id').'-'.$nombre);
         
@@ -461,4 +463,6 @@ class ProductoController extends Controller
         $producto->save();
        return "archivo guardado";
     }
+
+    
 }

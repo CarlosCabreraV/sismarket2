@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-05-2020 a las 00:01:26
+-- Tiempo de generación: 24-05-2020 a las 00:49:58
 -- Versión del servidor: 10.3.16-MariaDB
 -- Versión de PHP: 7.3.7
 
@@ -5808,12 +5808,12 @@ CREATE TABLE `menuoptioncategory` (
 --
 
 INSERT INTO `menuoptioncategory` (`id`, `name`, `order`, `icon`, `menuoptioncategory_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'Administración', 1, 'fa fa-bank', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
-(2, 'Personas', 2, 'fa fa-bank', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
-(3, 'Usuarios', 3, 'fa fa-bank', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
-(4, 'Ventas', 1, 'fa fa-bank', NULL, '2017-02-12 22:41:27', '2018-09-26 15:19:49', NULL),
-(5, 'Almacen', 2, 'fa fa-bank', NULL, '2018-09-26 15:25:30', '2018-09-26 15:25:30', NULL),
-(6, 'Reportes', 4, 'fa fa-bank', NULL, '2018-12-03 21:56:47', '2018-12-03 21:56:47', NULL);
+(1, 'Administración', 1, 'fa fa-university', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
+(2, 'Personas', 2, 'fa fa-user-friends', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
+(3, 'Usuarios', 3, 'fa fa-users-cog', NULL, '2017-02-10 01:02:22', '2017-02-10 01:02:22', NULL),
+(4, 'Ventas', 1, 'fa fa-shopping-bag', NULL, '2017-02-12 22:41:27', '2018-09-26 15:19:49', NULL),
+(5, 'Almacen', 2, 'fa fa-warehouse', NULL, '2018-09-26 15:25:30', '2018-09-26 15:25:30', NULL),
+(6, 'Reportes', 4, 'fa fa-chart-line', NULL, '2018-12-03 21:56:47', '2018-12-03 21:56:47', NULL);
 
 -- --------------------------------------------------------
 

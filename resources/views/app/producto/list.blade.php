@@ -29,7 +29,7 @@
 			<td>{!! Form::button('<div class="fas fa-edit"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success')) !!}</td>
            	<td>{!! Form::button('<div class="fas fa-list"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["presentacion"], array($value->id, 'listar'=>'SI')).'\', \'Presentacion\', this);', 'class' => 'btn btn-sm btn-outline-primary')) !!}</td>
 			@if($value->archivo!="")
-				<td>{!! Form::button('<div class="fas fa-search-plus"></div>', array('onclick' => 'window.open (\'http://localhost/almacen/image/'.$value->id.'-'.$value->archivo.'\',\'_blank\');', 'class' => 'btn btn-sm btn-outline-info')) !!}</td>
+				<td>{!! Form::button('<div class="fas fa-search-plus"></div>', array('class'=>'btn btn-outline-info btn-sm', 'onclick' => 'verImagen(\''.$value->id.'-'.$value->archivo.'\')')) !!}</td>
 			@endif
 			<td>{!! Form::button('<div class="fas fa-trash"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger')) !!}</td>
 		</tr>
@@ -48,3 +48,21 @@
 </table>
 {!! $paginacion !!}
 @endif
+<style>
+	.medium{
+		width: 350px;
+		height: 350px;
+	}
+</style>
+<script>
+	function verImagen(imagen_url){
+		if(imagen_url.includes('imagen.png')){
+			imagen_url = 'imagen.png';
+		}
+		bootbox.dialog({
+			centerVertical: true,
+			centerHorizontal: true,
+    		message: `<img align='center' class='p-3 mt-2' width='300' height='300' src="image/${imagen_url}">`
+		}).find("div.modal-content").addClass("medium");
+	}
+</script>

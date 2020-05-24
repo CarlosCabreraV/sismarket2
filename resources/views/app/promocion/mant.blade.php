@@ -63,7 +63,6 @@
 			if(!is_null($detalle)){
 				foreach($detalle as $key=>$value){
 					$producto = DB::table('producto')->where('id',$value->producto_id)->first();
-					
 					echo "<tr id='tr".$value->producto_id."'>";
 					echo "<td><input type='text' data='numero' class='form-control input-xs' size='5' style='width: 40px;' name='txtCant".$value->producto_id."' id='txtCant".$value->producto_id."' value='".round($value->cantidad,0)."' /></td>";
 					echo "<td><input type='hidden' name='txtIdProducto".$value->producto_id."' id='txtIdProducto".$value->producto_id."' value='".$value->producto_id."' /><input type='text' class='form-control input-xs'  name='txtProducto".$value->producto_id."' id='txtProducto".$value->producto_id."' value=".$producto->nombre." readonly='' /></td>";

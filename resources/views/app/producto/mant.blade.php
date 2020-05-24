@@ -96,10 +96,10 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('igv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				{!! Form::label('lbligv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::hidden('igv', null, array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
-					<input type="checkbox" name="chkIGV" id="chkIGV" onclick="igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
+					<input type="checkbox" name="chkIGV" id="chkIGV" onclick="Igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
 				</div>
 				
 			</div>
@@ -135,14 +135,14 @@
 	</div>
 	
 	<div class="form-group">
-	    {!! Form::label('archivo', 'Imagen:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+	    {!! Form::label('archivo', 'Imagen', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-3 col-md-3 col-sm-3">
 			{!! Form::file('archivo', null, array('class' => 'form-control input-xs', 'id' => 'archivo')) !!}
 		</div>
 	</div>
     <div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-			{!! Form::button('<i class="fa fa-check "></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+			{!! Form::button('<i class="fa fa-check "></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar2(\''.$entidad.'\', this)')) !!}
 			{!! Form::button('<i class="fa fa-undo "></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 	</div>
 	</div>
@@ -155,6 +155,8 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ganancia"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="stockminimo"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+
+	
 });
 function calcularPrecio(){
     var ganancia = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ganancia"]').val();
@@ -171,18 +173,20 @@ function consumo(check){
 		$("#consumo").val('N');
 	}
 }
-function igv(check){
+
+$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigobarra"]').focus();
+
+function Igv(check){
 	if(check){
 		$("#igv").val('S');
 	}else{
 		$("#igv").val('N');
 	}
 }
-$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigobarra"]').focus();
-
 function guardar2 (entidad, idboton) {
     var band=true;
-    var msg="";
+	var msg="";
+	var contador = 0;
     if(band && contador==0){
         contador=1;
     	var idformulario = IDFORMMANTENIMIENTO + entidad;
@@ -200,13 +204,13 @@ function guardar2 (entidad, idboton) {
             contador=0;
     		if(respuesta === 'ERROR'){
     		}else{
-    		  //alert(respuesta);
-                var dat = JSON.parse(respuesta);
+    		 	// alert(respuesta);
+				var dat = JSON.parse(respuesta);
                 if(dat[0]!==undefined){
                     resp=dat[0].respuesta;    
                 }else{
                     resp='VALIDACION';
-                }
+				}
     			if (resp === 'OK') {
     			    enviarArchivo(dat[0].producto_id);
     				cerrarModal();
@@ -237,7 +241,8 @@ function submitForm2 (idformulario) {
 
 function enviarArchivo(idcompra){
     //var form = $('#formMantenimientoCompra')[0];
-    //var formulario = new FormData(form);
+	//var formulario = new FormData(form);
+	
     var data = new FormData();
     jQuery.each($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="archivo"]')[0].files, function(i, file) {
         data.append('file-'+i, file);
@@ -253,7 +258,9 @@ function enviarArchivo(idcompra){
 		contentType: false,
 		cache: false,
 		timeout: 600000
-    });
+	});
+
+	console.log('archivo enviado');
 }
 
 </script>
