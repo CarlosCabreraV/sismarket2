@@ -10,6 +10,7 @@ var modales             = new Array();
 var IMAGENLOADING       = "";
 var contadorModal       = 0;
 
+
 /**
 * Permite hacer un submit a un formulario y retorna la respuesta del envio, o el error que se produzca
 * @param  {string} idformulario
@@ -373,12 +374,15 @@ function init(idformulario, tipoformulario) {
 * @return {void} Se ejecuta la acción de cerrar el último modal generado
 */
 function cerrarModal() {
+
 	contadorModal = contadorModal - 1;
 	modales[contadorModal].modal('hide');
 	if (contadorModal !== 0) {
 		$('.modal' + (contadorModal-1)).css('pointer-events','auto');
 		$('body').addClass('modal-open');
 	}
+    $('#modal'+(contadorModal-1)).addClass('mostrarScroll');
+
 }
 
 /**

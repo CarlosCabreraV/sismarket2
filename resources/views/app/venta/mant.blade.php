@@ -69,21 +69,22 @@
     <div class="row   py-2 px-1 my-2">
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
-                {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
-        		</div>
-        	</div>
-         </div>
-         <div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="form-group">
                 {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
         		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
         		</div>
             </div>
             
-         </div>     
+         </div>  
+        <div class="col-lg-6 col-md-6 col-sm-6 d-none">
+            <div class="form-group">
+                {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
+        			{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
+        		</div>
+        	</div>
+         </div>
+            
      </div>
     <!--DATOS PRODUCTO -->
 
@@ -94,10 +95,10 @@
             <table class="table table-sm table-condensed table-striped" id="tbDetalle">
                 <thead class="bg-navy">
                     <th class="text-center">Cant.</th>
-                    <th class="text-center">Cod. Barra</th>
                     <th class="text-center">Producto</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">Subtotal</th>
+                    <th class="text-center">Quitar</th>
                 </thead>
                 <tbody>
                 </tbody>
@@ -168,6 +169,30 @@
         </div>
     </div>
 {!! Form::close() !!}
+<style>
+    .dataTables_scrollBody{
+        overflow-x: scroll;
+        border-radius: 0.25rem;
+        border: 2px solid #001f3f;
+        border-right:none;
+        cursor: pointer;
+    }
+    .dataTables_scrollBody::-webkit-scrollbar{ 
+        width: 10px;
+    background-color: #001f3f;
+}
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb{ 
+        border-radius: 5px;
+    background-color: #e9ecef;
+    border-left: 0.5px solid #001f3f;
+    border-right: 0.5px solid #001f3f;
+}
+    .mostrarBarra{
+        overflow-y: scroll;
+    }
+
+</style>
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
@@ -415,12 +440,22 @@ function buscarProducto(valor){
         data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
-            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>COD. BARRA</th><th class='text-center'>PRODUCTO</th><th class='text-center'>STOCK</th><th class='text-center'>P. UNIT.</th></tr></thead></table>");
+            $("#divBusqueda").html(`<table class='table table-striped table-bordered table-sm table-condensed table-hover' border='1' id='tablaProducto'>
+                                        <thead>
+                                            <tr>
+                                                <th class='text-center'>PRODUCTO</th>
+                                                <th class='text-center'>STOCK</th>
+                                                <th class='text-center'>P. UNIT.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id='tbodyproducto'>
+                                        </tbody>
+                                    </table>`);
             var pag=parseInt($("#pag").val());
             var d=0;
             for(c=0; c < datos.length; c++){
-                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"')\"><td align='center'>"+datos[c].codigobarra+"</td><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
-                $("#tablaProducto").append(a);           
+                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"')\"><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                $("#tbodyproducto").append(a);           
             }
             $('#tablaProducto').DataTable({
                 "scrollY":        "250px",
@@ -448,20 +483,19 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
     }
     if(band){
         $("#tbDetalle").append("<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' /><input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
-            "<td align='left'>"+codigobarra+"</td>"+
-            "<td align='left' id='tdDescripcion"+idproducto+"'>"+descripcion+"</td>"+
-            "<td><input type='hidden' id='txtPrecioCompra"+idproducto+"' name='txtPrecioCompra"+idproducto+"' value='"+preciocompra+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 60px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
-            "<td><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 60px;' id='txtTotal"+idproducto+"' value='"+precioventa+"' /></td>"+
-            "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+            "<td align='center' id='tdDescripcion"+idproducto+"'>"+descripcion+"</td>"+
+            "<td align='center'><input type='hidden' id='txtPrecioCompra"+idproducto+"' name='txtPrecioCompra"+idproducto+"' value='"+preciocompra+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
+            "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+precioventa+"' /></td>"+
+            "<td align='center'><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
         carro.push(idproducto);
         if(idant>0){
             $("#tdDescripcion"+idant).css('font-size','');
             $("#tdDescripcion"+idant).css('color','');
             $("#tdDescripcion"+idant).css('font-weight','');
         }
-        $("#tdDescripcion"+idproducto).css('font-size','30px');
-        $("#tdDescripcion"+idproducto).css('color','blue');
-        $("#tdDescripcion"+idproducto).css('font-weight','bold');
+        $("#tdDescripcion"+idproducto).css('font-size','14px');
+        $("#tdDescripcion"+idproducto).css('color','');
+        $("#tdDescripcion"+idproducto).css('font-weight','');
         idant=idproducto;
         $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
         calcularTotal();
@@ -471,9 +505,9 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
             $("#tdDescripcion"+idant).css('color','');
             $("#tdDescripcion"+idant).css('font-weight','');
         }
-        $("#tdDescripcion"+idproducto).css('font-size','30px');
-        $("#tdDescripcion"+idproducto).css('color','blue');
-        $("#tdDescripcion"+idproducto).css('font-weight','bold');
+        $("#tdDescripcion"+idproducto).css('font-size','14px');
+        $("#tdDescripcion"+idproducto).css('color','');
+        $("#tdDescripcion"+idproducto).css('font-weight','');
         idant=idproducto;
         var cant = parseInt($('#txtCantidad'+idproducto).val())+1; 
         $('#txtCantidad'+idproducto).val(cant);

@@ -77,7 +77,6 @@ class ProductoController extends Controller
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Cod. Barra', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Producto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Categoria', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Marca', 'numero' => '1');
@@ -169,14 +168,10 @@ class ProductoController extends Controller
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array('nombre' => 'required|max:50',
-                            'preciocompra' => 'required',
-                            'precioventa' => 'required',
-                            'stockminimo' => 'required');
+                            'precioventa' => 'required');
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
-            'preciocompra.required'         => 'Debe ingresar un precio de compra',
             'precioventa.required'         => 'Debe ingresar un precio de venta',
-            'stockminimo.required'         => 'Debe ingresar un stock minimo'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -191,15 +186,15 @@ class ProductoController extends Controller
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');
-            $producto->preciocompra = $request->input('preciocompra');
+            $producto->preciocompra =  Libreria::getParam($request->input('preciocompra'), '0.00');
             $producto->precioventa = $request->input('precioventa');
             $producto->precioventaespecial = $request->input('precioventaespecial');
-            $producto->ganancia = $request->input('ganancia');
-            $producto->stockminimo = $request->input('stockminimo');
+            $producto->ganancia =  Libreria::getParam($request->input('ganancia'), '0.00');
+            $producto->stockminimo = Libreria::getParam($request->input('stockminimo'), '0.00');
             $producto->consumo = $request->input('consumo');
             $producto->igv = $request->input('igv');
             $producto->save();
-            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id);
+            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id, 'accion'=>'store');
         });
         return is_null($error) ? json_encode($dat) : $error;
     }
@@ -266,14 +261,10 @@ class ProductoController extends Controller
             return $existe;
         }
         $reglas     = array('nombre' => 'required|max:50',
-                            'preciocompra' => 'required',
-                            'precioventa' => 'required',
-                            'stockminimo' => 'required');
+                            'precioventa' => 'required');
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
-            'preciocompra.required'         => 'Debe ingresar un precio de compra',
-            'precioventa.required'         => 'Debe ingresar un precio de venta',
-            'stockminimo.required'         => 'Debe ingresar un stock minimo',
+            'precioventa.required'         => 'Debe ingresar un precio de venta'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -288,15 +279,15 @@ class ProductoController extends Controller
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');
-            $producto->preciocompra = $request->input('preciocompra');
+            $producto->preciocompra =  Libreria::getParam($request->input('preciocompra'), '0.00');
             $producto->precioventa = $request->input('precioventa');
             $producto->precioventaespecial = $request->input('precioventaespecial');
-            $producto->stockminimo = $request->input('stockminimo');
-            $producto->ganancia = $request->input('ganancia');
+            $producto->stockminimo = Libreria::getParam($request->input('stockminimo'), '0.00');
+            $producto->ganancia =  Libreria::getParam($request->input('ganancia'), '0.00');
             $producto->consumo = $request->input('consumo');
             $producto->igv = $request->input('igv');
             $producto->save();
-            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id);
+            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id , 'accion'=>'update');
         });
         return is_null($error) ? json_encode($dat) : $error;
     }
@@ -443,25 +434,35 @@ class ProductoController extends Controller
     public function archivos(Request $request){
         //obtenemos el campo file definido en el formulario
         $file = $request->file('file-0');
- 
-        //obtenemos el nombre del archivo
-        $nombre = $file->getClientOriginalName();
-        /*
-        $carpeta = '/P'.$request->input('id');
-        if (!file_exists($carpeta)) {
-            \Storage::makeDirectory($carpeta);
+        if ($file) {
+            //obtenemos el nombre del archivo
+            
+            /*
+            $carpeta = '/P'.$request->input('id');
+            if (!file_exists($carpeta)) {
+                \Storage::makeDirectory($carpeta);
+            }
+            */
+            if($request->input('accion') == 'update'){
+                $old_image =$request->input('id').'-'.(Producto::find($request->input('id'))->archivo);
+                $old_path = public_path('image/'.$old_image);
+                if(file_exists($old_path)){
+                    @unlink($old_path);
+                }
+            }
+            $nombre = $file->getClientOriginalName();
+            $path = public_path('image/'.$request->input('id').'-'.$nombre);
+        
+            $file->move('image', $request->input('id').'-'.$nombre);
+        
+            $producto = Producto::find($request->input('id'));
+            $producto->archivo = $nombre;
+            $producto->save();
+            return "archivo guardado";
+        }else{
+            return "Imagen no enviada";
         }
-        */
         
-        
-        $path = public_path('image/'.$request->input('id').'-'.$nombre);
-        
-        $file->move('image', $request->input('id').'-'.$nombre);
-        
-        $producto = Producto::find($request->input('id'));
-        $producto->archivo = $nombre;
-        $producto->save();
-       return "archivo guardado";
     }
 
     

@@ -1,11 +1,11 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($producto, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
-	<div class="row">
+	<div class="row d-none">
 		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
+			<div class="form-group ">
 				{!! Form::label('codigobarra', 'Cod. Barra', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
+				<div class="col-lg-12 col-md-12 col-sm-12 ">
 					{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
 				</div>
 			</div>
@@ -98,7 +98,7 @@
 			<div class="form-group">
 				{!! Form::label('lbligv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::hidden('igv', null, array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
+					{!! Form::hidden('igv', 'N', array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
 					<input type="checkbox" name="chkIGV" id="chkIGV" onclick="Igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
 				</div>
 				
@@ -212,7 +212,7 @@ function guardar2 (entidad, idboton) {
                     resp='VALIDACION';
 				}
     			if (resp === 'OK') {
-    			    enviarArchivo(dat[0].producto_id);
+    			    enviarArchivo(dat[0].producto_id , dat[0].accion);
     				cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
     			} else if(resp === 'ERROR') {
@@ -239,7 +239,7 @@ function submitForm2 (idformulario) {
 	return respuesta;
 }
 
-function enviarArchivo(idcompra){
+function enviarArchivo(idcompra ,accion){
     //var form = $('#formMantenimientoCompra')[0];
 	//var formulario = new FormData(form);
 	
@@ -248,6 +248,7 @@ function enviarArchivo(idcompra){
         data.append('file-'+i, file);
     });
     data.append("id",idcompra);
+    data.append("accion",accion);
     $.ajax({
 		url: '{{ url("/producto/archivos") }}',
 		headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}' },
