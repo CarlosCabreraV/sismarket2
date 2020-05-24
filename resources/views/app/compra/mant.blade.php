@@ -11,30 +11,38 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6">
+        <div class="col-lg-5 col-md-5 col-sm-5">
             <div class="form-group">
-        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+            </div>
+            <div class="form-group">
+                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
         		</div>
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+            </div>
+            <div class="form-group">
+                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
         		</div>
         	</div>
-            <div class="form-group">
-        		{!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-9 col-md-9 col-sm-9">
-                {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
-                {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
-        		{!! Form::text('persona', '', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Proveedor')) !!}
-        		</div>
-                <div class="col-lg-1 col-md-1 col-sm-1">
-                    {!! Form::button('<i class="fa fa-file fa-lg"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Historia\', this);', 'title' => 'Nueva Persona')) !!}
+            <div class="form-group pb-2">
+                {!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12 input-group pl-0">
+                        {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
+                        {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
+                        <div class="col-lg-11 col-sm-11 col-md-11 pr-0">
+                            {!! Form::text('persona', '', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Proveedor')) !!}
+                        </div>
+                        <div class="col-lg-1 col-sm-1 col-md-1 pl-1">
+                            <span class="input-group-append">
+                                {!! Form::button('<i class="fa fa-file "></i>', array('class' => 'btn btn-info', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Historia\', this);', 'title' => 'Nueva Persona')) !!}
+                             </span>
+                        </div>
         		</div>
         	</div>
         	<div class="form-group">
@@ -44,12 +52,12 @@
         		</div>
         	</div>
          </div>
-         <div class="col-lg-6 col-md-6 col-sm-6">
+         <div class="col-lg-7 col-md-7 col-sm-7">
             <div class="form-group">
-                {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {{-- {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
-        		</div>
+        		</div> --}}
                 {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-5 col-md-5 col-sm-5">
         			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
@@ -65,17 +73,18 @@
         </div>
         <div class="box-body">
             <table class="table table-condensed table-border" id="tbDetalle">
-                <thead>
+                <thead class="bg-navy">
                     <th class="text-center">Cant.</th>
-                    <th class="text-center">Cod. Barra</th>
+                    {{-- <th class="text-center">Cod. Barra</th> --}}
                     <th class="text-center">Producto</th>
                     <th class="text-center">P. Compra</th>
                     <th class="text-center">Subtotal</th>
+                    <th class="text-center"></th>
                 </thead>
                 <tbody>
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="4">Total</th>
+                    <th class="text-right" colspan="3">Total</th>
                     <th class="text-center" align="center">{!! Form::text('total', null, array('class' => 'input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
                 </tfoot>
             </table>
@@ -85,7 +94,7 @@
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-	configurarAnchoModal('1300');
+	configurarAnchoModal('1350');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 
@@ -115,6 +124,7 @@ $(document).ready(function() {
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').val(datum.ruc);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona"]').val(datum.value);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona_id"]').val(datum.id);
+        personas2.clearRemoteCache();
 	});
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
@@ -293,12 +303,12 @@ function buscarProducto(valor){
         data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
-            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>COD. BARRA</th><th class='text-center'>PRODUCTO</th><th class='text-center'>STOCK</th><th class='text-center'>P. UNIT.</th></tr></thead></table>");
+            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr><th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>");
             var pag=parseInt($("#pag").val());
             var d=0;
             for(c=0; c < datos.length; c++){
-                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\"><td align='center'>"+datos[c].codigobarra+"</td><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
-                $("#tablaProducto").append(a);           
+                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\"><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                $("#tbodyProducto").append(a);           
             }
             $('#tablaProducto').DataTable({
                 "scrollY":        "250px",
@@ -323,7 +333,7 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
     }
     if(band){
         $("#tbDetalle").append("<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
-            "<td align='left'>"+codigobarra+"</td>"+
+            // "<td align='left'>"+codigobarra+"</td>"+
             "<td align='left'>"+descripcion+"</td>"+
             "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 60px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
             "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 60px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
@@ -431,6 +441,32 @@ function agregarDetalle(id){
     });
 }
 
+function buscarProducto2(valor){
+    $.ajax({
+        type: "POST",
+        url: "venta/buscarproducto",
+        data: "descripcion=PRUEBA&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            datos=JSON.parse(a);
+            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr><th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>");
+            var pag=parseInt($("#pag").val());
+            var d=0;
+            
+            $('#tablaProducto').DataTable({
+                "scrollY":        "250px",
+                "scrollCollapse": true,
+                "paging":         false
+            });
+            $('#tablaProducto_filter').css('display','none');
+            $("#tablaProducto_info").css("display","none");
+        }
+    });
+}
+
+buscarProducto2();
+
+
+
 <?php
 if(!is_null($movimiento)){
     echo "agregarDetalle(".$movimiento->id.");";
@@ -438,3 +474,22 @@ if(!is_null($movimiento)){
 ?>
 
 </script>
+
+<style>
+    .dataTables_scrollBody{
+        overflow-x: scroll;
+        border-radius: 0.25rem;
+        border: 1px solid #001f3f;
+        cursor: pointer;
+    }
+    .dataTables_scrollBody::-webkit-scrollbar{ 
+        width: 10px;
+        background-color: #001f3f;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb{ 
+        border-radius: 5px;
+        background-color: #e9ecef;
+        border-left: 0.5px solid #001f3f;
+    }
+</style>

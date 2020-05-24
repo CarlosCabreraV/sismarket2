@@ -118,6 +118,7 @@ function agregarRol(check,id){
 	        }
 	    }
 	}
+	$('#roles').val(carroRol.toString());
 }
 <?php
 foreach ($cboRp as $key => $value) {

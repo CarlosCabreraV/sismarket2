@@ -185,7 +185,7 @@ class ProductoController extends Controller
         $dat=array();
         $error = DB::transaction(function() use($request, &$dat){
             $producto = new Producto();
-            $producto->codigobarra = $request->input('codigobarra');
+            $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
             $producto->abreviatura = $request->input('abreviatura');
             $producto->unidad_id = $request->input('unidad_id');
@@ -282,7 +282,7 @@ class ProductoController extends Controller
         $dat=array();
         $error = DB::transaction(function() use($request, $id, &$dat){
             $producto = Producto::find($id);
-            $producto->codigobarra = $request->input('codigobarra');
+            $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
             $producto->abreviatura = $request->input('abreviatura');
             $producto->unidad_id = $request->input('unidad_id');

@@ -68,6 +68,15 @@ class CompraController extends Controller
         if($request->input('fechafin')!=""){
             $resultado = $resultado->where('fecha','<=',$request->input('fechafin'));
         }
+        if($request->input('tipodocumento')!=""){
+            $resultado = $resultado->where('tipodocumento_id','=',$request->input('tipodocumento'));
+        }
+        if($request->input('numero')!=""){
+            $resultado = $resultado->where('numero','LIKE',"%".$request->input('numero')."%");
+        }
+        if($request->input('proveedor')!=""){
+            $resultado = $resultado->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'),'LIKE',"%".$request->input('proveedor')."%");
+        }
         $lista            = $resultado->select('movimiento.*',DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'),DB::raw('responsable.nombres as responsable2'))->orderBy('fecha', 'ASC')->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -157,6 +166,7 @@ class CompraController extends Controller
         $user = Auth::user();
         $dat=array();
         $error = DB::transaction(function() use($request,$user,&$dat){
+            date_default_timezone_set("America/Lima");
             $Venta       = new Movimiento();
             $Venta->fecha = $request->input('fecha');
             $Venta->numero = $request->input('numero');
@@ -173,6 +183,9 @@ class CompraController extends Controller
             $Venta->persona_id = $request->input('persona_id')=="0"?1:$request->input('persona_id');
             $Venta->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
             $Venta->comentario = '';
+            $Venta->voucher = '';
+            $Venta->totalpagado = 0;
+            $Venta->tarjeta = '';
             $Venta->responsable_id=$user->person_id;
             $Venta->save();
             $arr=explode(",",$request->input('listProducto'));
@@ -236,7 +249,7 @@ class CompraController extends Controller
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $venta = Movimiento::find($id);
         $entidad             = 'Compra';
-        $cboTipoDocumento        = Tipodocumento::lists('nombre', 'id')->all();
+        $cboTipoDocumento        = Tipodocumento::pluck('nombre', 'id')->all();
         $formData            = array('venta.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
@@ -375,7 +388,7 @@ class CompraController extends Controller
         $entidad  = 'Compra';
         $formData = array('route' => array('compra.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
-        return view('app.confirmarAnular')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+        return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
     
     public function buscarproducto(Request $request)

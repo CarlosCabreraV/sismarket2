@@ -4,25 +4,29 @@
     <div class="row">
     	<div class="col-lg-12 col-md-12 col-sm-12">
     		<div class="form-group">
-        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::date('fecha', $venta->fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipodocumento',$cboTipoDocumento, $venta->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true')) !!}
+            </div>
+            <div class="form-group">
+                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
+        			{!! Form::text('tipodocumento', $venta->tipodocumento->nombre, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
+            </div>
+            <div class="form-group">
+                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::text('numero', $venta->numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
         	</div>
             <div class="form-group">
-        		{!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-9 col-md-9 col-sm-9">
+        		{!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
                 {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
                 {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
-        		{!! Form::text('persona', '', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+        		{!! Form::text('persona', $venta->persona->apellidopaterno." ".$venta->persona->apellidomaterno." ".$venta->persona->nombres , array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente','disabled'=>'true')) !!}
         		</div>
         	</div>
     	</div>
@@ -35,7 +39,7 @@
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
                     <th class="text-center">Cant.</th>
-                    <th class="text-center">Cod. Barra</th>
+                    {{-- <th class="text-center">Cod. Barra</th> --}}
                     <th class="text-center">Producto</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">Subtotal</th>
@@ -44,7 +48,7 @@
                 @foreach($detalles as $key => $value)
 					<tr>
                         <td class="text-center">{!! number_format($value->cantidad,2,'.','') !!}</td>
-						<td class="text-center">{!! $value->producto->codigobarra !!}</td>
+						{{-- <td class="text-center">{!! $value->producto->codigobarra !!}</td> --}}
                         <td class="text-left">{!! $value->producto->nombre !!}</td>
 						<td class="text-center">{!! number_format($value->preciocompra,2,'.','') !!}</td>
 						<td class="text-center">{!! number_format($value->preciocompra*$value->cantidad,2,'.','') !!}</td>
@@ -52,7 +56,7 @@
                 @endforeach
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="4">Total</th>
+                    <th class="text-right" colspan="3">Total</th>
                     <th class="text-center" align="center">{!! number_format($venta->total,2,'.','') !!}</th>
                 </tfoot>
             </table>
