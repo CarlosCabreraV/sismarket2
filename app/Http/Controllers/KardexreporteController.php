@@ -88,10 +88,13 @@ class KardexreporteController extends Controller
                             ->where('movimiento.fecha','>=',$request->input('fechainicio'))
                             ->where('movimiento.fecha','<=',$request->input('fechafin'))
                             ->whereNotIn('movimiento.situacion',['A']);
-        if($request->input('categoria')!="0"){
-            $resultado = $resultado->where('categoria.id','=',$request->input('categoria'));
+        if($request->input('subcategoria')!="0"  && $request->input('subcategoria')){
+            $resultado = $resultado->where('categoria.id','=',$request->input('subcategoria'));
         }
-        if($request->input('producto')!="0"){
+        if($request->input('categoria')!="0" && $request->input('categoria')){
+            $resultado = $resultado->where('categoria.categoria_id','=',$request->input('categoria'));
+        }
+        if($request->input('producto')!="0" && $request->input('producto')){
             $resultado = $resultado->where('detallemovimiento.producto_id','=',$request->input('producto'))
                                    ->orWhere('detallemovimiento.promocion_id','in',DB::raw('(select promocion_id from detallepromocion where detallemovimiento.producto_id=producto_id)'));
         }

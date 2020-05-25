@@ -50,7 +50,7 @@
 						  </div>
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
-								{!! Form::label('lblsubcategoria', 'Categoria') !!}
+								{!! Form::label('lblsubcategoria', 'Subcategoria') !!}
 								{!! Form::select('subcategoria', $cboCategoria , null, array('class' => 'form-control input-xs', 'id' => 'subcategoria', 'style'=>'width:100%;')) !!}
 							</div>
 						  </div>
