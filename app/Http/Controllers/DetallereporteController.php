@@ -66,6 +66,7 @@ class DetallereporteController extends Controller
         $ruta             = $this->rutas;
         $user = Auth::user();
         $category = [""=>"TODOS"]+Category::orderBy('nombre','asc')->pluck('nombre','id')->all();
+        $producto = [""=>"TODOS"]+Producto::orderBy('nombre','asc')->pluck('nombre','id')->all();
         $cboCategoria = array('' => 'TODOS');
         $categoria = Categoria::orderBy('nombre','asc')->get();
         foreach($categoria as $k=>$v){
@@ -76,7 +77,7 @@ class DetallereporteController extends Controller
         foreach($marca as $k=>$v){
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
-        return view($this->folderview.'.admin')->with(compact('category','entidad', 'title', 'ruta', 'user','cboCategoria','cboMarca'));
+        return view($this->folderview.'.admin')->with(compact('category','entidad', 'title', 'ruta', 'user','cboCategoria','cboMarca','producto'));
     }
 
 
@@ -161,7 +162,7 @@ class DetallereporteController extends Controller
     }
 
     function cambiarcategoria(Request $request){
-        if($request->input('category') != null){
+        if($request->input('category') != ""){
             $categorias = Categoria::where('categoria_id','=',$request->input('category'))->orderBy("nombre","ASC")->get();
             $productos = Producto::join('categoria','categoria.id','=','producto.categoria_id')->where('categoria.categoria_id','=',$request->input('category'))->select("producto.*")->orderBy("producto.nombre","ASC")->get();
         }else{
@@ -181,17 +182,17 @@ class DetallereporteController extends Controller
         return json_encode(array("categorias"=>$cadena,"productos"=>$cadena2));
     }
 
-    function cambiarproducto($id=null){
-        if($id != null){
-            $categorias = Producto::where('categoria_id','=',$id)->orderBy("nombre","ASC")->get();
+    function cambiarproducto(Request $request){
+        if($request->input('categoria') != ""){
+            $productos = Producto::where('categoria_id','=',$request->input('categoria'))->orderBy("nombre","ASC")->get();
         }else{
-            $categorias = Producto::orderBy("nombre","ASC")->get();
+            $productos = Producto::orderBy("nombre","ASC")->get();
         }
         $cadena = '';
-        foreach ($categorias as $key => $value) {
+        foreach ($productos as $key => $value) {
             $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
         }
-        return $cadena;
+        return json_encode(array("productos"=>$cadena));
     }
 
 }

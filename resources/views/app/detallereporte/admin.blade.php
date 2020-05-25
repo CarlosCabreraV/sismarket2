@@ -51,7 +51,7 @@
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('categoria', 'Subcategoría:') !!}
-								{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs slc2', 'id' => 'categoria', 'style'=>'width: 100%!important' )) !!}
+								{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs slc2', 'id' => 'categoria', 'style'=>'width: 100%!important','onchange'=>'cambiarproducto()' )) !!}
 							</div>
 						  </div>
 						  <div class="row">
@@ -63,7 +63,7 @@
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('producto', 'Producto:') !!}
-								{!! Form::select('producto', $cboCategoria, '', array('class' => 'form-control input-xs slc2', 'id' => 'producto', 'style'=>'width: 100%!important' )) !!}
+								{!! Form::select('producto', $producto, '', array('class' => 'form-control input-xs slc2', 'id' => 'producto', 'style'=>'width: 100%!important' )) !!}
 							</div>
 						  </div>
 						  <div class="row">
@@ -118,12 +118,28 @@
             data = JSON.parse(respuesta);
             $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").html("'<option value=''>TODOS</option>");
             $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").append(data.categorias);
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").html("'<option value=''>TODOS</option>");
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").append(data.productos);
         });
 	    
 	 }
-    function cambiarCategoria(){
-
-    }
+    function cambiarproducto() {
+	    var idcategory = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").val();
+			 
+        ruta = 'detallereporte/cambiarproducto?categoria='+idcategory;
+        var respuesta = '';
+        var data = sendRuta(ruta);
+        data.done(function(msg) {
+            respuesta = msg;
+        }).fail(function(xhr, textStatus, errorThrown) {
+            
+        }).always(function() {
+            data = JSON.parse(respuesta);
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").html("'<option value=''>TODOS</option>");
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").append(data.productos);
+        });
+	    
+	 }
 
 </script>
 <style>
