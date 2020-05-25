@@ -137,5 +137,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('venta/imprimirVenta', 'VentaController@imprimirVenta')->name('venta.imprimirVenta');
     Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
 
+    
+    /* REPORTE CAJA*/
+    Route::get('cajareporte/excelCaja', 'CajareporteController@excelCaja')->name('cajareporte.excelCaja');
+    Route::resource('cajareporte', 'CajareporteController', array('except' => array('show')));
+
+    /* REPORTE DETALLE*/
+    Route::get('detallereporte/excelDetalle', 'DetallereporteController@excelDetalle')->name('detallereporte.excelDetalle');
+    Route::resource('detallereporte', 'DetallereporteController', array('except' => array('show')));
+
+    /* REPORTE KARDEX*/
+    Route::get('kardexreporte/excelKardex', 'KardexreporteController@excelKardex')->name('kardexreporte.excelKardex');
+    Route::resource('kardexreporte', 'KardexreporteController', array('except' => array('show')));
+
 });
 
