@@ -94,6 +94,7 @@
 				padding: .46875rem .75rem;
 				height: calc(2.25rem + 2px);
 		}
+		
   </style>
 <script>
 	$(document).ready(function () {

@@ -97,7 +97,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="dist/js/funciones.js"></script>
 <script src="dist/js/bootbox.min.js"></script>
-<script src="dist/js/select2.min.js"></script>
 {{-- typeahead.js-bootstrap: para autocompletar --}}
 <script src="dist/js/bootstrap3-typeahead.min.js"></script>
 <script src="dist/js/bootstrap3-typeahead.js"></script>
@@ -105,7 +104,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="dist/js/bloodhound.min.js"></script>
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
 <script src="dist/js/select2.min.js"></script>
-<script src="dist/js/select2.full.min.js"></script>
+<script src="dist/js/select2.js"></script>
 
 
 <script src="plugins/input-mask/jquery.inputmask.js"></script>
