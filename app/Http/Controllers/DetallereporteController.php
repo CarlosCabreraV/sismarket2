@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Categoria;
+use App\Category;
+use App\Producto;
 use App\Marca;
 use App\Caja;
 use App\Person;
@@ -63,17 +65,18 @@ class DetallereporteController extends Controller
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
         $user = Auth::user();
-        $cboCategoria = array('' => 'Todos');
+        $category = [""=>"TODOS"]+Category::orderBy('nombre','asc')->pluck('nombre','id')->all();
+        $cboCategoria = array('' => 'TODOS');
         $categoria = Categoria::orderBy('nombre','asc')->get();
         foreach($categoria as $k=>$v){
             $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
         }
-        $cboMarca = array('' => 'Todos');
+        $cboMarca = array('' => 'TODOS');
         $marca = Marca::orderBy('nombre','asc')->get();
         foreach($marca as $k=>$v){
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'user','cboCategoria','cboMarca'));
+        return view($this->folderview.'.admin')->with(compact('category','entidad', 'title', 'ruta', 'user','cboCategoria','cboMarca'));
     }
 
 
@@ -90,6 +93,7 @@ class DetallereporteController extends Controller
                             ->join('detallemovimiento','detallemovimiento.movimiento_id','=','movimiento.id')
                             ->join('producto','producto.id','=','detallemovimiento.producto_id')
                             ->join('categoria','producto.categoria_id','=','categoria.id')
+                            ->join('category','categoria.categoria_id','=','category.id')
                             ->join('marca','producto.marca_id','=','marca.id')
                             ->where('movimiento.fecha','>=',$request->input('fechainicio'))
                             ->whereNotIn('movimiento.situacion',['A'])
@@ -100,9 +104,14 @@ class DetallereporteController extends Controller
         if($request->input('categoria')!=""){
             $resultado = $resultado->where('producto.categoria_id','=',$request->input('categoria'));
         }
-        $resultado        = $resultado->select('producto.nombre as producto',DB::raw('sum(detallemovimiento.cantidad) as cantidad'),'categoria.nombre as categoria','marca.nombre as marca','detallemovimiento.precioventa')
+        if($request->input('category')!=""){
+            $resultado = $resultado->where('categoria.categoria_id','=',$request->input('category'));
+        }
+        $resultado        = $resultado->select('producto.nombre as producto',DB::raw('sum(detallemovimiento.cantidad) as cantidad'),'category.nombre as categoriapadre','categoria.nombre as categoria','marca.nombre as marca','detallemovimiento.precioventa')
                             ->groupBy('producto.nombre')
                             ->groupBy('categoria.nombre')
+                            ->groupBy('category.nombre')
+                            ->groupBy('marca.nombre')
                             ->groupBy('detallemovimiento.precioventa');
         $lista            = $resultado->get();
         if (count($lista) > 0) {     
@@ -115,8 +124,9 @@ class DetallereporteController extends Controller
                     $sheet->row($c,$cabecera);
                     $c=$c+1;
                     $detalle = array();
-                    $detalle[] = "PRODUCTO";
                     $detalle[] = "CATEGORIA";
+                    $detalle[] = "SUBCATEGORIA";
+                    $detalle[] = "PRODUCTO";
                     $detalle[] = "MARCA";
                     $detalle[] = "CANTIDAD";
                     $detalle[] = "P. VENTA";
@@ -125,8 +135,9 @@ class DetallereporteController extends Controller
                     $c=$c+1;$total=0;
                     foreach($lista as $key => $value){
                         $detalle = array();
-                        $detalle[] = $value->producto;
+                        $detalle[] = $value->categoriapadre;
                         $detalle[] = $value->categoria;
+                        $detalle[] = $value->producto;
                         $detalle[] = $value->marca;
                         $detalle[] = $value->cantidad;
                         $detalle[] = $value->precioventa;
@@ -147,6 +158,40 @@ class DetallereporteController extends Controller
                 });
             })->export('xls');                    
         }
+    }
+
+    function cambiarcategoria(Request $request){
+        if($request->input('category') != null){
+            $categorias = Categoria::where('categoria_id','=',$request->input('category'))->orderBy("nombre","ASC")->get();
+            $productos = Producto::join('categoria','categoria.id','=','producto.categoria_id')->where('categoria.categoria_id','=',$request->input('category'))->select("producto.*")->orderBy("producto.nombre","ASC")->get();
+        }else{
+            $categorias = Categoria::orderBy("nombre","ASC")->get();
+            $productos = Producto::orderBy("nombre","ASC")->get();
+        }
+
+        $cadena = '';
+        foreach ($categorias as $key => $value) {
+            $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
+        }
+
+        $cadena2 = '';
+        foreach ($productos as $key => $value) {
+            $cadena2 = $cadena2. "<option value=".$value->id.">".$value->nombre."</option>";
+        }
+        return json_encode(array("categorias"=>$cadena,"productos"=>$cadena2));
+    }
+
+    function cambiarproducto($id=null){
+        if($id != null){
+            $categorias = Producto::where('categoria_id','=',$id)->orderBy("nombre","ASC")->get();
+        }else{
+            $categorias = Producto::orderBy("nombre","ASC")->get();
+        }
+        $cadena = '';
+        foreach ($categorias as $key => $value) {
+            $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
+        }
+        return $cadena;
     }
 
 }
