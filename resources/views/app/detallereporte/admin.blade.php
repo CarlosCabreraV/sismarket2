@@ -44,14 +44,26 @@
 						  </div>
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
-								{!! Form::label('categoria', 'Categoria:') !!}
-								{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria')) !!}
+								{!! Form::label('category', 'Categoría:') !!}
+								{!! Form::select('category', $category, '', array('class' => 'form-control input-xs slc2', 'id' => 'category', 'style'=>'width: 100%!important','onchange'=>'cambiarsubcategoria()' )) !!}
+							</div>
+						  </div>
+						  <div class="row">
+							<div class="col-lg-12 col-md-12  form-group">
+								{!! Form::label('categoria', 'Subcategoría:') !!}
+								{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs slc2', 'id' => 'categoria', 'style'=>'width: 100%!important','onchange'=>'cambiarproducto()' )) !!}
 							</div>
 						  </div>
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('marca', 'Marca:') !!}
-								{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control input-xs', 'id' => 'marca')) !!}
+								{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control slc2', 'id' => 'marca','style'=>'width: 100%!important','onchange'=>'cambiarproducto()')) !!}
+							</div>
+						  </div>
+						  <div class="row">
+							<div class="col-lg-12 col-md-12  form-group">
+								{!! Form::label('producto', 'Producto:') !!}
+								{!! Form::select('producto', $producto, '', array('class' => 'form-control input-xs slc2', 'id' => 'producto', 'style'=>'width: 100%!important' )) !!}
 							</div>
 						  </div>
 						  <div class="row">
@@ -85,9 +97,60 @@
 <script>
 	$(document).ready(function () {
 		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
+		$('.slc2').select2();
 	});
 
     function imprimir(){
-        window.open("detallereporte/excelDetalle?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val(),"_blank");
+        window.open("detallereporte/excelDetalle?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val()+"&category="+$("#category").val()+"&producto="+$("#producto").val(),"_blank");
     }
+
+	function cambiarsubcategoria() {
+	    var idcategory = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='category']").val();
+		var idmarca = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='marca']").val();	 
+        var ruta = 'detallereporte/cambiarcategoria?category='+idcategory+"&marca="+idmarca;
+        var respuesta = '';
+        var data = sendRuta(ruta);
+        data.done(function(msg) {
+            respuesta = msg;
+        }).fail(function(xhr, textStatus, errorThrown) {
+            
+        }).always(function() {
+            data = JSON.parse(respuesta);
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").html("'<option value=''>TODOS</option>");
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").append(data.categorias);
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").html("'<option value=''>TODOS</option>");
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").append(data.productos);
+        });
+	    
+	 }
+    function cambiarproducto() {
+	    var idcategoria = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").val();
+		var idmarca = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='marca']").val();	
+        var ruta = 'detallereporte/cambiarproducto?categoria='+idcategoria+"&marca="+idmarca;
+        var respuesta = '';
+        var data = sendRuta(ruta);
+        data.done(function(msg) {
+            respuesta = msg;
+        }).fail(function(xhr, textStatus, errorThrown) {
+            
+        }).always(function() {
+            data = JSON.parse(respuesta);
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").html("'<option value=''>TODOS</option>");
+            $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='producto']").append(data.productos);
+        });
+	    
+	 }
+
 </script>
+<style>
+
+	.select2-container--default .select2-selection--single {
+			border: 1px solid #ced4da;
+			padding: .46875rem .75rem;
+			height: calc(2.25rem + 2px);
+	}
+	.select2-selection__arrow{
+		margin-top: 0.38rem
+	}
+
+</style>

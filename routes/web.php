@@ -151,6 +151,8 @@ Route::group(['middleware' => 'auth'], function () {
     /* REPORTE DETALLE*/
     Route::get('detallereporte/excelDetalle', 'DetallereporteController@excelDetalle')->name('detallereporte.excelDetalle');
     Route::resource('detallereporte', 'DetallereporteController', array('except' => array('show')));
+    Route::get('detallereporte/cambiarcategoria', 'DetallereporteController@cambiarcategoria');
+    Route::get('detallereporte/cambiarproducto/{id?}', 'DetallereporteController@cambiarproducto');
 
     /* REPORTE KARDEX*/
     Route::get('kardexreporte/excelKardex', 'KardexreporteController@excelKardex')->name('kardexreporte.excelKardex');
