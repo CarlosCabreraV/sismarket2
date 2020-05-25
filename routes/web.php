@@ -19,6 +19,9 @@ if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
 Route::get('/', function () {
     return view('auth.login');
 });
+Route::get('/', function () {
+    return view('auth.login');
+});
 
 Auth::routes();
 
@@ -104,6 +107,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('promocion/buscarpromocion', 'PromocionController@buscarproducto')->name('promocion.buscarproducto');
     Route::resource('promocion', 'PromocionController', array('except' => array('show')));
     Route::get('promocion/productoautocompletar/{searching}', 'PromocionController@productoautocompletar')->name('promocion.productoautocompletar');
+    Route::get('promocion/productoautocompletar2/', 'PromocionController@productoautocompletar2')->name('promocion.productoautocompletar2');
+    Route::get('promocion/categoriaautocompletar', 'PromocionController@categoriaautocompletar')->name('promocion.categoriaautocompletar');
+    Route::get('promocion/subcategoriaautocompletar', 'PromocionController@subcategoriaautocompletar')->name('promocion.subcategoriaautocompletar');
 
      /* CONCEPTOPAGO */
      Route::post('concepto/buscar', 'ConceptoController@buscar')->name('concepto.buscar');

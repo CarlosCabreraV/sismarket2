@@ -12,6 +12,7 @@ use App\Detallepromocion;
 use App\Marca;
 use App\Unidad;
 use App\Categoria;
+use App\Category;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -311,16 +312,74 @@ class PromocionController extends Controller
     }
 
     public function productoautocompletar($searching){
-        $resultado        = Producto::where('producto.nombre','like','%'.strtoupper($searching).'%')->orderBy('nombre', 'ASC');
-        $list      = $resultado->select('producto.*')->get();
-        $data = array();
-        foreach ($list as $key => $value) {
-            $data[] = array(
-                            'label' => trim($value->nombre),
-                            'id'    => $value->id,
-                            'value' => trim($value->nombre),
-                        );
+            $resultado        = Producto::where('producto.nombre','like','%'.strtoupper($searching).'%')->orderBy('nombre', 'ASC');
+            $list      = $resultado->select('producto.*')->get();
+            $data = array();
+            foreach ($list as $key => $value) {
+                $data[] = array(
+                                'label' => trim($value->nombre),
+                                'id'    => $value->id,
+                                'value' => trim($value->nombre),
+                            );
+            }
+            return json_encode($data);
         }
-        return json_encode($data);
+    public function productoautocompletar2(Request $request){
+
+        $term = trim($request->q);
+        $idcat = trim($request->idcat);
+        $idsub = trim($request->idsub);
+        
+        $resultado        = Producto::join('categoria','producto.categoria_id','=','categoria.id')->where('producto.nombre','like','%'.strtoupper($term).'%');
+        if(!empty($idsub) && $idsub != 0 && $idsub != '0'){
+            $resultado = $resultado->where('producto.categoria_id','=',$idsub);
+        }
+        if(!empty($idcat) && $idcat != 0 && $idcat != '0'){
+            $resultado = $resultado->where('categoria.categoria_id','=',$idcat);
+        }
+        $resultado = $resultado->orderBy('producto.nombre', 'ASC');
+        $tags     = $resultado->select('producto.*')->get();
+        $formatted_tags = [];
+        $formatted_tags[] = ['id' => '0', 'text' => 'Todos'];
+        if ($tags) {
+            foreach ($tags as $tag) {
+                $formatted_tags[] = ['id' => $tag->id, 'text' => $tag->nombre];
+            }
+        }
+        return \Response::json($formatted_tags);
+    }
+    
+    public function subcategoriaautocompletar(Request $request){
+
+        $term = trim($request->q);
+        $idcat = trim($request->idcat);
+       
+        $resultado        = Categoria::where('categoria.nombre','like','%'.strtoupper($term).'%');
+        if(!empty($idcat) && $idcat != 0 && $idcat != '0'){
+            $resultado = $resultado->where('categoria.categoria_id','=',$idcat);
+        }
+        $resultado = $resultado->orderBy('categoria.nombre', 'ASC');
+        $tags     = $resultado->select('categoria.*')->get();
+        $formatted_tags = [];
+        $formatted_tags[] = ['id' => '0', 'text' => 'Todos'];
+        foreach ($tags as $tag) {
+            $formatted_tags[] = ['id' => $tag->id, 'text' => $tag->nombre];
+        }
+        return \Response::json($formatted_tags);
+    }
+    public function categoriaautocompletar(Request $request){
+
+        $term = trim($request->q);
+        
+        $resultado        = Category::where('category.nombre','like','%'.strtoupper($term).'%');
+        
+        $resultado = $resultado->orderBy('category.nombre', 'ASC');
+        $tags     = $resultado->select('category.*')->get();
+        $formatted_tags = [];
+        $formatted_tags[] = ['id' => '0', 'text' => 'Todos'];
+        foreach ($tags as $tag) {
+            $formatted_tags[] = ['id' => $tag->id, 'text' => $tag->nombre];
+        }
+        return \Response::json($formatted_tags);
     }
 }

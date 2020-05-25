@@ -22,6 +22,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     .ocultarScroll{
     overflow-y:hidden !important;
     }
+		
   </style>
   
   <link  rel="icon"   href="dist/img/logo2.png" type="image/png" />
@@ -31,6 +32,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <link rel="stylesheet" href="dist/css/typeaheadjs.css">
+  <link rel="stylesheet" href="dist/css/select2.min.css">
   
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -101,6 +103,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="dist/js/typeahead.bundle.min.js"></script>
 <script src="dist/js/bloodhound.min.js"></script>
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
+<script src="dist/js/select2.min.js"></script>
+<script src="dist/js/select2.full.min.js"></script>
+
 
 <script src="plugins/input-mask/jquery.inputmask.js"></script>
 <script src="plugins/input-mask/jquery.inputmask.extensions.js"></script>

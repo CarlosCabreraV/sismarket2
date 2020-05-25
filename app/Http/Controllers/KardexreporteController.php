@@ -64,12 +64,11 @@ class KardexreporteController extends Controller
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
         $user = Auth::user();
+        $cboProductos = array('0' => 'Todos');
         $cboCategoria = array('0' => 'Todos');
-        $categoria = Categoria::orderBy('nombre','asc')->get();
-        foreach($categoria as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'user', 'cboCategoria'));
+        $cboSubcategoria = array('0' => 'Todos');
+        
+        return view($this->folderview.'.admin')->with(compact('cboProductos','cboSubcategoria','entidad', 'title', 'ruta', 'user', 'cboCategoria'));
     }
 
 
