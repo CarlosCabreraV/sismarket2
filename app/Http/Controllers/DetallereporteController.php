@@ -108,6 +108,9 @@ class DetallereporteController extends Controller
         if($request->input('category')!=""){
             $resultado = $resultado->where('categoria.categoria_id','=',$request->input('category'));
         }
+        if($request->input('producto')!=""){
+            $resultado = $resultado->where('producto.id','=',$request->input('producto'));
+        }
         $resultado        = $resultado->select('producto.nombre as producto',DB::raw('sum(detallemovimiento.cantidad) as cantidad'),'category.nombre as categoriapadre','categoria.nombre as categoria','marca.nombre as marca','detallemovimiento.precioventa')
                             ->groupBy('producto.nombre')
                             ->groupBy('categoria.nombre')
@@ -164,12 +167,11 @@ class DetallereporteController extends Controller
     function cambiarcategoria(Request $request){
         if($request->input('category') != ""){
             $categorias = Categoria::where('categoria_id','=',$request->input('category'))->orderBy("nombre","ASC")->get();
-            $productos = Producto::join('categoria','categoria.id','=','producto.categoria_id')->where('categoria.categoria_id','=',$request->input('category'))->select("producto.*")->orderBy("producto.nombre","ASC")->get();
         }else{
             $categorias = Categoria::orderBy("nombre","ASC")->get();
-            $productos = Producto::orderBy("nombre","ASC")->get();
         }
-
+        $productos = Producto::listar($request->input('category'),null,$request->input('marca'));
+        $productos = $productos->get();
         $cadena = '';
         foreach ($categorias as $key => $value) {
             $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
@@ -183,16 +185,16 @@ class DetallereporteController extends Controller
     }
 
     function cambiarproducto(Request $request){
-        if($request->input('categoria') != ""){
-            $productos = Producto::where('categoria_id','=',$request->input('categoria'))->orderBy("nombre","ASC")->get();
-        }else{
-            $productos = Producto::orderBy("nombre","ASC")->get();
-        }
+        $productos = Producto::listar(null,$request->input('categoria'),$request->input('marca'));
+        $productos = $productos->get();
         $cadena = '';
         foreach ($productos as $key => $value) {
             $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
         }
         return json_encode(array("productos"=>$cadena));
     }
+
+    
+
 
 }

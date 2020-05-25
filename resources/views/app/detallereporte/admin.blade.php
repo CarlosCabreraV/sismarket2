@@ -57,7 +57,7 @@
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('marca', 'Marca:') !!}
-								{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control slc2', 'id' => 'marca','style'=>'width: 100%!important')) !!}
+								{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control slc2', 'id' => 'marca','style'=>'width: 100%!important','onchange'=>'cambiarproducto()')) !!}
 							</div>
 						  </div>
 						  <div class="row">
@@ -101,13 +101,13 @@
 	});
 
     function imprimir(){
-        window.open("detallereporte/excelDetalle?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val()+"&category="+$("#category").val(),"_blank");
+        window.open("detallereporte/excelDetalle?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val()+"&category="+$("#category").val()+"&producto="+$("#producto").val(),"_blank");
     }
 
 	function cambiarsubcategoria() {
 	    var idcategory = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='category']").val();
-			 
-        ruta = 'detallereporte/cambiarcategoria?category='+idcategory;
+		var idmarca = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='marca']").val();	 
+        var ruta = 'detallereporte/cambiarcategoria?category='+idcategory+"&marca="+idmarca;
         var respuesta = '';
         var data = sendRuta(ruta);
         data.done(function(msg) {
@@ -124,9 +124,9 @@
 	    
 	 }
     function cambiarproducto() {
-	    var idcategory = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").val();
-			 
-        ruta = 'detallereporte/cambiarproducto?categoria='+idcategory;
+	    var idcategoria = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='categoria']").val();
+		var idmarca = $(IDFORMBUSQUEDA + '{{ $entidad }}' + " :input[id='marca']").val();	
+        var ruta = 'detallereporte/cambiarproducto?categoria='+idcategoria+"&marca="+idmarca;
         var respuesta = '';
         var data = sendRuta(ruta);
         data.done(function(msg) {
