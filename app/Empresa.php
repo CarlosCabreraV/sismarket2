@@ -1,0 +1,17 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Empresa extends Model
+{
+    use SoftDeletes;
+    protected $table = 'empresa';
+    protected $dates = ['deleted_at'];
+
+    public function sucursales()
+	{
+		return $this->hasMany('App\Sucursal');
+	}
+}

@@ -15,5 +15,9 @@ class Stockproducto extends Model
 	{
 		return $this->belongsTo('App\Producto', 'producto_id');
 	}
-
+	
+	public function sucursal()
+    {
+        return $this->belongsTo('App\Sucursal', 'sucursal_id');
+    }
 }

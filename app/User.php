@@ -57,4 +57,14 @@ class User extends Authenticatable
     public function person(){
         return $this->belongsTo('App\Person', 'person_id');
     }
+
+    public function sucursal()
+    {
+        return $this->belongsTo('App\Sucursal', 'sucursal_id');
+    }
+
+    public function caja()
+    {
+        return $this->belongsTo('App\Caja', 'caja_id');
+    }
 }
