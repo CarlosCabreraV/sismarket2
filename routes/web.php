@@ -68,6 +68,21 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('category/eliminar/{id}/{listarluego}', 'CategoryController@eliminar')->name('category.eliminar');
     Route::resource('category', 'CategoryController', array('except' => array('show')));
 
+    /* SUCURSAL */
+     Route::post('sucursal/buscar', 'sucursalController@buscar')->name('sucursal.buscar');
+     Route::get('sucursal/eliminar/{id}/{listarluego}', 'sucursalController@eliminar')->name('sucursal.eliminar');
+     Route::resource('sucursal', 'sucursalController', array('except' => array('show')));
+
+    /* CAJA MANTENIMIENTO */
+     Route::post('mantenimientocaja/buscar', 'mantenimientocajaController@buscar')->name('mantenimientocaja.buscar');
+     Route::get('mantenimientocaja/eliminar/{id}/{listarluego}', 'mantenimientocajaController@eliminar')->name('mantenimientocaja.eliminar');
+     Route::resource('mantenimientocaja', 'mantenimientocajaController', array('except' => array('show')));
+
+     /* MOTIVO */
+     Route::post('motivo/buscar', 'MotivoController@buscar')->name('motivo.buscar');
+     Route::get('motivo/eliminar/{id}/{listarluego}', 'MotivoController@eliminar')->name('motivo.eliminar');
+     Route::resource('motivo', 'MotivoController', array('except' => array('show')));
+
      /* PERSONA */
      Route::post('persona/buscar', 'PersonaController@buscar')->name('persona.buscar');
      Route::get('persona/eliminar/{id}/{listarluego}', 'PersonaController@eliminar')->name('persona.eliminar');

@@ -5,22 +5,17 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
-class Sucursal extends Model
+class Motivo extends Model
 {
     use SoftDeletes;
-    protected $table = 'sucursal';
+    protected $table = 'motivo';
     protected $dates = ['deleted_at'];
 
-    public function empresa()
-    {
-        return $this->belongsTo('App\Empresa', 'empresa_id');
-    }
-
+    
     /**
-	 * Método para listar las sucursales
+	 * Método para listar las cajas
 	 */
-	public function scopelistar($query, $nombre, $empresa_id)
+	public function scopelistar($query, $nombre)
     {
         return $query->where(function($subquery) use($nombre)
 		            {
@@ -28,12 +23,13 @@ class Sucursal extends Model
 		            		$subquery->where('nombre', 'LIKE', '%'.$nombre.'%');
 		            	}
 		            })
-        			->where(function($subquery) use($empresa_id)
+        			->where(function($subquery) use($tipo)
 		            {
-		            	if (!is_null($empresa_id)) {
-		            		$subquery->where('empresa_id', '=', $empresa_id);
+		            	if (!is_null($tipo)) {
+		            		$subquery->where('tipo', 'LIKE', '%'.$tipo.'%');
 		            	}
 		            })
+        			->orderBy('tipo', 'ASC')
         			->orderBy('nombre', 'ASC');
     }
 }
