@@ -14,7 +14,7 @@ class AddSucursalIdToMovimientoTable extends Migration
     public function up()
     {
         Schema::table('movimiento', function (Blueprint $table) {
-            $table->integer('sucursal_id')->after('cajaapertura_id')->unsigned();
+            $table->integer('sucursal_id')->after('cajaapertura_id')->unsigned()->nullable();
             $table->foreign('sucursal_id')->references('id')->on('sucursal')->onDelete('restrict')->onUpdate('restrict');
         });
     }

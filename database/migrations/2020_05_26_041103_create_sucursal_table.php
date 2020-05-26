@@ -21,6 +21,7 @@ class CreateSucursalTable extends Migration
             $table->integer('empresa_id')->unsigned();
             $table->foreign('empresa_id')->references('id')->on('empresa')->onDelete('restrict')->onUpdate('restrict');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
