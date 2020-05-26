@@ -37,6 +37,15 @@ class Movimiento extends Model
         return $this->belongsTo('App\Person', 'responsable_id');
     }
 
+    public function caja()
+    {
+        return $this->belongsTo('App\Caja', 'caja_id');
+    }
+    public function sucursal()
+    {
+        return $this->belongsTo('App\Sucursal', 'sucursal_id');
+    }
+
     public function scopeNumeroSigue($query,$tipomovimiento_id,$tipodocumento_id=0){
         if($tipodocumento_id==0){
             $rs=$query->where('tipomovimiento_id','=',$tipomovimiento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,5,8),SIGNED integer) END)*1) AS maximo"))->first();
