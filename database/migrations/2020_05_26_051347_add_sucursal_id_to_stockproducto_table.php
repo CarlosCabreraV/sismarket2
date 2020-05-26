@@ -14,7 +14,7 @@ class AddSucursalIdToStockproductoTable extends Migration
     public function up()
     {
         Schema::table('stockproducto', function (Blueprint $table) {
-            $table->integer('sucursal_id')->after('producto_id')->unsigned();
+            $table->integer('sucursal_id')->after('producto_id')->unsigned()->nullable();
             $table->foreign('sucursal_id')->references('id')->on('sucursal')->onDelete('restrict')->onUpdate('restrict');
       
         });

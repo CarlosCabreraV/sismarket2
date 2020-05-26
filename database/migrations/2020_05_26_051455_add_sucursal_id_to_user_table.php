@@ -14,7 +14,7 @@ class AddSucursalIdToUserTable extends Migration
     public function up()
     {
         Schema::table('user', function (Blueprint $table) {
-            $table->integer('sucursal_id')->after('person_id')->unsigned();
+            $table->integer('sucursal_id')->after('person_id')->unsigned()->nullable();
             $table->foreign('sucursal_id')->references('id')->on('sucursal')->onDelete('restrict')->onUpdate('restrict');
         });
     }

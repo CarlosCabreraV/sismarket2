@@ -127,7 +127,6 @@ class CategoriaopcionmenuController extends Controller
         $validacion = Validator::make($request->all(),
             array(
                 'name'                  => 'required|max:60',
-                'menuoptioncategory_id' => 'integer|integer|exists:menuoptioncategory,id,deleted_at,NULL',
                 'order'                 => 'required|integer',
                 'icon'                  => 'required'
                 )
@@ -195,7 +194,6 @@ class CategoriaopcionmenuController extends Controller
         $validacion = Validator::make($request->all(),
             array(
                 'name'                  => 'required|max:60',
-                'menuoptioncategory_id' => 'integer|exists:menuoptioncategory,id,deleted_at,NULL',
                 'order'                 => 'required|integer',
                 'icon'                  => 'required'
                 )

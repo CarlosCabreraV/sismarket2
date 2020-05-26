@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSucursalIdToMovimientoTable extends Migration
+class AddMotivoIdToMovimientoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddSucursalIdToMovimientoTable extends Migration
     public function up()
     {
         Schema::table('movimiento', function (Blueprint $table) {
-            $table->integer('sucursal_id')->after('cajaapertura_id')->unsigned()->nullable();
-            $table->foreign('sucursal_id')->references('id')->on('sucursal')->onDelete('restrict')->onUpdate('restrict');
+            $table->integer('motivo_id')->after('movimiento_id')->unsigned()->nullable();
+            $table->foreign('motivo_id')->references('id')->on('motivo')->onDelete('restrict')->onUpdate('restrict');
         });
     }
 
@@ -27,7 +27,7 @@ class AddSucursalIdToMovimientoTable extends Migration
     public function down()
     {
         Schema::table('movimiento', function (Blueprint $table) {
-            $table->dropColumn('sucursal_id');
+            $table->dropColumn('motivo_id');
         });
     }
 }
