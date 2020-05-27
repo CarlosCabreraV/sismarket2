@@ -157,7 +157,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('venta/personautocompletar/{searching}', 'VentaController@personautocompletar')->name('venta.personautocompletar');
     Route::post('venta/imprimirVenta', 'VentaController@imprimirVenta')->name('venta.imprimirVenta');
     Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
-
+    /* PEDIDO*/
+    Route::post('pedido/buscar', 'PedidoController@buscar')->name('pedido.buscar');
+    Route::resource('pedido', 'PedidoController');
+   
     
     /* REPORTE CAJA*/
     Route::get('cajareporte/excelCaja', 'CajareporteController@excelCaja')->name('cajareporte.excelCaja');
