@@ -69,6 +69,7 @@
 							  <h3 class="card-title">{{$title}}</h3>
 							  <div class="card-tools">
 								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+								{!! Form::button(' <i class="fa fa-file fa-fw"></i> Importar', array('class' => 'btn  btn-outline-success', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["import"], array('listar'=>'SI')).'\', \'Importar Productos\', this);')) !!}
 							  </div>
 							</div>
 							<!-- /.card-header -->

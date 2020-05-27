@@ -24,6 +24,7 @@ use Jenssegers\Date\Date;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
 use Excel;
+use App\Exports\DetalleVentaExport;
 
 class MTCPDF extends TCPDF {
 
@@ -89,79 +90,80 @@ class DetallereporteController extends Controller
 
     public function excelDetalle(Request $request){
         setlocale(LC_TIME, 'spanish');
-        $guia = $request->input('guia');
-        $resultado        = Movimiento::where('movimiento.tipomovimiento_id', '=', 2)
-                            ->join('detallemovimiento','detallemovimiento.movimiento_id','=','movimiento.id')
-                            ->join('producto','producto.id','=','detallemovimiento.producto_id')
-                            ->join('categoria','producto.categoria_id','=','categoria.id')
-                            ->join('category','categoria.categoria_id','=','category.id')
-                            ->join('marca','producto.marca_id','=','marca.id')
-                            ->where('movimiento.fecha','>=',$request->input('fechainicio'))
-                            ->whereNotIn('movimiento.situacion',['A'])
-                            ->where('movimiento.fecha','<=',$request->input('fechafin'));
-        if($request->input('marca')!=""){
-            $resultado = $resultado->where('producto.marca_id','=',$request->input('marca'));
-        }
-        if($request->input('categoria')!=""){
-            $resultado = $resultado->where('producto.categoria_id','=',$request->input('categoria'));
-        }
-        if($request->input('category')!=""){
-            $resultado = $resultado->where('categoria.categoria_id','=',$request->input('category'));
-        }
-        if($request->input('producto')!=""){
-            $resultado = $resultado->where('producto.id','=',$request->input('producto'));
-        }
-        $resultado        = $resultado->select('producto.nombre as producto',DB::raw('sum(detallemovimiento.cantidad) as cantidad'),'category.nombre as categoriapadre','categoria.nombre as categoria','marca.nombre as marca','detallemovimiento.precioventa')
-                            ->groupBy('producto.nombre')
-                            ->groupBy('categoria.nombre')
-                            ->groupBy('category.nombre')
-                            ->groupBy('marca.nombre')
-                            ->groupBy('detallemovimiento.precioventa');
-        $lista            = $resultado->get();
-        if (count($lista) > 0) {     
-            Excel::create('ExcelDetalle', function($excel) use($lista,$request) {
-                $excel->sheet('Detalle', function($sheet) use($lista,$request) {
-                    $c=1;
-                    $sheet->mergeCells('A'.$c.':J'.$c);
-                    $cabecera = array();
-                    $cabecera[] = "REPORTE DETALLE DEL ".$request->input('fechainicio')." AL ".$request->input('fechafin');
-                    $sheet->row($c,$cabecera);
-                    $c=$c+1;
-                    $detalle = array();
-                    $detalle[] = "CATEGORIA";
-                    $detalle[] = "SUBCATEGORIA";
-                    $detalle[] = "PRODUCTO";
-                    $detalle[] = "MARCA";
-                    $detalle[] = "CANTIDAD";
-                    $detalle[] = "P. VENTA";
-                    $detalle[] = "SUBTOTAL";
-                    $sheet->row($c,$detalle);
-                    $c=$c+1;$total=0;
-                    foreach($lista as $key => $value){
-                        $detalle = array();
-                        $detalle[] = $value->categoriapadre;
-                        $detalle[] = $value->categoria;
-                        $detalle[] = $value->producto;
-                        $detalle[] = $value->marca;
-                        $detalle[] = $value->cantidad;
-                        $detalle[] = $value->precioventa;
-                        $detalle[] = $value->cantidad*$value->precioventa;
-                        $total = $total + $value->cantidad*$value->precioventa;
-                        $sheet->row($c,$detalle);
-                        $c=$c+1;
-                    }
-                    $detalle = array();
-                    $detalle[] = "";
-                    $detalle[] = "";
-                    $detalle[] = "";
-                    $detalle[] = "";
-                    $detalle[] = "TOTAL";
-                    $detalle[] = $total;
-                    $sheet->row($c,$detalle);
+        //$guia = $request->input('guia');
+        return Excel::download(new DetalleVentaExport($request->input('fechainicio'),$request->input('fechafin'),$request->input('category'),$request->input('categoria'),$request->input('producto'),$request->input('marca')), 'detalleventa.xlsx');
+        // $resultado        = Movimiento::where('movimiento.tipomovimiento_id', '=', 2)
+        //                     ->join('detallemovimiento','detallemovimiento.movimiento_id','=','movimiento.id')
+        //                     ->join('producto','producto.id','=','detallemovimiento.producto_id')
+        //                     ->join('categoria','producto.categoria_id','=','categoria.id')
+        //                     ->join('category','categoria.categoria_id','=','category.id')
+        //                     ->join('marca','producto.marca_id','=','marca.id')
+        //                     ->where('movimiento.fecha','>=',$request->input('fechainicio'))
+        //                     ->whereNotIn('movimiento.situacion',['A'])
+        //                     ->where('movimiento.fecha','<=',$request->input('fechafin'));
+        // if($request->input('marca')!=""){
+        //     $resultado = $resultado->where('producto.marca_id','=',$request->input('marca'));
+        // }
+        // if($request->input('categoria')!=""){
+        //     $resultado = $resultado->where('producto.categoria_id','=',$request->input('categoria'));
+        // }
+        // if($request->input('category')!=""){
+        //     $resultado = $resultado->where('categoria.categoria_id','=',$request->input('category'));
+        // }
+        // if($request->input('producto')!=""){
+        //     $resultado = $resultado->where('producto.id','=',$request->input('producto'));
+        // }
+        // $resultado        = $resultado->select('producto.nombre as producto',DB::raw('sum(detallemovimiento.cantidad) as cantidad'),'category.nombre as categoriapadre','categoria.nombre as categoria','marca.nombre as marca','detallemovimiento.precioventa')
+        //                     ->groupBy('producto.nombre')
+        //                     ->groupBy('categoria.nombre')
+        //                     ->groupBy('category.nombre')
+        //                     ->groupBy('marca.nombre')
+        //                     ->groupBy('detallemovimiento.precioventa');
+        // $lista            = $resultado->get();
+        // if (count($lista) > 0) {     
+        //     Excel::create('ExcelDetalle', function($excel) use($lista,$request) {
+        //         $excel->sheet('Detalle', function($sheet) use($lista,$request) {
+        //             $c=1;
+        //             $sheet->mergeCells('A'.$c.':J'.$c);
+        //             $cabecera = array();
+        //             $cabecera[] = "REPORTE DETALLE DEL ".$request->input('fechainicio')." AL ".$request->input('fechafin');
+        //             $sheet->row($c,$cabecera);
+        //             $c=$c+1;
+        //             $detalle = array();
+        //             $detalle[] = "CATEGORIA";
+        //             $detalle[] = "SUBCATEGORIA";
+        //             $detalle[] = "PRODUCTO";
+        //             $detalle[] = "MARCA";
+        //             $detalle[] = "CANTIDAD";
+        //             $detalle[] = "P. VENTA";
+        //             $detalle[] = "SUBTOTAL";
+        //             $sheet->row($c,$detalle);
+        //             $c=$c+1;$total=0;
+        //             foreach($lista as $key => $value){
+        //                 $detalle = array();
+        //                 $detalle[] = $value->categoriapadre;
+        //                 $detalle[] = $value->categoria;
+        //                 $detalle[] = $value->producto;
+        //                 $detalle[] = $value->marca;
+        //                 $detalle[] = $value->cantidad;
+        //                 $detalle[] = $value->precioventa;
+        //                 $detalle[] = $value->cantidad*$value->precioventa;
+        //                 $total = $total + $value->cantidad*$value->precioventa;
+        //                 $sheet->row($c,$detalle);
+        //                 $c=$c+1;
+        //             }
+        //             $detalle = array();
+        //             $detalle[] = "";
+        //             $detalle[] = "";
+        //             $detalle[] = "";
+        //             $detalle[] = "";
+        //             $detalle[] = "TOTAL";
+        //             $detalle[] = $total;
+        //             $sheet->row($c,$detalle);
                     
-                });
-            })->export('xls');                    
-        }
+        //         });
+        //     })->export('xls');                    
+        // }
     }
 
     function cambiarcategoria(Request $request){

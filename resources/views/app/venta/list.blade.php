@@ -1,13 +1,13 @@
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
-{!! $paginacion or '' !!}
+{!! $paginacion !!}
 <table id="example1" class="table table-bordered table-striped table-condensed table-hover">
 
 	<thead>
 		<tr>
 			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
+				<th @if( (int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
 			@endforeach
 		</tr>
 	</thead>
@@ -53,10 +53,10 @@
 	<tfoot>
 		<tr>
 			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
+				<th @if( (int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
 			@endforeach
 		</tr>
 	</tfoot>
 </table>
-{!! $paginacion or '' !!}
+{!! $paginacion !!}
 @endif

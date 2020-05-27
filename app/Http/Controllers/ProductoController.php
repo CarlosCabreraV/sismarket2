@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Excel;
 use File;
 use Illuminate\Support\Facades\Storage;
+use App\Imports\ProductoImport;
 
 class ProductoController extends Controller
 {
@@ -31,6 +32,7 @@ class ProductoController extends Controller
             'search' => 'producto.buscar',
             'index'  => 'producto.index',
             'presentacion'   => 'producto.presentacion', 
+            'import' => 'producto.import',
         );
 
 
@@ -463,6 +465,64 @@ class ProductoController extends Controller
             return "Imagen no enviada";
         }
         
+    }
+
+    /**
+     * Funcion para abrir modal de importar.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function import(Request $request)
+    {
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad             = "Producto";
+        $producto             = null;
+        $formData            = array('producto.saveimport');
+        $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off','enctype'=>'multipart/form-data');
+        $boton               = 'Importar'; 
+        return view($this->folderview.'.mant2')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboCategory'));
+    }
+
+    /**
+     * Funcion para importar.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * 
+     */
+    public function saveimport(Request $request)
+    {
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $validacion = Validator::make($request->all(),
+            array(
+                'file'           => 'required',
+                ),
+            array(
+                'file.required'  => 'El campo Excel es necesario.',
+                )
+            );
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+        $error = DB::transaction(function() use($request,$currentUser){
+            if($request->hasFile("file")){
+                $file = $request->file("file");
+                if($file->getClientMimeType() == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $file->getClientMimeType() == "application/vnd.ms-excel" || $file->getClientMimeType()=="application/octet-stream"){
+                    $namefile = time().$file->getClientOriginalName();
+                    $file->move(public_path().'/imports/',$namefile);
+                    $data = Excel::import(new ProductoImport,public_path().'/imports/'.$namefile);
+                }else{
+                    echo json_encode(array("file"=>array("El archivo debe ser formato xls o xlsx")));exit();
+                }
+                // $product->name  = $request->input('name');
+                // $product->price  = $request->input('price');
+                // $product->description  = Libreria::getParam($request->input('description'),"");
+                // $product->image = $nameImage;
+                // $product->id_category = $request->input('id_category');
+                // $product->id_local = $currentUser->id_local;
+                // $product->save();
+            }
+        });
+        return is_null($error) ? "OK" : $error;
     }
 
     
