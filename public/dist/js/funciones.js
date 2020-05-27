@@ -17,13 +17,15 @@ var contadorModal       = 0;
 * @return {string} respuesta
 */
 function submitForm (idformulario) {
-	var parametros = $(idformulario).serialize();
+	var parametros = new FormData($(idformulario)[0]);
 	var accion     = $(idformulario).attr('action');
 	var metodo     = $(idformulario).attr('method');
 	var respuesta  = $.ajax({
 		url : accion,
 		type: metodo,
-		data: parametros
+		data: parametros,
+		contentType: false,
+		processData: false
 	});
 	return respuesta;
 }
