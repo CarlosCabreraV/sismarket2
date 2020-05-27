@@ -39,5 +39,8 @@
 		</tr>
 	</tfoot>
 </table>
+<script>
+	 
+</script>
 {!! $paginacion  !!}
 @endif

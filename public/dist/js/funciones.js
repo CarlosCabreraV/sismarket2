@@ -436,6 +436,12 @@ function mostrarMensaje (mensaje, tipo) {
 		divMensaje.html('');
 		divMensaje.hide("slow");
 	},3000);
+
+	if (tipo === 'ERROR') {
+		toastr.error(mensaje, 'La accion presento error interno')
+	} else if(tipo === 'OK'){
+		toastr.success(mensaje, 'La accion se ejecutó sin errores');
+	}
 }
 
 function mostrarProvincias(ruta, entidad, tipo) {

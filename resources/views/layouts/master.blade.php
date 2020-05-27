@@ -33,6 +33,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <link rel="stylesheet" href="dist/css/typeaheadjs.css">
   <link rel="stylesheet" href="dist/css/select2.min.css">
+  <link rel="stylesheet" href="dist/css/toastr.min.css">
   
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -105,6 +106,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}
 <script src="dist/js/select2.min.js"></script>
 <script src="dist/js/select2.js"></script>
+
+<script src="dist/js/toastr.min.js"></script>
 
 
 <script src="plugins/input-mask/jquery.inputmask.js"></script>
