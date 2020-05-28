@@ -48,6 +48,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('usuario/buscar', 'UsuarioController@buscar')->name('usuario.buscar');
     Route::get('usuario/eliminar/{id}/{listarluego}', 'UsuarioController@eliminar')->name('usuario.eliminar');
     Route::resource('usuario', 'UsuarioController', array('except' => array('show')));
+    Route::get('usuario/personautocompletar/{searching}', 'UsuarioController@personautocompletar')->name('usuario.personautocompletar');
+    Route::get('usuario/cambiarcaja', 'UsuarioController@cambiarcaja')->name('usuario.cambiarcaja');
+
+
 
 
      /* CATEGORIA */

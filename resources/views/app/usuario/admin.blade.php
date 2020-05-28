@@ -23,29 +23,41 @@
 		<div class="container-fluid">
 		  <div class="">
 			  <div class="row justify-content-center">
-				  <div class="col-lg-12 col-md-12">
+				  <div class="col-12">
 					  <div class="card mt-4">
-						<div class="card-body">
-						  <div class="row">
-							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'w-100 d-md-flex d-lg-flex d-sm-inline-block', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+						<div class="card-body w-100 d-flex">
+						  	{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'w-100', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
+							<div class="row w-100 d-flex">
+								
+								<div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('login', 'Login:') !!}
+									{!! Form::text('login', '', array('class' => 'form-control input-xs', 'id' => 'login')) !!}
+								</div>
+								<div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('nombre', 'Nombre:') !!}
+									{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+								</div>
+								<div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('sucursal_id', 'Sucursal:') !!}
+									{!! Form::select('sucursal_id', $cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+								</div>
+							</div>
+							<div class="row w-100 d-flex">
+								<div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('caja_id', 'Caja:') !!}
+									{!! Form::select('caja_id', $cboCaja, null, array('class' => 'form-control input-xs', 'id' => 'caja_id')) !!}
+								</div>
+								<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
+									{!! Form::label('nombre', 'Filas a mostrar') !!}
+									{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+								</div>
+							</div>
 							
-							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('login', 'Login:') !!}
-								{!! Form::text('login', '', array('class' => 'form-control input-xs', 'id' => 'login')) !!}
-							</div>
-							<div class="col-lg-4 col-md-4  form-group">
-								{!! Form::label('nombre', 'Nombre:') !!}
-								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
-							</div>
-							<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
-								{!! Form::label('nombre', 'Filas a mostrar') !!}
-								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
-							</div>
+							
 							{!! Form::close() !!}
 						  </div>
-						</div>
 					  </div>
 					  <div class="row mt-2" >
 						<div class="col-md-12">
@@ -94,6 +106,12 @@
 			if (key == '13') {
 				buscar('{{ $entidad }}');
 			}
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
+			buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="caja_id"]').change(function (e) {
+			buscar('{{ $entidad }}');
 		});
 	});
 </script>

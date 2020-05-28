@@ -7,7 +7,7 @@
 	<thead>
 		<tr>
 			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
+				<th @if( (int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
 			@endforeach
 		</tr>
 	</thead>
@@ -16,14 +16,25 @@
 		$contador = $inicio + 1;
 		?>
 		@foreach ($lista as $key => $value)
-		<tr>
-			<td>{{ $contador }}</td>
-			<td>{{ $value->login }}</td>
-			<td>{{ $value->usertype->name }}</td>
-			<td>{{ ($value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres)  }}</td>
-			<td>{!! Form::button('<div class="fas fa-edit"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success')) !!}</td>
-            <td>{!! Form::button('<div class="fas fa-trash-alt"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger')) !!}</td>
-	</tr>
+			<tr>
+				<td>{{ $contador }}</td>
+				<td>{{ $value->login }}</td>
+				<td>{{ $value->usertype->name }}</td>
+				@if ($value->sucursal != null)
+					<td>{{ $value->sucursal->nombre }}</td>
+				@else
+					<td> - </td>
+				@endif
+				<td>{{ ($value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres)  }}</td>
+			@if ($value->id != '1')
+				<td>{!! Form::button('<div class="fas fa-edit"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success')) !!}</td>
+	            <td>{!! Form::button('<div class="fas fa-trash-alt"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger')) !!}</td>
+			@else
+				<td> - </td>
+				<td> - </td>
+			@endif
+			</tr>
+		
 		<?php
 		$contador = $contador + 1;
 		?>
@@ -32,7 +43,7 @@
 	<tfoot>
 		<tr>
 			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
+				<th @if( (int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
 			@endforeach
 		</tr>
 	</tfoot>

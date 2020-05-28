@@ -38,16 +38,37 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function scopelistar($query, $login)
+    public function scopelistar($query, $login,$nombre = null,$sucursal_id = null, $caja_id = null )
     {
-        return $query->where(function($subquery) use($login)
+        return $query->join('person','person.id','=','user.person_id')
+                        
+                    ->where(function($subquery) use($login)
                     {
                         if (!is_null($login)) {
                             $subquery->where('login', 'LIKE', '%'.$login.'%');
                         }
                     })
-                    ->orderBy('login', 'ASC');
+                    ->where(function($subquery) use($nombre)
+                    {
+                        if (!is_null($nombre)) {
+                            $subquery->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', '%'.$request->input('nombre').'%');
+                        }
+                    })
+                    ->where(function($subquery) use($sucursal_id)
+                    {
+                        if (!is_null($sucursal_id)) {
+                            $subquery->where('sucursal_id', '=', $sucursal_id);
+                        }
+                    })
+                    ->where(function($subquery) use($caja_id)
+                    {
+                        if (!is_null($caja_id)) {
+                            $subquery->where('caja_id', '=', $caja_id);
+                        }
+                    })
+                    ->select('user.*','person.nombres','person.apellidopaterno','person.apellidomaterno')->orderBy('person.apellidopaterno','asc');
     }
+
 
     public function usertype()
     {
