@@ -199,7 +199,50 @@ function modal (controlador, titulo) {
 		cargarRuta(controlador, idContenedor);
 	},400);
 }
+function modal_nocerrar (controlador, titulo) {
+	var idContenedor = "divModal" + contadorModal;
+	var divmodal     = "<div id=\"" + idContenedor + "\"></div>";
+	var box          = bootbox.dialog({
+		message: divmodal,
+		className: 'modal' +  contadorModal,
+		title: titulo,
+		closeButton:false
+	});
+	box.prop('id', 'modal'+contadorModal);
+	/*$('#modal'+contadorModal).draggable({
+		handle: ".modal-header"
+	});*/
+	modales[contadorModal] = box;
+	contadorModal          = contadorModal + 1;
+	setTimeout(function(){
+		cargarRuta(controlador, idContenedor);
+	},400);
+}
 
+function asignar(entidad, idboton, entidad2) {
+	var idformulario = IDFORMMANTENIMIENTO + entidad;
+	var data         = submitForm(idformulario);
+	var respuesta    = '';
+	
+	var btn = $(idboton);
+	btn.button('loading');
+	data.done(function(msg) {
+		respuesta = msg;
+	}).fail(function(xhr, textStatus, errorThrown) {
+		respuesta = 'ERROR';
+	}).always(function() {
+		btn.button('reset');
+		if(respuesta === 'ERROR'){
+		}else{
+			if (respuesta === 'OK') {
+				cerrarModal();
+				toastr.success('Caja asignada correctamente','Realizado correctamente');      
+			} else {
+				mostrarErrores(respuesta, idformulario, entidad);
+			}
+		}
+	});
+}
 /**
 * Registrar o modificar un recurso
 * @param  {string} entidad

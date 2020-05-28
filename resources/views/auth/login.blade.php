@@ -45,13 +45,14 @@
                     </span>
                     @endif  
                 </div>
-                  <input class="btn btn-block login-btn mb-4" id='loginbtn' type="button" value="Login" >
+                  <input class="btn btn-block login-btn mb-4" id='loginbtn' type="button" value="Login" onclick="event.preventDefault(); document.getElementById('formLogin').submit();" >
                   @if (Route::has('password.request'))
                   <a class="forgot-password-link" href="{{ route('password.request') }}">
                       {{ __('Forgot Your Password?') }}
                   </a>
                 @endif
                 </form>
+                
             </div>
           </div>
         </div>
@@ -79,12 +80,6 @@
   <script src="plugins/jquery/jquery.min.js"></script>
   <!-- Bootstrap 4 -->
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script>
-      $(document).ready( function() { // Wait until document is fully parsed
-        $('#loginbtn').on('click', function(){
-          $("#formLogin").submit();
-        });
-      })  
-  </script>
+ 
 </body>
 </html>
