@@ -9,6 +9,7 @@ use App\Caja;
 use App\Sucursal;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class mantenimientocajaController extends Controller
@@ -243,5 +244,36 @@ class mantenimientocajaController extends Controller
         $formData = array('route' => array('mantenimientocaja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function asignarcaja(){
+        $entidad  = $this->entidad;
+        $caja = null;
+        $formData = array('mantenimientocaja.guardarasignarcaja');
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton    = 'Aceptar'; 
+        $user = Auth::user();
+        $cajas = Caja::where('sucursal_id',$user->sucursal_id);
+        $cboCajas = [""=>"ELIJA UNA CAJA"]+$cajas->pluck("nombre","id")->all();
+        return view('app.asignarCaja')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboCajas'));
+    }
+    public function guardarasignarcaja(Request $request){
+        
+        $reglas     = array(
+        	'caja_id' => 'required|integer|exists:caja,id,deleted_at,NULL',
+    		);
+        $mensajes 	= array(
+            'caja_id.required'    => 'Debe seleccionar una caja.',
+            'caja_id.exists'    => 'La caja seleccionada no existe.',
+            'caja_id.integer'    => 'El formato de la caja es incorrecto.'
+            );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+       
+        session(['caja_sesion_id' => $request->caja_id]); 
+        
+        return "OK";
     }
 }

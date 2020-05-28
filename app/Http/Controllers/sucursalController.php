@@ -115,7 +115,8 @@ class sucursalController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $empresa 	= Empresa::first();
+       // $empresa = Empresa::first();
+        $empresa 	= DB::table('empresa')->first();
         if(!$empresa){
         	return json_encode(array("empresa"=>["Primero debe crear una empresa"]));
         }

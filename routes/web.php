@@ -19,9 +19,6 @@ if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
 Route::get('/', function () {
     return view('auth.login');
 });
-Route::get('/', function () {
-    return view('auth.login');
-});
 
 Auth::routes();
 
@@ -76,12 +73,13 @@ Route::group(['middleware' => 'auth'], function () {
      Route::post('sucursal/buscar', 'sucursalController@buscar')->name('sucursal.buscar');
      Route::get('sucursal/eliminar/{id}/{listarluego}', 'sucursalController@eliminar')->name('sucursal.eliminar');
      Route::resource('sucursal', 'sucursalController', array('except' => array('show')));
-
     /* CAJA MANTENIMIENTO */
      Route::post('mantenimientocaja/buscar', 'mantenimientocajaController@buscar')->name('mantenimientocaja.buscar');
      Route::get('mantenimientocaja/eliminar/{id}/{listarluego}', 'mantenimientocajaController@eliminar')->name('mantenimientocaja.eliminar');
      Route::resource('mantenimientocaja', 'mantenimientocajaController', array('except' => array('show')));
-
+     //Modal para asignar caja
+    Route::get('mantenimientocaja/asignarcaja','mantenimientocajaController@asignarcaja')->name('mantenimientocaja.asignarcaja');   
+    Route::post('mantenimientocaja/guardarasignarcaja','mantenimientocajaController@guardarasignarcaja')->name('mantenimientocaja.guardarasignarcaja');   
      /* MOTIVO */
      Route::post('motivo/buscar', 'MotivoController@buscar')->name('motivo.buscar');
      Route::get('motivo/eliminar/{id}/{listarluego}', 'MotivoController@eliminar')->name('motivo.eliminar');
