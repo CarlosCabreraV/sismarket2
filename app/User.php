@@ -38,6 +38,63 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    
+    
+    public function usertype()
+    {
+        return $this->belongsTo('App\Usertype', 'usertype_id');
+    }
+    
+    public function person(){
+        return $this->belongsTo('App\Person', 'person_id');
+    }
+    
+    public function sucursal()
+    {
+        return $this->belongsTo('App\Sucursal', 'sucursal_id');
+    }
+    
+    public function caja()
+    {
+        return $this->belongsTo('App\Caja', 'caja_id');
+    }
+
+    /**
+     * Funcón que retorna true si es Admin
+     *
+     * @return boolean
+     */
+    public function isAdmin()
+    {
+        if($this->usertype_id == 4){
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Funcón que retorna true si es SuperAdmin
+     *
+     * @return boolean
+     */
+    public function isSuperAdmin()
+    {
+        if ($this->usertype_id == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Función para listar Usuarios
+     *
+     * @param  model $query
+     * @param  string $login
+     * @param  string $nombre
+     * @param  int $sucursal_id
+     * @param  int $caja_id
+     * @return sql 
+     */
     public function scopelistar($query, $login,$nombre = null,$sucursal_id = null, $caja_id = null )
     {
         return $query->join('person','person.id','=','user.person_id')
@@ -51,7 +108,7 @@ class User extends Authenticatable
                     ->where(function($subquery) use($nombre)
                     {
                         if (!is_null($nombre)) {
-                            $subquery->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', '%'.$request->input('nombre').'%');
+                            $subquery->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', '%'.$nombre.'%');
                         }
                     })
                     ->where(function($subquery) use($sucursal_id)
@@ -69,23 +126,5 @@ class User extends Authenticatable
                     ->select('user.*','person.nombres','person.apellidopaterno','person.apellidomaterno')->orderBy('person.apellidopaterno','asc');
     }
 
-
-    public function usertype()
-    {
-        return $this->belongsTo('App\Usertype', 'usertype_id');
-    }
-
-    public function person(){
-        return $this->belongsTo('App\Person', 'person_id');
-    }
-
-    public function sucursal()
-    {
-        return $this->belongsTo('App\Sucursal', 'sucursal_id');
-    }
-
-    public function caja()
-    {
-        return $this->belongsTo('App\Caja', 'caja_id');
-    }
+    
 }

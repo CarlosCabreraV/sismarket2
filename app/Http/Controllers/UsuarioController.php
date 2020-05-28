@@ -40,6 +40,7 @@ class UsuarioController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        define("ASIGNAR_CAJA", Configuracion::where("nombre", "=", "ASIGNAR_CAJA")->first()->valor);
     }
 
     /**
@@ -97,9 +98,9 @@ class UsuarioController extends Controller
         $ruta             = $this->rutas;
         $cboSucursal      = array('' => 'TODOS') + Sucursal::pluck('nombre', 'id')->all();
         $cboCaja          = array('' => 'TODOS') + Caja::pluck('nombre', 'id')->all();
-        if($user->usertype_id <> 1 && $user->usertype_id <> 4){
-            $cboSucursal = array('' => 'TODOS') + Sucursal::where('sucursal_id','=',$user->sucursal_id)->pluck('nombre', 'id')->all();
-            $cboCaja = array('' => 'TODOS') + Caja::where('caja_id','=',$user->caja_id)->pluck('nombre', 'id')->all();
+        if($user->usertype_id != 1 && $user->usertype_id != 4){
+            $cboSucursal = Sucursal::where('sucursal_id','=',$user->sucursal_id)->pluck('nombre', 'id')->all();
+            $cboCaja = Caja::where('caja_id','=',$user->caja_id)->pluck('nombre', 'id')->all();
         }
         return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta','cboSucursal','cboCaja'));
     }
@@ -131,7 +132,6 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        define("ASIGNAR_CAJA",Configuracion::where("nombre","=","ASIGNAR_CAJA")->first()->valor);
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas = array(
             'login'       => 'required|max:20|unique:user,login,NULL,id,deleted_at,NULL',
@@ -218,7 +218,6 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, $id)
     {
-        define("ASIGNAR_CAJA",Configuracion::where("nombre","=","ASIGNAR_CAJA")->first()->valor);
         $existe = Libreria::verificarExistencia($id, 'user');
         if ($existe !== true) {
             return $existe;

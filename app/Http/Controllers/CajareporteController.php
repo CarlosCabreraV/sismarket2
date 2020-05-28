@@ -6,15 +6,11 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\Http\Requests;
-use App\Historia;
-use App\Convenio;
 use App\Caja;
 use App\Person;
-use App\Venta;
 use App\Movimiento;
 use App\Tipodocumento;
 use App\Concepto;
-use App\Detallemovcaja;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -24,18 +20,18 @@ use Illuminate\Support\Facades\Auth;
 use Excel;
 use App\Exports\CajaExport;
 
-class MTCPDF extends TCPDF {
+// class MTCPDF extends TCPDF {
 
-    // Page footer
-    public function Footer() {
-        // Position at 15 mm from bottom
-        $this->SetY(-15);
-        // Set font
-        $this->SetFont('helvetica', 'I', 8);
-        // Page number
-        $this->Cell(190, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
-    }
-}
+//     // Page footer
+//     public function Footer() {
+//         // Position at 15 mm from bottom
+//         $this->SetY(-15);
+//         // Set font
+//         $this->SetFont('helvetica', 'I', 8);
+//         // Page number
+//         $this->Cell(190, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+//     }
+// }
 
 class CajareporteController extends Controller
 {

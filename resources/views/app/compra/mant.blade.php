@@ -19,6 +19,12 @@
         		</div>
             </div>
             <div class="form-group">
+                {!! Form::label('sucursal_id', 'Sucursal:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
+        			{!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+        		</div>
+            </div>
+            <div class="form-group">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
         		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
@@ -53,16 +59,26 @@
         	</div>
          </div>
          <div class="col-lg-7 col-md-7 col-sm-7">
-            <div class="form-group">
-                {{-- {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
-        		</div> --}}
-                {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-5 col-md-5 col-sm-5">
-        			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
-        		</div>
-            </div>
+             <div class="row col-lg-12 col-md-12 col-sm-12">
+                 @if ($conf_codigobarra=="S")
+                 <div class="col-lg-6 col-md-6 col-sm-6">
+                         <div class="form-group">
+                             {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                             <div class="col-lg-12 col-md-12 col-sm-12">
+                                 {!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
+                             </div>
+                         </div>
+                 </div>
+                 @endif
+                 <div class="col-lg-6 col-md-6 col-sm-6">
+                     <div class="form-group">
+                         {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                         <div class="col-lg-12 col-md-12 col-sm-12">
+                             {!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
+                         </div>
+                     </div>
+                 </div>
+             </div>
             <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
             </div>
          </div>     
@@ -75,7 +91,9 @@
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead class="bg-navy">
                     <th class="text-center">Cant.</th>
-                    {{-- <th class="text-center">Cod. Barra</th> --}}
+                    @if ($conf_codigobarra=="S")
+                        <th class="text-center">Cod. Barra</th>
+                    @endif
                     <th class="text-center">Producto</th>
                     <th class="text-center">P. Compra</th>
                     <th class="text-center">Subtotal</th>
@@ -84,7 +102,10 @@
                 <tbody>
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="3">Total</th>
+                    @php
+                        $colspan1 = ($conf_codigobarra=="S")?"4":"3";
+                    @endphp
+                    <th class="text-right" colspan="{{$colspan1}}">Total</th>
                     <th class="text-center" align="center">{!! Form::text('total', null, array('class' => 'input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
                 </tfoot>
             </table>
@@ -126,8 +147,15 @@ $(document).ready(function() {
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona_id"]').val(datum.id);
         personas2.clearRemoteCache();
 	});
+    @if ($conf_codigobarra=="S")
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
+    @else
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').focus();
+    @endif
 
-    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
+        buscarProducto();
+    });
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
         var e = window.event; 
@@ -237,10 +265,15 @@ var contador=0;
 function guardarPago (entidad, idboton) {
     var band=true;
     var msg="";
-    if($("#persona_id").val()==""){
+    if($("#persona").val()==""){
         band = false;
-        msg += " *No se selecciono un proveedor \n";    
+        msg += " No se seleccionó un proveedor.<br>";    
     }
+    if(carro.length == 0){
+        band = false;
+        msg += " No se seleccionó ningún item.";    
+    }
+    //console.log($("#persona").val());
     if(band && contador==0){
         contador=1;
     	var idformulario = IDFORMMANTENIMIENTO + entidad;
@@ -267,7 +300,8 @@ function guardarPago (entidad, idboton) {
                 }
                 
     			if (resp === 'OK') {
-    				cerrarModal();
+                    cerrarModal();
+                    cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                     //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
     			} else if(resp === 'ERROR') {
@@ -278,47 +312,66 @@ function guardarPago (entidad, idboton) {
     		}
     	});
     }else{
-        alert("Corregir los sgtes errores: \n"+msg);
+        toastr.error(msg, 'Corregir los sgtes errores:');
     }
 }
 
 function buscarProductoBarra(barra){
-    $.ajax({
-        type: "POST",
-        url: "compra/buscarproductobarra",
-        data: "codigobarra="+barra+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
-        success: function(a) {
-            datos=JSON.parse(a);
-            seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock);
-	    }
-    });
+    if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val() == ""){
+        toastr.warning("Debe seleccionar una sucursal", 'Error:');
+    }else{
+        $.ajax({
+            type: "POST",
+            url: "compra/buscarproductobarra",
+            data: "sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&codigobarra="+barra+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            success: function(a) {
+                datos=JSON.parse(a);
+                if(datos.length > 0){
+                    seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock);
+                }
+            }
+        });
+    }
 }
 
 
 var valorinicial="";
 function buscarProducto(valor){
-    $.ajax({
-        type: "POST",
-        url: "compra/buscarproducto",
-        data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
-        success: function(a) {
-            datos=JSON.parse(a);
-            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr><th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>");
-            var pag=parseInt($("#pag").val());
-            var d=0;
-            for(c=0; c < datos.length; c++){
-                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\"><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
-                $("#tbodyProducto").append(a);           
+    if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val() == ""){
+        toastr.warning("Debe seleccionar una sucursal", 'Error:');
+    }else{
+        $.ajax({
+            type: "POST",
+            url: "compra/buscarproducto",
+            data: "sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            success: function(a) {
+                datos=JSON.parse(a);
+                var strTable = "<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr>";
+                @if ($conf_codigobarra=="S")
+                    strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
+                @endif   
+                strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+                $("#divBusqueda").html(strTable);
+                var pag=parseInt($("#pag").val());
+                var d=0;
+                for(c=0; c < datos.length; c++){
+                    var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\">";
+                    @if ($conf_codigobarra=="S")
+                        a = a + "<td align='center'>"+datos[c].codigobarra+"</td>";
+                    @endif 
+                    a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                    $("#tbodyProducto").append(a);           
+                }
+                $('#tablaProducto').DataTable({
+                    "scrollY":        "250px",
+                    "scrollCollapse": true,
+                    "paging":         false
+                });
+                $('#tablaProducto_filter').css('display','none');
+                $("#tablaProducto_info").css("display","none");
             }
-            $('#tablaProducto').DataTable({
-                "scrollY":        "250px",
-                "scrollCollapse": true,
-                "paging":         false
-            });
-            $('#tablaProducto_filter').css('display','none');
-            $("#tablaProducto_info").css("display","none");
-	    }
-    });
+        });
+    }
 }
 
 var carro = new Array();
@@ -332,12 +385,17 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         }      
     }
     if(band){
-        $("#tbDetalle").append("<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
-            // "<td align='left'>"+codigobarra+"</td>"+
-            "<td align='left'>"+descripcion+"</td>"+
-            "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 60px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
-            "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 60px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
-            "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
+        @if ($conf_codigobarra=="S")
+            strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
+        @endif
+
+        strDetalle = strDetalle + "<td align='left'>"+descripcion+"</td>" + 
+        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 60px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
+        "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 60px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
+        "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
+
+        $("#tbDetalle").append(strDetalle);
         carro.push(idproducto);
         $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
         calcularTotal();
@@ -445,10 +503,15 @@ function buscarProducto2(valor){
     $.ajax({
         type: "POST",
         url: "compra/buscarproducto",
-        data: "descripcion=PRUEBA&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
-            $("#divBusqueda").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr><th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>");
+            var strTable = "<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr>";
+            @if ($conf_codigobarra=="S")
+                strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
+            @endif   
+            strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+            $("#divBusqueda").html(strTable);
             var pag=parseInt($("#pag").val());
             var d=0;
             
@@ -467,11 +530,11 @@ buscarProducto2();
 
 
 
-<?php
+@php
 if(!is_null($movimiento)){
     echo "agregarDetalle(".$movimiento->id.");";
 }
-?>
+@endphp
 
 </script>
 

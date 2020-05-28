@@ -10,6 +10,12 @@
         		</div>
             </div>
             <div class="form-group">
+                {!! Form::label('sucursal_id', 'Sucursal.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12">
+        			{!! Form::text('sucursal_id', $venta->sucursal->nombre, array('class' => 'form-control input-xs', 'id' => 'sucursal_id', 'readonly' => 'true')) !!}
+        		</div>
+            </div>
+            <div class="form-group">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
         		<div class="col-lg-12 col-md-12 col-sm-12">
         			{!! Form::text('tipodocumento', $venta->tipodocumento->nombre, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true')) !!}
@@ -39,7 +45,9 @@
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
                     <th class="text-center">Cant.</th>
-                    {{-- <th class="text-center">Cod. Barra</th> --}}
+                    @if ($conf_codigobarra=="S")
+                        <th class="text-center">Cod. Barra</th>
+                    @endif{{-- <th class="text-center">Cod. Barra</th> --}}
                     <th class="text-center">Producto</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">Subtotal</th>
@@ -48,6 +56,9 @@
                 @foreach($detalles as $key => $value)
 					<tr>
                         <td class="text-center">{!! number_format($value->cantidad,2,'.','') !!}</td>
+                        @if ($conf_codigobarra=="S")
+                            <td class="text-center">{!! $value->producto->codigobarra !!}</td>
+                        @endif
 						{{-- <td class="text-center">{!! $value->producto->codigobarra !!}</td> --}}
                         <td class="text-left">{!! $value->producto->nombre !!}</td>
 						<td class="text-center">{!! number_format($value->preciocompra,2,'.','') !!}</td>
@@ -55,8 +66,11 @@
 					</tr>
                 @endforeach
                 </tbody>
+                @php
+                    $colspan1 = ($conf_codigobarra=="S")?"4":"3";
+                @endphp
                 <tfoot>
-                    <th class="text-right" colspan="3">Total</th>
+                    <th class="text-right" colspan="{{$colspan1}}">Total</th>
                     <th class="text-center" align="center">{!! number_format($venta->total,2,'.','') !!}</th>
                 </tfoot>
             </table>
