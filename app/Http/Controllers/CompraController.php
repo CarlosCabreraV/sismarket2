@@ -361,29 +361,32 @@ class CompraController extends Controller
             $venta = Movimiento::find($id);
             $venta->situacion='A';
             $venta->save();
+            $sucursal_id = $venta->sucursal_id;
             $lst = Detallemovimiento::where('movimiento_id','=',$id)->get();
             foreach ($lst as $key => $Detalle) {
                 $detalleproducto = Detalleproducto::where('producto_id','=',$Detalle->producto_id)->get();
                 if(count($detalleproducto)>0){
                     foreach ($detalleproducto as $key => $value){
-                        $stock = Stockproducto::where('producto_id','=',$value->presentacion_id)->first();
+                        $stock = Stockproducto::where('producto_id','=',$value->presentacion_id)->where("sucursal_id", "=", $sucursal_id)->first();
                         if(count($stock)>0){
                             $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
                             $stock->save();
                         }else{
                             $stock = new Stockproducto();
+                            $stock->sucursal_id = $sucursal_id;
                             $stock->producto_id = $value->presentacion_id;
                             $stock->cantidad = $Detalle->cantidad*$value->cantidad*(-1);
                             $stock->save();
                         }
                     }
                 }else{
-                    $stock = Stockproducto::where('producto_id','=',$Detalle->producto_id)->first();
+                    $stock = Stockproducto::where('producto_id','=',$Detalle->producto_id)->where("sucursal_id", "=", $sucursal_id)->first();
                     if(count($stock)>0){
                         $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
                         $stock->save();
                     }else{
                         $stock = new Stockproducto();
+                        $stock->sucursal_id = $sucursal_id;
                         $stock->producto_id = $Detalle->producto_id;
                         $stock->cantidad = $Detalle->cantidad*(-1);
                         $stock->save();
