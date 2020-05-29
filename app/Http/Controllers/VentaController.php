@@ -10,6 +10,7 @@ use App\Tipodocumento;
 use App\Tipomovimiento;
 use App\Movimiento;
 use App\Concepto;
+use App\Configuracion;
 use App\Producto;
 use App\Promocion;
 use App\Detallepromocion;
@@ -19,6 +20,7 @@ use App\Detallemovimiento;
 use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
+use App\Sucursal;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Mike42\Escpos\Printer;
@@ -51,6 +53,7 @@ class VentaController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        define("CODIGO_BARRAS", Configuracion::where("nombre", "=", "CODIGO_BARRAS")->first()->valor);
     }
 
 
@@ -65,21 +68,28 @@ class VentaController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Venta';
         $nombre             = Libreria::getParam($request->input('cliente'));
+        $sucursal         = Libreria::getParam($request->input('sucursal_id'));
         $resultado        = Movimiento::join('person','person.id','=','movimiento.persona_id')
                                 ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
                                 ->where('tipomovimiento_id','=',2);
-        if($request->input('fechainicio')!=""){
-            $resultado = $resultado->where('fecha','>=',$request->input('fechainicio'));
-        }
-        if($request->input('fechafin')!=""){
-            $resultado = $resultado->where('fecha','<=',$request->input('fechafin'));
-        }
-        if($request->input('numero')!=""){
-            $resultado = $resultado->where('numero','like','%'.$request->input('numero').'%');
-        }
-        if($request->input('tipodocumento_id')!=""){
-            $resultado = $resultado->where('movimiento.tipodocumento_id','=',$request->input('tipodocumento_id'));
-        }
+                            if ($sucursal != null) {
+                                $resultado = $resultado->where('sucursal_id', '=', $sucursal);
+                            }
+                            if($request->input('fechainicio')!=""){
+                                $resultado = $resultado->where('fecha','>=',$request->input('fechainicio'));
+                            }
+                            if($request->input('fechafin')!=""){
+                                $resultado = $resultado->where('fecha','<=',$request->input('fechafin'));
+                            }
+                            if($request->input('numero')!=""){
+                                $resultado = $resultado->where('numero','like','%'.$request->input('numero').'%');
+                            }
+                            if($request->input('tipodocumento_id')!=""){
+                                $resultado = $resultado->where('movimiento.tipodocumento_id','=',$request->input('tipodocumento_id'));
+                            }
+                            if($request->input('cliente')!=""){
+                                $resultado = $resultado->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'),'LIKE',"%".$request->input('cliente')."%");
+                            }
         $lista            = $resultado->select('movimiento.*',DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'),DB::raw('responsable.nombres as responsable2'))->orderBy('movimiento.id', 'desc')->orderBy('fecha', 'desc')->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -116,16 +126,22 @@ class VentaController extends Controller
      */
     public function index()
     {
+        $current_user     = Auth::User();
         $entidad          = 'Venta';
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
+        $sucursal         = "";
+        if (!$current_user->isSuperAdmin()) {
+            $sucursal = " Sucursal: ". $current_user->sucursal->nombre;
+        } 
         $cboTipoDocumento = array('' => 'Todos');
-        $tipodocumento = Tipodocumento::where('tipomovimiento_id','=',2)->orderBy('nombre','asc')->get();
-        foreach($tipodocumento as $k=>$v){
-            $cboTipoDocumento = $cboTipoDocumento + array($v->id => $v->nombre);
+        $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id','=',2)->orderBy('nombre','asc')->pluck('nombre','id')->all();
+        $cboSucursal = [""=>"TODOS"] + Sucursal::pluck('nombre','id')->all();
+        if(!$current_user->isAdmin() && !$current_user->isSuperAdmin()){
+            $cboSucursal = Sucursal::where('id','=',$current_user->sucursal_id)->pluck('nombre', 'id')->all();
         }
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
+        return view($this->folderview.'.admin')->with(compact('cboSucursal','entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
     }
 
     /**
@@ -135,18 +151,20 @@ class VentaController extends Controller
      */
     public function create(Request $request)
     {
+        $current_user     = Auth::User();
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $entidad  = 'Venta';
         $movimiento = null;
-        $cboTipoDocumento = array();
-        $tipodocumento = Tipodocumento::where('tipomovimiento_id','=',2)->orderBy('nombre','asc')->get();
-        foreach($tipodocumento as $k=>$v){
-            $cboTipoDocumento = $cboTipoDocumento + array($v->id => $v->nombre);
-        }        
         $formData = array('venta.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $conf_codigobarra = CODIGO_BARRAS; 
+        $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }    
         $boton    = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento'));
+        return view($this->folderview.'.mant')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
     }
 
     /**
@@ -462,8 +480,13 @@ class VentaController extends Controller
     
     public function buscarproducto(Request $request)
     {
+        $sucursal_id = $request->input("sucursal_id");
         $descripcion = $request->input("descripcion");
-        $resultado = Producto::leftjoin('stockproducto','stockproducto.producto_id','=','producto.id')->where('nombre','like','%'.strtoupper($descripcion).'%')->select('producto.*','stockproducto.cantidad')->get();
+        $resultado = Producto::leftjoin('stockproducto', function ($subquery) use ($sucursal_id) {
+            $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
+        })
+        ->where('nombre','like','%'.strtoupper($descripcion).'%')
+        ->select('producto.*','stockproducto.cantidad')->get();
         $c=0;$data=array();
         if(count($resultado)>0){
             foreach ($resultado as $key => $value){
@@ -473,34 +496,24 @@ class VentaController extends Controller
                         'precioventa' => $value->precioventa,
                         'preciocompra' => $value->preciocompra,
                         'idproducto' => $value->id,
-                        'tipo' => 'P',
                         'stock' => round($value->cantidad,2),
                     );
                 $c++;                
             }
         }
-        $resultado = Promocion::where('nombre','like','%'.strtoupper($descripcion).'%')->get();
-        if(count($resultado)>0){
-            foreach ($resultado as $key => $value){
-                $data[$c] = array(
-                        'producto' => $value->nombre,
-                        'codigobarra' => '',
-                        'precioventa' => $value->precioventa,
-                        'preciocompra' => 0,
-                        'idproducto' => $value->id,
-                        'tipo' => 'C',
-                        'stock' => 0,
-                    );
-                $c++;                
-            }
-        }
+       
         return json_encode($data);
     }
     
     public function buscarproductobarra(Request $request)
     {
+        $sucursal_id = $request->input("sucursal_id");
         $codigobarra = $request->input("codigobarra");
-        $resultado = Producto::leftjoin('stockproducto','stockproducto.producto_id','=','producto.id')->where(DB::raw('trim(codigobarra)'),'like',trim($codigobarra))->select('producto.*','stockproducto.cantidad')->get();
+        $resultado = Producto::leftjoin('stockproducto', function ($subquery) use ($sucursal_id) {
+            $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
+        })
+        ->where(DB::raw('trim(codigobarra)'),'like',trim($codigobarra))
+        ->select('producto.*','stockproducto.cantidad')->get();
         $c=0;$data=array();
         if(count($resultado)>0){
             foreach ($resultado as $key => $value){
@@ -510,7 +523,6 @@ class VentaController extends Controller
                         'precioventa' => $value->precioventa,
                         'preciocompra' => $value->preciocompra,
                         'idproducto' => $value->id,
-                        'tipo' => 'P',
                         'stock' => round($value->cantidad,2),
                     );
                 $c++;                
