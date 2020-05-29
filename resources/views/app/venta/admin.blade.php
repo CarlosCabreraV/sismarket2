@@ -6,6 +6,7 @@
 		  <div class="row mb-2">
 			<div class="col-sm-6">
 			  <h1 class="m-0 text-dark">{{$title}}</h1>
+			  <h5 class="m-0 text-dark">{{$sucursal}}</h5>
 			</div><!-- /.col -->
 			<div class="col-sm-6">
 			  <ol class="breadcrumb float-sm-right">
@@ -30,25 +31,29 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 						  <div class="row w-100">
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('fechainicio', 'Fecha inicio') !!}
 									{!! Form::date('fechainicio', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechainicio')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('fechafin', 'Fecha fin') !!}
 									{!! Form::date('fechafin', '', array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
+									{!! Form::label('sucursal_id', 'Sucursal') !!}
+									{!! Form::select('sucursal_id', $cboSucursal, '', array('class' => 'form-control input-xs', 'id' => 'sucursal_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+								</div>
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('cliente', 'Cliente') !!}
 									{!! Form::text('cliente', '', array('class' => 'form-control input-xs', 'id' => 'cliente')) !!}
 								</div>
 							</div>
 							<div class="row w-100">
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('tipodocumento_id', 'Tipo documento') !!}
-									{!! Form::select('tipodocumento_id', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento_id')) !!}
+									{!! Form::select('tipodocumento_id', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('numero', 'Numero') !!}
 									{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
 								</div>

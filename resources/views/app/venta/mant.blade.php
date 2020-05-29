@@ -14,7 +14,7 @@
 
         <!--DATOS VENTA -->
         <div class="row   py-2 px-1 my-2">
-            <div class="col-md-6 col-lg-4 col-sm-4">
+            <div class="col-md-6 col-lg-6 ">
                 <div class="form-group">
                     {!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12">
@@ -22,7 +22,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4 col-sm-4">
+            <div class="col-md-6 col-lg-6 ">
                 <div class="form-group">
                     {!! Form::label('numero', 'Numero', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12">
@@ -30,7 +30,17 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4 col-sm-4">
+        </div>
+        <div class="row   py-2 px-1 my-2">
+            <div class="col-md-6 col-lg-6 ">
+                <div class="form-group">
+                    {!! Form::label('lblsucursal_id', 'Sucursal', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        {!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 ">
                 <div class="form-group">
                     {!! Form::label('lbltipodoc', 'Tipo doc.', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                     <div class="col-lg-12 col-md-12 col-sm-12">
@@ -67,6 +77,16 @@
 
         <!--DATOS PRODUCTO -->
     <div class="row   py-2 px-1 my-2">
+        @if ($conf_codigobarra=="S")
+        <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="form-group">
+                    {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        {!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
+                    </div>
+                </div>
+        </div>
+        @endif
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
                 {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
@@ -75,16 +95,7 @@
         		</div>
             </div>
             
-         </div>  
-        <div class="col-lg-6 col-md-6 col-sm-6 d-none">
-            <div class="form-group">
-                {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
-        		</div>
-        	</div>
          </div>
-            
      </div>
     <!--DATOS PRODUCTO -->
 
@@ -95,6 +106,9 @@
             <table class="table table-sm table-condensed table-striped" id="tbDetalle">
                 <thead class="bg-navy">
                     <th class="text-center">Cant.</th>
+                    @if ($conf_codigobarra=="S")
+                    <th class="text-center">Cod. Barra</th>
+                    @endif
                     <th class="text-center">Producto</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">Subtotal</th>
@@ -230,8 +244,15 @@ $(document).ready(function() {
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona_id"]').val(datum.id);
 	});
 
-    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
+    @if ($conf_codigobarra=="S")
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
+    @else
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').focus();
+    @endif
 
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
+        buscarProducto();
+    });
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
         var e = window.event; 
         var keyc = e.keyCode || e.which;
@@ -420,74 +441,88 @@ function declarar(idventa,idtipodocumento){
 }
 
 function buscarProductoBarra(barra){
-    $.ajax({
+    if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val() == ""){
+        toastr.warning("Debe seleccionar una sucursal", 'Error:');
+    }else{
+        $.ajax({
         type: "POST",
         url: "venta/buscarproductobarra",
-        data: "codigobarra="+barra+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&codigobarra="+barra+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
-            seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock,datos[0].tipo);
+            if(datos.length > 0){
+                seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock);
+            }
 	    }
     });
+    }
 }
 
 
 var valorinicial="";
 function buscarProducto(valor){
-    $.ajax({
-        type: "POST",
-        url: "venta/buscarproducto",
-        data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
-        success: function(a) {
-            datos=JSON.parse(a);
-            $("#divBusqueda").html(`<table class='table table-striped table-bordered table-sm table-condensed table-hover' border='1' id='tablaProducto'>
-                                        <thead>
-                                            <tr>
-                                                <th class='text-center'>PRODUCTO</th>
-                                                <th class='text-center'>STOCK</th>
-                                                <th class='text-center'>P. UNIT.</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id='tbodyproducto'>
-                                        </tbody>
-                                    </table>`);
-            var pag=parseInt($("#pag").val());
-            var d=0;
-            for(c=0; c < datos.length; c++){
-                var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"')\"><td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
-                $("#tbodyproducto").append(a);           
-            }
-            $('#tablaProducto').DataTable({
-                "scrollY":        "250px",
-                "scrollCollapse": true,
-                "paging":         false
+    if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val() == ""){
+        toastr.warning("Debe seleccionar una sucursal", 'Error:');
+    }else{
+            $.ajax({
+                type: "POST",
+                url: "venta/buscarproducto",
+                data:"sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+                success: function(a) {
+                    datos=JSON.parse(a);
+                    var strTable = "<table class='table table-striped table-bordered table-sm table-condensed table-hover' border='1' id='tablaProducto'><thead><tr>";
+                    @if($conf_codigobarra=="S")
+                        strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
+                    @endif   
+                    strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+                    $("#divBusqueda").html(strTable);
+                    
+                    var pag=parseInt($("#pag").val());
+                    var d=0;
+                    for(c=0; c < datos.length; c++){
+                        var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\">";
+                        @if ($conf_codigobarra=="S")
+                            a = a + "<td align='center'>"+datos[c].codigobarra+"</td>";
+                        @endif 
+                        a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                        $("#tbodyProducto").append(a);           
+                    }
+                    $('#tablaProducto').DataTable({
+                        "scrollY":        "250px",
+                        "scrollCollapse": true,
+                        "paging":         false
+                    });
+                    $('#tablaProducto_filter').css('display','none');
+                    $("#tablaProducto_info").css("display","none");
+                }
             });
-            $('#tablaProducto_filter').css('display','none');
-            $("#tablaProducto_info").css("display","none");
-	    }
-    });
+    }
 }
 
 var carro = new Array();
 var carroDoc = new Array();
 var copia = new Array();
 var idant = 0;
-function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock,tipo){
+function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock){
     var band=true;
-    var id=idproducto;
-    idproducto = idproducto+'-'+tipo;
     for(c=0; c < carro.length; c++){
         if(carro[c]==idproducto){
             band=false;
         }      
     }
     if(band){
-        $("#tbDetalle").append("<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' /><input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
-            "<td align='center' id='tdDescripcion"+idproducto+"'>"+descripcion+"</td>"+
-            "<td align='center'><input type='hidden' id='txtPrecioCompra"+idproducto+"' name='txtPrecioCompra"+idproducto+"' value='"+preciocompra+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
-            "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+precioventa+"' /></td>"+
-            "<td align='center'><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
-        carro.push(idproducto);
+        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
+        @if ($conf_codigobarra=="S")
+            strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
+        @endif
+
+        strDetalle = strDetalle + "<td align='left'>"+descripcion+"</td>" + 
+        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
+        "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
+        "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
+       
+        $("#tbDetalle").append(strDetalle);
+         carro.push(idproducto);
         if(idant>0){
             $("#tdDescripcion"+idant).css('font-size','');
             $("#tdDescripcion"+idant).css('color','');
@@ -644,12 +679,41 @@ function calcularTarjeta(){
     $("#totalpagado").val(efe);
 }
 
-<?php
+@php
 if(!is_null($movimiento)){
     echo "agregarDetalle(".$movimiento->id.");";
 }else{
     echo "generarNumero()";
 }
-?>
+@endphp
 
+
+function buscarProducto2(valor){
+    $.ajax({
+        type: "POST",
+        url: "venta/buscarproducto",
+        data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            datos=JSON.parse(a);
+            var strTable = "<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr>";
+            @if ($conf_codigobarra=="S")
+                strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
+            @endif   
+            strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+            $("#divBusqueda").html(strTable);
+            var pag=parseInt($("#pag").val());
+            var d=0;
+            
+            $('#tablaProducto').DataTable({
+                "scrollY":        "250px",
+                "scrollCollapse": true,
+                "paging":         false
+            });
+            $('#tablaProducto_filter').css('display','none');
+            $("#tablaProducto_info").css("display","none");
+        }
+    });
+}
+
+buscarProducto2();
 </script>
