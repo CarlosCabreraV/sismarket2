@@ -32,6 +32,7 @@
             <td>{{ $value->tipodocumento->nombre }}</td>
             <td>{{ $value->numero }}</td>
 			<td>{{ $value->comentario }}</td>
+            <td>{{ $value->sucursal->nombre }}</td>
             <td>{{ $value->responsable2 }}</td>
             <td align="center">{!! Form::button('<div class="fas fa-eye"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-info btn-sm')) !!}</td>
 			<!--td>{!! Form::button('<div class="fas fa-edit"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-warning btn-sm')) !!}</td-->

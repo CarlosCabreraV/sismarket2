@@ -39,7 +39,7 @@
 									{!! Form::label('fechafin', 'Fecha fin:') !!}
 									{!! Form::date('fechafin', '', array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
 								</div>
-								<div class="col-lg-3 col-md-3  form-group">
+								<div class="col-lg-4 col-md-4  form-group">
 									{!! Form::label('sucursal_id', 'Sucursal') !!}
 									{!! Form::select('sucursal_id', $cboSucursal, '', array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
 								</div>
@@ -114,6 +114,9 @@
 				buscar('{{ $entidad }}');
 		});
 		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipodocumento"]').change(function (e) {
+            buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
             buscar('{{ $entidad }}');
         });
 	});

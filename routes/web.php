@@ -55,15 +55,15 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
-     /* CATEGORIA */
-     Route::post('categoria/buscar', 'CategoriaController@buscar')->name('categoria.buscar');
-     Route::get('categoria/eliminar/{id}/{listarluego}', 'CategoriaController@eliminar')->name('categoria.eliminar');
-     Route::resource('categoria', 'CategoriaController', array('except' => array('show')));
-     /* UNIDAD */
+    /* CATEGORIA */
+    Route::post('categoria/buscar', 'CategoriaController@buscar')->name('categoria.buscar');
+    Route::get('categoria/eliminar/{id}/{listarluego}', 'CategoriaController@eliminar')->name('categoria.eliminar');
+    Route::resource('categoria', 'CategoriaController', array('except' => array('show')));
+    /* UNIDAD */
     Route::post('unidad/buscar', 'UnidadController@buscar')->name('unidad.buscar');
     Route::get('unidad/eliminar/{id}/{listarluego}', 'UnidadController@eliminar')->name('unidad.eliminar');
     Route::resource('unidad', 'UnidadController', array('except' => array('show')));
-    
+
     /* MARCA */
     Route::post('marca/buscar', 'MarcaController@buscar')->name('marca.buscar');
     Route::get('marca/eliminar/{id}/{listarluego}', 'MarcaController@eliminar')->name('marca.eliminar');
@@ -74,26 +74,26 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('category', 'CategoryController', array('except' => array('show')));
 
     /* SUCURSAL */
-     Route::post('sucursal/buscar', 'sucursalController@buscar')->name('sucursal.buscar');
-     Route::get('sucursal/eliminar/{id}/{listarluego}', 'sucursalController@eliminar')->name('sucursal.eliminar');
-     Route::resource('sucursal', 'sucursalController', array('except' => array('show')));
+    Route::post('sucursal/buscar', 'sucursalController@buscar')->name('sucursal.buscar');
+    Route::get('sucursal/eliminar/{id}/{listarluego}', 'sucursalController@eliminar')->name('sucursal.eliminar');
+    Route::resource('sucursal', 'sucursalController', array('except' => array('show')));
     /* CAJA MANTENIMIENTO */
-     Route::post('mantenimientocaja/buscar', 'mantenimientocajaController@buscar')->name('mantenimientocaja.buscar');
-     Route::get('mantenimientocaja/eliminar/{id}/{listarluego}', 'mantenimientocajaController@eliminar')->name('mantenimientocaja.eliminar');
-     Route::resource('mantenimientocaja', 'mantenimientocajaController', array('except' => array('show')));
-     //Modal para asignar caja
-    Route::get('mantenimientocaja/asignarcaja','mantenimientocajaController@asignarcaja')->name('mantenimientocaja.asignarcaja');   
-    Route::post('mantenimientocaja/guardarasignarcaja','mantenimientocajaController@guardarasignarcaja')->name('mantenimientocaja.guardarasignarcaja');   
-     /* MOTIVO */
-     Route::post('motivo/buscar', 'MotivoController@buscar')->name('motivo.buscar');
-     Route::get('motivo/eliminar/{id}/{listarluego}', 'MotivoController@eliminar')->name('motivo.eliminar');
-     Route::resource('motivo', 'MotivoController', array('except' => array('show')));
+    Route::post('mantenimientocaja/buscar', 'mantenimientocajaController@buscar')->name('mantenimientocaja.buscar');
+    Route::get('mantenimientocaja/eliminar/{id}/{listarluego}', 'mantenimientocajaController@eliminar')->name('mantenimientocaja.eliminar');
+    Route::resource('mantenimientocaja', 'mantenimientocajaController', array('except' => array('show')));
+    //Modal para asignar caja
+    Route::get('mantenimientocaja/asignarcaja', 'mantenimientocajaController@asignarcaja')->name('mantenimientocaja.asignarcaja');
+    Route::post('mantenimientocaja/guardarasignarcaja', 'mantenimientocajaController@guardarasignarcaja')->name('mantenimientocaja.guardarasignarcaja');
+    /* MOTIVO */
+    Route::post('motivo/buscar', 'MotivoController@buscar')->name('motivo.buscar');
+    Route::get('motivo/eliminar/{id}/{listarluego}', 'MotivoController@eliminar')->name('motivo.eliminar');
+    Route::resource('motivo', 'MotivoController', array('except' => array('show')));
 
-     /* PERSONA */
-     Route::post('persona/buscar', 'PersonaController@buscar')->name('persona.buscar');
-     Route::get('persona/eliminar/{id}/{listarluego}', 'PersonaController@eliminar')->name('persona.eliminar');
-     Route::resource('persona', 'PersonaController', array('except' => array('show')));
- 
+    /* PERSONA */
+    Route::post('persona/buscar', 'PersonaController@buscar')->name('persona.buscar');
+    Route::get('persona/eliminar/{id}/{listarluego}', 'PersonaController@eliminar')->name('persona.eliminar');
+    Route::resource('persona', 'PersonaController', array('except' => array('show')));
+
     /* PRODUCTO */
     Route::post('producto/buscar', 'ProductoController@buscar')->name('producto.buscar');
     Route::get('producto/eliminar/{id}/{listarluego}', 'ProductoController@eliminar')->name('producto.eliminar');
@@ -102,10 +102,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('producto/excel', 'ProductoController@excel')->name('producto.excel');
     Route::get('producto/presentacion/{id}/{listarluego}', 'ProductoController@presentacion')->name('producto.presentacion');
     Route::post('producto/presentaciones', 'ProductoController@presentaciones')->name('producto.presentaciones');
-    Route::post('producto/archivos','ProductoController@archivos')->name('producto.archivos');
+    Route::post('producto/archivos', 'ProductoController@archivos')->name('producto.archivos');
     Route::get('product/import', 'ProductoController@import')->name('producto.import');
     Route::post('product/saveimport', 'ProductoController@saveimport')->name('producto.saveimport');
-    
+
     /* COMPRA */
     Route::post('compra/buscar', 'CompraController@buscar')->name('compra.buscar');
     Route::get('compra/eliminar/{id}/{listarluego}', 'CompraController@eliminar')->name('compra.eliminar');
@@ -123,7 +123,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('movimientoalmacen/buscarproducto', 'MovimientoalmacenController@buscarproducto')->name('movimientoalmacen.buscarproducto');
     Route::post('movimientoalmacen/buscarproductobarra', 'MovimientoalmacenController@buscarproductobarra')->name('movimientoalmacen.buscarproductobarra');
     Route::post('movimientoalmacen/generarNumero', 'MovimientoalmacenController@generarNumero')->name('movimientoalmacen.generarNumero');
-    
+    Route::post('movimientoalmacen/cambiarMotivo', 'MovimientoalmacenController@cambiarMotivo')->name('movimientoalmacen.cambiarMotivo');
+    Route::post('movimientoalmacen/cambiarSucursalDestino', 'MovimientoalmacenController@cambiarSucursalDestino')->name('movimientoalmacen.cambiarSucursalDestino');
+
+
     /* PROMOCION */
     Route::post('promocion/buscar', 'PromocionController@buscar')->name('promocion.buscar');
     Route::get('promocion/eliminar/{id}/{listarluego}', 'PromocionController@eliminar')->name('promocion.eliminar');
@@ -134,12 +137,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('promocion/categoriaautocompletar', 'PromocionController@categoriaautocompletar')->name('promocion.categoriaautocompletar');
     Route::get('promocion/subcategoriaautocompletar', 'PromocionController@subcategoriaautocompletar')->name('promocion.subcategoriaautocompletar');
 
-     /* CONCEPTOPAGO */
-     Route::post('concepto/buscar', 'ConceptoController@buscar')->name('concepto.buscar');
-     Route::get('concepto/eliminar/{id}/{listarluego}', 'ConceptoController@eliminar')->name('concepto.eliminar');
-     Route::resource('concepto', 'ConceptoController', array('except' => array('show')));
-    
-     /* CAJA */
+    /* CONCEPTOPAGO */
+    Route::post('concepto/buscar', 'ConceptoController@buscar')->name('concepto.buscar');
+    Route::get('concepto/eliminar/{id}/{listarluego}', 'ConceptoController@eliminar')->name('concepto.eliminar');
+    Route::resource('concepto', 'ConceptoController', array('except' => array('show')));
+
+    /* CAJA */
     Route::post('caja/buscar', 'CajaController@buscar')->name('caja.buscar');
     Route::post('caja/buscarcontrol', 'CajaController@buscarControl')->name('caja.buscarcontrol');
     Route::get('caja/eliminar/{id}/{listarluego}', 'CajaController@eliminar')->name('caja.eliminar');
@@ -168,8 +171,8 @@ Route::group(['middleware' => 'auth'], function () {
     /* PEDIDO*/
     Route::post('pedido/buscar', 'PedidoController@buscar')->name('pedido.buscar');
     Route::resource('pedido', 'PedidoController');
-   
-    
+
+
     /* REPORTE CAJA*/
     Route::get('cajareporte/excelCaja', 'CajareporteController@excelCaja')->name('cajareporte.excelCaja');
     Route::resource('cajareporte', 'CajareporteController', array('except' => array('show')));
@@ -183,6 +186,4 @@ Route::group(['middleware' => 'auth'], function () {
     /* REPORTE KARDEX*/
     Route::get('kardexreporte/excelKardex', 'KardexreporteController@excelKardex')->name('kardexreporte.excelKardex');
     Route::resource('kardexreporte', 'KardexreporteController', array('except' => array('show')));
-
 });
-

@@ -169,8 +169,11 @@ $(document).ready(function() {
         var producto = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="descripcion"]').val();
         if(producto != ""){
             buscarProducto();
+        }else{
+            buscarProducto2();
         }
     });
+    
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
         var e = window.event; 
@@ -400,7 +403,7 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         }      
     }
     if(band){
-        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
+        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 60px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
         @if ($conf_codigobarra=="S")
             strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
         @endif

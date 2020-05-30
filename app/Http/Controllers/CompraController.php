@@ -209,7 +209,7 @@ class CompraController extends Controller
                 if (count($detalleproducto) > 0) {
                     foreach ($detalleproducto as $key => $value) {
                         $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where("sucursal_id", "=", $request->input('sucursal_id'))->first();
-                        if (count($stock) > 0) {
+                        if ($stock != null) {
                             $stock->cantidad = $stock->cantidad + $Detalle->cantidad * $value->cantidad;
                             $stock->save();
                         } else {
@@ -222,7 +222,7 @@ class CompraController extends Controller
                     }
                 } else {
                     $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where("sucursal_id", "=", $request->input('sucursal_id'))->first();
-                    if (count($stock) > 0) {
+                    if ($stock != null) {
                         $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
                         $stock->save();
                     } else {
