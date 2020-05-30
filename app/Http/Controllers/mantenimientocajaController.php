@@ -253,7 +253,7 @@ class mantenimientocajaController extends Controller
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Aceptar'; 
         $user = Auth::user();
-        $cajas = Caja::where('sucursal_id',$user->sucursal_id);
+        $cajas = Caja::where('sucursal_id',$user->sucursal_id)->where('estado','CERRADA');
         $cboCajas = [""=>"ELIJA UNA CAJA"]+$cajas->pluck("nombre","id")->all();
         return view('app.asignarCaja')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboCajas'));
     }

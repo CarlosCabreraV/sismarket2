@@ -30,7 +30,22 @@
 							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'w-100 d-md-flex d-lg-flex d-sm-inline-block', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-							
+							<div class="col-lg-4 col-md-4  form-group">
+								{!! Form::label('lblcaja_id', 'Caja') !!}
+							<select id="caja_id" name='caja_id' class="form-control input-xs" onchange="buscar('{{$entidad}}')">
+									@if($sucursales)
+										@foreach($sucursales as $sucursal)
+										<optgroup label="{{$sucursal->nombre}}">
+												@foreach($sucursal->cajas as $caja)
+													<option  value={{$caja->id}}>{{$caja->nombre}}</option>
+												@endforeach
+										</optgroup>
+										@endforeach
+									@else
+									<option value={{$caja->id}} selected>{{$caja->nombre}}</option>
+									@endif
+								</select>
+							</div>
 							<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
 								{!! Form::label('nombre', 'Filas a mostrar') !!}
 								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}

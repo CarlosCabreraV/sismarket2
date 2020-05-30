@@ -141,7 +141,7 @@ class VentaController extends Controller
         if(!$current_user->isAdmin() && !$current_user->isSuperAdmin()){
             $cboSucursal = Sucursal::where('id','=',$current_user->sucursal_id)->pluck('nombre', 'id')->all();
         }
-        return view($this->folderview.'.admin')->with(compact('cboSucursal','entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
+        return view($this->folderview.'.admin')->with(compact('sucursal','cboSucursal','entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
     }
 
     /**

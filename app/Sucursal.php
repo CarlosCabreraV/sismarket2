@@ -16,6 +16,10 @@ class Sucursal extends Model
     {
         return $this->belongsTo('App\Empresa', 'empresa_id');
     }
+    public function cajas()
+    {
+        return $this->hasMany('App\Caja','sucursal_id');
+    }
 
     /**
 	 * Método para listar las sucursales
