@@ -120,7 +120,7 @@ function generarConcepto(valor){
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="concepto"]').html(a);
             generarNumero(valor);
-            transferencia($("#concepto").val());
+           // transferencia($("#concepto").val());
         }
     });
 }

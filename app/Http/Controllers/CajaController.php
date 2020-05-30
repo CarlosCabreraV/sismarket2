@@ -9,6 +9,7 @@ use App\Http\Requests;
 use App\Historia;
 use App\Convenio;
 use App\Caja;
+use App\Sucursal;
 use App\Person;
 use App\Venta;
 use App\Movimiento;
@@ -70,30 +71,23 @@ class CajaController extends Controller
     {
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
+        $caja_id          = $request->input('caja_id');
         $entidad          = 'Caja';
-        $rst  = Movimiento::where('tipomovimiento_id','=',4)->orderBy('movimiento.id','DESC')->limit(1)->first();
-        if ( count($rst)=== 0){
-            $conceptopago_id=2;
-        }else{
-            $conceptopago_id=$rst->concepto_id;
-        }
+        $caja = Caja::where('id', $caja_id)->first();
+        $estado_caja = $caja->estado;
         $titulo_registrar = $this->tituloRegistrar;
         $titulo_apertura  = 'Apertura';
         $titulo_cierre    = 'Cierre'; 
-        
-        $rst              = Movimiento::where('tipomovimiento_id','=',4)->where('concepto_id','=',1)->orderBy('id','DESC')->limit(1)->first();
-        if(count($rst)>0){
-            $movimiento_mayor = $rst->id;    
-        }else{
-            $movimiento_mayor = 0;
-        }
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('concepto','concepto.id','=','movimiento.concepto_id')
                             ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                             ->whereNull('movimiento.cajaapertura_id')
-                            ->where('movimiento.id', '>=', $movimiento_mayor);
+                            ->where('movimiento.caja_id', $caja->id)
+                            ->where('movimiento.sucursal_id', $caja->sucursal_id)
+                            ->where('movimiento.id', '>=', $caja->ultimaapertura_id);
+                            
         $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as cliente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
         $lista            = $resultado->get();
         
@@ -121,7 +115,7 @@ class CajaController extends Controller
             foreach($lista as $k=>$v){
                 if($v->concepto_id<>2 && $v->situacion<>'A'){
                     if($v->concepto->tipo=="I"){
-                        if(is_null($v->tarejta) && $v->tarjeta>0){
+                        if(is_null($v->tarjeta) && $v->tarjeta>0){
                             $visa = $visa + $v->tarjeta;
                         }else{
                             $ingreso = $ingreso + $v->total;    
@@ -138,9 +132,9 @@ class CajaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ingreso', 'egreso', 'titulo_anular','user' ));
+            return view($this->folderview.'.list')->with(compact('caja','lista','estado_caja', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ingreso', 'egreso', 'titulo_anular','user' ));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ruta', 'ingreso', 'egreso','visa', 'master'));
+        return view($this->folderview.'.list')->with(compact('caja','lista', 'entidad', 'estado_caja', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ruta', 'ingreso', 'egreso','visa', 'master'));
     }
 
     /**
@@ -150,11 +144,28 @@ class CajaController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
         $entidad          = 'Caja';
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
-        $user = Auth::user();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'user'));
+        $sucursal         = "";
+        $caja ="";
+        if (!$user->isSuperAdmin()) {
+            $sucursal = " Sucursal: ". $user->sucursal->nombre;
+        }
+
+        $sucursales = Sucursal::all();
+       
+        if(!$user->isAdmin() && !$user->isSuperAdmin()){
+            $caja_sesion= session('caja_sesion_id','0');
+            if($caja_sesion == '0'){
+                $sucursales = Sucursal::where('id',$user->sucursal_id)->all();
+            }else{
+                $sucursales = "";
+                $caja = Caja::where('id' , $caja_sesion)->first();
+            }
+        }
+        return view($this->folderview.'.admin')->with(compact('sucursales','caja','entidad', 'title', 'ruta', 'user', 'sucursal'));
     }
 
     /**
@@ -199,7 +210,8 @@ class CajaController extends Controller
             return $validacion->messages()->toJson();
         }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request,$user){
+        $caja =  Caja::where('id',$user->caja_id)->first();
+        $error = DB::transaction(function() use($request,$user, $caja){
             $movimiento        = new Movimiento();
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
@@ -216,8 +228,12 @@ class CajaController extends Controller
             $movimiento->concepto_id=$request->input('concepto');
             $movimiento->comentario=$request->input('comentario');
             $movimiento->situacion='N';
+
+            $movimiento->caja_id = $caja->id;
+            $movimiento->sucursal_id=$caja->sucursal_id;
             $movimiento->save();
-            $idref=$movimiento->id;
+
+
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -2133,25 +2149,33 @@ class CajaController extends Controller
     public function apertura(Request $request)
     {
         $entidad             = 'Caja';
+        $user = Auth::user();
         $formData            = array('caja.aperturar');
         $listar              = $request->input('listar');
         $numero              = Movimiento::NumeroSigue(4,6);//movimiento caja y documento ingreso
-        $ultimo = Movimiento::where('concepto_id','=',2)  
-                   ->orderBy('id','desc')->limit(1)->first();
-        if(count($ultimo)>0){
-            $total=number_format($ultimo->total,2,'.','');
+       /* $ultimo = Movimiento::where('concepto_id','=',2)  
+                   ->orderBy('id','desc')->limit(1)->first();*/
+
+        $caja_sesion_id     = session('caja_sesion_id','0');
+        $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
+        $ultimo             = Movimiento::where('id', $caja_sesion->ultimocierre_id)->first();
+        
+        if($ultimo){
+                    $total   = number_format($ultimo->total,2,'.','');
         }else{
-            $total=0;    
+                    $total=0;    
         }
+        $caja                =Caja::where('id', $caja_sesion_id)->pluck('nombre','id')->all();
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Aperturar';
-        return view($this->folderview.'.apertura')->with(compact('formData', 'entidad', 'boton', 'listar', 'numero', 'total'));
+        return view($this->folderview.'.apertura')->with(compact('caja','formData', 'entidad', 'boton', 'listar', 'numero', 'total'));
     }
     
     public function aperturar(Request $request)
-    {
+    {   
         $user = Auth::user();
-        $error = DB::transaction(function() use($request, $user){
+        $caja = Caja::where('id',$request->input('caja_id'))->first();
+        $error = DB::transaction(function() use($request ,$user, $caja){
             $movimiento        = new Movimiento();
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
@@ -2166,9 +2190,20 @@ class CajaController extends Controller
             $movimiento->voucher='';
             $movimiento->tarjeta='';
             $movimiento->totalpagado='0.00';
-            $movimiento->comentario=$request->input('comentario');
+            $movimiento->comentario=Libreria::getParam($request->input('comentario'),"");
             $movimiento->situacion='N';
+
+            $movimiento->caja_id = $caja->id;
+            $movimiento->sucursal_id = $caja->sucursal->id;
             $movimiento->save();
+
+            $user->caja_id = $caja->id;
+            $user->save();
+
+            $caja->user_id = $user->id;
+            $caja->ultimaapertura_id = $movimiento->id;
+            $caja->estado = 'ABIERTA';
+            $caja->save();
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -2223,19 +2258,19 @@ class CajaController extends Controller
         $formData            = array('caja.cerrar');
         $listar              = $request->input('listar');
         $numero              = Movimiento::NumeroSigue(4,7);//movimiento caja y documento egreso
-        $rst              = Movimiento::where('tipomovimiento_id','=',4)->where('concepto_id','=',1)->orderBy('id','DESC')->limit(1)->first();
-        if(count($rst)>0){
-            $movimiento_mayor = $rst->id;    
-        }else{
-            $movimiento_mayor = 0;
-        }
+       // $rst              = Movimiento::where('tipomovimiento_id','=',4)->where('concepto_id','=',1)->orderBy('id','DESC')->limit(1)->first();
+        $caja_sesion_id     = session('caja_sesion_id','0');
+        $caja        = Caja::where('id', $caja_sesion_id)->first();
+        $ultimo             = Movimiento::where('id', $caja->ultimaapertura_id)->first();
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('concepto','concepto.id','=','movimiento.concepto_id')
                             ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                             ->whereNull('movimiento.cajaapertura_id')
-                            ->where('movimiento.id', '>=', $movimiento_mayor);
+                            ->where('movimiento.caja_id', $caja->id)
+                            ->where('movimiento.sucursal_id', $caja->sucursal_id)
+                            ->where('movimiento.id', '>=', $caja->ultimaapertura_id);
         $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
         $lista            = $resultado->get();
         
@@ -2264,7 +2299,8 @@ class CajaController extends Controller
     {
         
         $user = Auth::user();
-        $error = DB::transaction(function() use($request, $user){
+        $caja = Caja::where('id',$user->caja_id)->first();
+        $error = DB::transaction(function() use($request, $user,$caja){
             $movimiento        = new Movimiento();
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
@@ -2279,9 +2315,20 @@ class CajaController extends Controller
             $movimiento->voucher='';
             $movimiento->totalpagado='0.00';
             $movimiento->tarjeta='';
-            $movimiento->comentario=$request->input('comentario');
+            $movimiento->comentario=Libreria::getParam($request->input('comentario'),'');
             $movimiento->situacion='N';
+            
+            $movimiento->caja_id =$caja->id;
+            $movimiento->sucursal_id =$caja->sucursal_id;
             $movimiento->save();
+
+            $caja->estado = 'CERRADA';
+            $caja->user_id = null;
+            $caja->ultimocierre_id = $movimiento->id;
+            $caja->save();
+
+            $user->caja_id = null;
+            $user->save();
         });
         return is_null($error) ? "OK" : $error;
     }

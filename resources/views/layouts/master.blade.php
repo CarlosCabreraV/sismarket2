@@ -123,36 +123,40 @@ scratch. This page gets rid of all links and provides the needed markup only.
  ?>
 @if(Auth::user()->usertype_id == 2))
     <?php 
-        $nro_cajas = Caja::where('sucursal_id', Auth::user()->sucursal_id)->count();
+        $nro_cajas = Caja::where('sucursal_id', Auth::user()->sucursal_id)->where('estado','CERRADA')->count();
     ?>
-      @if($caja_sesion_id == '0' && !$user_caja_asignada)
-            @if($nro_cajas && $nro_cajas != 0)
-                  @if($nro_cajas == 1)
-                    <?php 
-                      $caja_unica = Caja::where('sucursal_id' , Auth::user()->sucursal_id)->first();
-                      $caja_nombre = $caja_unica->nombre;
-                      session(['caja_sesion_id' => $caja_unica->id]); 
-                    ?>
-                    <script>
-                      $(document).ready(function (){
-                                 toastr.success('Se te asignó la caja '+'{{$caja_nombre}}','Caja asignada automaticamente');
-                       });
-                    </script>
-                  @elseif($nro_cajas > 1)
+      @if($caja_sesion_id == '0' )
+          @if(!$user_caja_asignada)
+              @if($nro_cajas && $nro_cajas != 0)
+                    @if($nro_cajas == 1)
+                      <?php 
+                        $caja_unica = Caja::where('sucursal_id' , Auth::user()->sucursal_id)->where('estado','CERRADA')->first();
+                        $caja_nombre = $caja_unica->nombre;
+                        session(['caja_sesion_id' => $caja_unica->id]); 
+                      ?>
                       <script>
                         $(document).ready(function (){
-                          modal_nocerrar('{{URL::route('mantenimientocaja.asignarcaja')}}' , 'Asignar Caja');
+                                  toastr.success('Se te asignó la caja '+'{{$caja_nombre}}','Caja asignada automaticamente');
                         });
                       </script>
-                  @endif
-            @else
-            <script>
-               $(document).ready(function (){
-                          toastr.error('No existen cajas registradas en tu sucursal','No hay cajas');
-                });
-            </script>
-            @endif
-      @endif
+                    @elseif($nro_cajas > 1)
+                        <script>
+                          $(document).ready(function (){
+                            modal_nocerrar('{{URL::route('mantenimientocaja.asignarcaja')}}' , 'Asignar Caja');
+                          });
+                        </script>
+                    @endif
+              @else
+              <script>
+                $(document).ready(function (){
+                            toastr.error('No existen cajas disponibles en tu sucursal','No hay cajas');
+                  });
+              </script>
+              @endif
+        @else
+        <?php session(['caja_sesion_id'=>$user_caja_asignada]); ?>
+        @endif
+     @endif
 @endif
 
 {{-- jquery.inputmask: para mascaras en cajas de texto --}}

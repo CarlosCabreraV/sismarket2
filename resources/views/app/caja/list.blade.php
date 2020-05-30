@@ -1,5 +1,12 @@
-<div class="row">
-@if($conceptopago_id==1)
+
+@if($caja->estado == 'ABIERTA' && ($caja->user_id != Auth::user()->id))
+    <div class="alert alert-warning ">
+        <h5><i class="icon fas fa-exclamation-triangle"></i> Caja aperturada!</h5>
+        La caja ha sido aperturada por otro usuario , vuelve a iniciar sesión y elige otra.
+    </div>
+@else
+    <div class="row">
+    @if($estado_caja == 'ABIERTA')
     <div class="col-md-3 col-lg-3">
         {!! Form::button('<i class="fas fa-plus"></i> Apertura', array('class' => 'btn btn-block btn-outline-info btn-sm', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
     </div>
@@ -9,7 +16,7 @@
     <div class="col-md-3 col-lg-3">
         {!! Form::button('<i class="fas fa-trash-alt"></i> Cierre', array('class' => 'btn btn-block btn-outline-danger btn-sm', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
     </div>
-@elseif($conceptopago_id==2)
+@elseif($estado_caja == 'CERRADA')
     <div class="col-md-3 col-lg-3">
         {!! Form::button('<i class="fas fa-plus"></i> Apertura', array('class' => 'btn btn-block btn-outline-info btn-sm', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
     </div>
@@ -94,7 +101,7 @@ $saldo = number_format($ingreso - $egreso,2,'.','');
             @endif 
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
-            @if($conceptopago_id<>2 && $value->situacion<>'A' && $value->concepto_id<>3 && $value->concepto_id<>1)
+            @if($estado_pago != 'ABIERTA' && $value->situacion<>'A' && $value->concepto_id<>3 && $value->concepto_id<>1)
                 <td align="center">{!! Form::button('<div class="fas fa-trash-alt m-1"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-outline-danger', 'title' => 'Anular')) !!}</td>
             @else                
                 <td align="center"> - </td>
@@ -145,4 +152,5 @@ $saldo = number_format($ingreso - $egreso,2,'.','');
 </div>
 
 </div>
+@endif
 @endif

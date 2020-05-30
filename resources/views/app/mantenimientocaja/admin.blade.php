@@ -33,7 +33,7 @@
 							
 							<div class="col-lg-4 col-md-4  form-group">
 								{!! Form::label('name', 'Nombre:') !!}
-								{!! Form::text('name', '', array('class' => 'form-control input-xs', 'id' => 'name')) !!}
+								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'name')) !!}
 							</div>
 							<div class="col-lg-4 col-md-4  form-group">
 								{!! Form::label('sucursal_id', 'Sucursal:') !!}

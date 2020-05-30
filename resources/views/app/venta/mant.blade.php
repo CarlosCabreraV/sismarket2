@@ -12,96 +12,100 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
 
-        <!--DATOS VENTA -->
-        <div class="row   py-2 px-1 my-2">
-            <div class="col-md-6 col-lg-6 ">
-                <div class="form-group">
-                    {!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        {!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6 ">
-                <div class="form-group">
-                    {!! Form::label('numero', 'Numero', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        {!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row   py-2 px-1 my-2">
-            <div class="col-md-6 col-lg-6 ">
-                <div class="form-group">
-                    {!! Form::label('lblsucursal_id', 'Sucursal', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        {!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-6 ">
-                <div class="form-group">
-                    {!! Form::label('lbltipodoc', 'Tipo doc.', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero();')) !!}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--DATOS VENTA -->
-        <!--DATOS CLIENTE -->
-        <div class="row   py-2 px-1 my-2">
-            <div class="col-md-6 col-lg-6 col-sm-6">
-                <div class="form-group ">
-                    {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12 input-group">
-                        {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
-                        {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
-                        {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
-                        <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
-                            {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+    <div class="row">
+        <div class="col-lg-5 col-md-5">
+            <!--DATOS VENTA -->
+            <div class="row ">
+                <div class="col-md-6 col-lg-6 ">
+                    <div class="form-group">
+                        {!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
                         </div>
-                        <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
-                            <span class="input-group-append">
-                                {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
-                             </span>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 ">
+                    <div class="form-group">
+                        {!! Form::label('numero', 'Numero', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row   py-2 px-1 my-2">
+                <div class="col-md-6 col-lg-6 ">
+                    <div class="form-group">
+                        {!! Form::label('lblsucursal_id', 'Sucursal', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 ">
+                    <div class="form-group">
+                        {!! Form::label('lbltipodoc', 'Tipo doc.', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero();')) !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--DATOS VENTA -->
+            <!--DATOS CLIENTE -->
+            <div class="row   py-2 px-1 my-2">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="form-group ">
+                        {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12 input-group">
+                            {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
+                            {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
+                            {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
+                            <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                                {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                            </div>
+                            <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                                <span class="input-group-append">
+                                    {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                                </span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            <!--DATOS CLIENTE -->
+        </div>
+        <div class="col-lg-6 col-md-6 ml-5">
+            <!--DATOS PRODUCTO -->
+            <div class="row ">
+                @if ($conf_codigobarra=="S")
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                {!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
+                            </div>
+                        </div>
+                </div>
+                @endif
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="form-group">
+                        {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
                         </div>
                     </div>
                     
                 </div>
             </div>
-           
-        </div>
-        <!--DATOS CLIENTE -->
-
-        <!--DATOS PRODUCTO -->
-    <div class="row   py-2 px-1 my-2">
-        @if ($conf_codigobarra=="S")
-        <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="form-group">
-                    {!! Form::label('codigo', 'Cod. Barra:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        {!! Form::text('codigobarra', null, array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
-                    </div>
-                </div>
-        </div>
-        @endif
-        <div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="form-group">
-                {!! Form::label('descripcion', 'Producto:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
-        		</div>
+            <!--DATOS PRODUCTO -->
+            <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
             </div>
-            
-         </div>
-     </div>
-    <!--DATOS PRODUCTO -->
+        </div>
+    </div>
 
-     <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
-     </div>
-
+   
         <div class="row   py-2 px-1 my-2">
             <table class="table table-sm table-condensed table-striped" id="tbDetalle">
                 <thead class="bg-navy">
@@ -120,61 +124,51 @@
             </table>
         </div>
             <!--TOTAL , DINERO , VUELTO-->
-             <div class="row   py-2 px-1 my-2">
-                 <div class="col-md-3 col-lg-3 ">
-                     <div class="form-group">
-                         {!! Form::label('lbltotal', 'Total', array('class' => 'col-lg-12 col-md-12 col-sm-12   bold' )) !!}
-                         <div class="col-lg-12 col-md-12 col-sm-12 ">
-                             {!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'false', 'style' => 'font-size:20px;color:darkgreen;')) !!}
-                         </div>
-                     </div>
-                 </div>
-                 <div class="col-md-3 col-lg-3">
-                     <div class="form-group">
-                         {!! Form::label('lbldinero', 'Dinero', array('class' => 'col-lg-12 col-md-12 col-sm-12  bold')) !!}
-                         <div class="col-lg-12 col-md-12 col-sm-12 ">
-                             {!! Form::text('dinero', null, array('class' => 'form-control input-xs', 'id' => 'dinero', 'size' => 3, 'style' => 'font-size:20px; color:darkred;', 'onkeyup' => 'calcularVuelto();')) !!}
-                         </div>
-                     </div>
-                 </div>
-                 <div class="col-md-3 col-lg-3">
-                     <div class="form-group">
-                         {!! Form::label('lblvuelto', 'Vuelto', array('class' => 'col-lg-12 col-md-12 col-sm-12 bold')) !!}
-                         <div class="col-lg-12 col-md-12 col-sm-12">
-                             {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:20px;color:darkblue;')) !!}
-                         </div>
-                     </div>
-                 </div>
-                 <div class="col-md-2 col-lg-3">
-                     <div class="form-group ">
-                             <input type="hidden" name="acuenta" id="acuenta" value="N">
-                             {!! Form::label('lblcuenta', 'A cuenta', array('class' => 'col-lg-12 col-md-12 col-sm-12 bold')) !!}
-                             <div class="col-lg-12 col-md-12 col-sm-12">
-                                 <input type="checkbox"  onclick="aCuenta(this.checked);" />
-                             </div>
-                     </div>
-                 </div>
-             </div>
+
+            <div class="row   py-2 px-1 my-2">
+                <div class="col-md-3 col-lg-3 form-group row">
+                        {!! Form::label('lbltotal', 'TOTAL', array('class' => ' col-form-label col-lg-3 col-md-3 col-sm-3  bold' )) !!}
+                    <div class="col-md-9 col-lg-9">
+                        {!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'false', 'style' => 'font-size:20px;color:white; background:#00028f;')) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 form-group row">
+                    {!! Form::label('lbldinero', 'DINERO', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
+                    <div class="col-md-9 col-lg-9">
+                        {!! Form::text('dinero', null, array('class' => 'form-control input-xs', 'id' => 'dinero', 'size' => 3, 'style' => 'font-size:20px; color:GREEN;', 'onkeyup' => 'calcularVuelto();')) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 form-group row">
+                    {!! Form::label('lblvuelto', 'VUELTO', array('class' => 'col-form-label col-lg-3 col-md-3 col-sm-12 bold')) !!}
+                    <div class="col-md-9 col-lg-9">
+                        {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:20px;color:darkblue;')) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 form-group row">
+                    <input type="hidden" name="acuenta" id="acuenta" value="N">
+                    {!! Form::label('lblcuenta', 'A CUENTA', array('class' => 'col-form-label col-lg-4 col-md-4 col-sm-4 bold')) !!}
+                    <div class="col-md-8 col-lg-8 mt-2">
+                        <input type="checkbox"  onclick="aCuenta(this.checked);" />
+                    </div>
+                </div>
+            </div>
             <!--TOTAL , DINERO , VUELTO-->
                <!--EFECTIVO , VISA-->
-             <div class="row   py-2 px-1 my-2">
-                 <div class="col-lg-6 col-md-6">
-                     <div class="form-group">
-                            <label>EFECTIVO</label>
-                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                {!! Form::text('totalpagado', null, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:30px;color:green;')) !!}
-                            </div>
-                     </div>
-                 </div>
-                 <div class="col-lg-6 col-md-6">
-                     <div class="form-group">
-                            <label>VISA</label>
-                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                {!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
-                            </div>
-                     </div>
-                 </div>
-             </div>
+               <div class="row   py-2 px-1 my-2">
+                    <div class="col-md-3 col-lg-3 form-group row">
+                        {!! Form::label('lblefectivo', 'EFECTIVO', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
+                        <div class="col-md-9 col-lg-9">
+                            {!! Form::text('totalpagado', null, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:30px;color:green;')) !!}
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 form-group row">
+                        {!! Form::label('lblvisa', 'VISA', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
+                        <div class="col-md-9 col-lg-9">
+                            {!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
+                        </div>
+                    </div>
+               </div>
+             
            <!--EFECTIVO, VISA-->
      <div class="form-group">
         <div class="col-lg-12 col-md-12 col-sm-12 text-right">
@@ -210,7 +204,7 @@
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-	configurarAnchoModal('800');
+	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dinero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
@@ -488,7 +482,7 @@ function buscarProducto(valor){
                         $("#tbodyProducto").append(a);           
                     }
                     $('#tablaProducto').DataTable({
-                        "scrollY":        "250px",
+                        "scrollY":        "150px",
                         "scrollCollapse": true,
                         "paging":         false
                     });
