@@ -101,7 +101,7 @@ $saldo = number_format($ingreso - $egreso,2,'.','');
             @endif 
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
-            @if($estado_pago != 'ABIERTA' && $value->situacion<>'A' && $value->concepto_id<>3 && $value->concepto_id<>1)
+            @if($estado_caja != 'ABIERTA' && $value->situacion<>'A' && $value->concepto_id<>3 && $value->concepto_id<>1)
                 <td align="center">{!! Form::button('<div class="fas fa-trash-alt m-1"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-outline-danger', 'title' => 'Anular')) !!}</td>
             @else                
                 <td align="center"> - </td>
