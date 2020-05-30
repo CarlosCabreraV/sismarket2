@@ -22,6 +22,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     .ocultarScroll{
     overflow-y:hidden !important;
     }
+    #container.content-wrapper.p-2.ml-0 {
+      margin-left:0px !important;
+    }
 		
   </style>
   

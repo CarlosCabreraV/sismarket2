@@ -5,6 +5,7 @@
 		<div class="container-fluid">
 		  <div class="row mb-2">
 			<div class="col-sm-6">
+			  <h5 class="m-2 text-dark">{{$sucursal}}</h5>
 			  <h1 class="m-0 text-dark">{{$title}}</h1>
 			</div><!-- /.col -->
 			<div class="col-sm-6">
@@ -38,9 +39,9 @@
 									{!! Form::label('fechafin', 'Fecha fin:') !!}
 									{!! Form::date('fechafin', '', array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4  form-group">
-									{!! Form::label('tipodocumento', 'Tipo Doc.:') !!}
-									{!! Form::select('tipodocumento', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
+								<div class="col-lg-3 col-md-3  form-group">
+									{!! Form::label('sucursal_id', 'Sucursal') !!}
+									{!! Form::select('sucursal_id', $cboSucursal, '', array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
 								</div>
 								{{-- <div class="col-lg-4 col-md-4  form-group">
 									{!! Form::label('proveedor', 'Proveedor:') !!}
@@ -48,6 +49,10 @@
 								</div> --}}
 							</div>
 							<div class="row w-100">
+								<div class="col-lg-4 col-md-4  form-group">
+									{!! Form::label('tipodocumento', 'Tipo Doc.:') !!}
+									{!! Form::select('tipodocumento', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
+								</div>
 								<div class="col-lg-4 col-md-4  form-group">
 									{!! Form::label('numero', 'Nro:') !!}
 									{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
@@ -102,17 +107,11 @@
 				buscar('{{ $entidad }}');
 			}
 		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').change(function (e) {
 				buscar('{{ $entidad }}');
-			}
 		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').change(function (e) {
 				buscar('{{ $entidad }}');
-			}
 		});
 		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipodocumento"]').change(function (e) {
             buscar('{{ $entidad }}');

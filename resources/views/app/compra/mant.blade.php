@@ -12,30 +12,42 @@
     {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
     <div class="row">
         <div class="col-lg-5 col-md-5 col-sm-5">
-            <div class="form-group">
-        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
-        		</div>
+            <div class="row col-lg-12 col-md-12 col-sm-12 p-0 m-0">
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('sucursal_id', 'Sucursal:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                {!! Form::label('sucursal_id', 'Sucursal:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
-        		</div>
+            <div class="row col-lg-12 col-md-12 col-sm-12 p-0 m-0">
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento')) !!}
-        		</div>
-            </div>
-            <div class="form-group">
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-        		<div class="col-lg-12 col-md-12 col-sm-12">
-        			{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
-        		</div>
-        	</div>
             <div class="form-group pb-2">
                 {!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
         		<div class="col-lg-12 col-md-12 col-sm-12 input-group pl-0">
@@ -115,7 +127,7 @@
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-	configurarAnchoModal('1350');
+	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 
@@ -154,7 +166,10 @@ $(document).ready(function() {
     @endif
 
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
-        buscarProducto();
+        var producto = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="descripcion"]').val();
+        if(producto != ""){
+            buscarProducto();
+        }
     });
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {

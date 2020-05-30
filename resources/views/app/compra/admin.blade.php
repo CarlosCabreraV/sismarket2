@@ -114,17 +114,11 @@
 				buscar('{{ $entidad }}');
 			}
 		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').change(function (e) {
+			buscar('{{ $entidad }}');
 		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').change(function (e) {
+			buscar('{{ $entidad }}');
 		});
 		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipodocumento"]').change(function (e) {
             buscar('{{ $entidad }}');
