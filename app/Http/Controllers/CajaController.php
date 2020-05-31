@@ -216,6 +216,7 @@ class CajaController extends Controller
         $user = Auth::user();
         $caja =  Caja::where('id',$user->caja_id)->first();
         $error = DB::transaction(function() use($request,$user, $caja){
+            date_default_timezone_set("America/Lima");
             $movimiento        = new Movimiento();
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
