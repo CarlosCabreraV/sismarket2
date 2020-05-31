@@ -45,6 +45,14 @@ class Movimiento extends Model
 	{
 		return $this->belongsTo('App\Sucursal', 'sucursal_id');
 	}
+	public function sucursalenvio()
+	{
+		return $this->belongsTo('App\Sucursal', 'sucursal_envio_id');
+	}
+	public function motivo()
+	{
+		return $this->belongsTo('App\Motivo', 'motivo_id');
+	}
 
 	public function scopeNumeroSigue($query, $tipomovimiento_id, $tipodocumento_id = 0, $sucursal_id = null)
 	{

@@ -77,6 +77,7 @@ class MovimientoalmacenController extends Controller
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Hora', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo Doc.', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Motivo.', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Sucursal', 'numero' => '1');
@@ -183,7 +184,7 @@ class MovimientoalmacenController extends Controller
                 $Venta->subtotal = $request->input('total');
                 $Venta->igv = 0;
                 $Venta->total = $request->input('total');
-                $Venta->tipomovimiento_id = 3; //VENTA
+                $Venta->tipomovimiento_id = 3; //MOV ALMACEN
                 $Venta->tipodocumento_id = $request->input('tipodocumento');
                 $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
                 $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
@@ -276,12 +277,13 @@ class MovimientoalmacenController extends Controller
                 if ($request->input('motivo_id') == "3") {
                     $traslado       = new Movimiento();
                     $traslado->fecha = $request->input('fecha');
-                    $traslado->numero = $request->input('numero');
+                    $numeroventa = "001-" . Movimiento::NumeroSigue(3, 8);
+                    $traslado->numero = $numeroventa;
                     $traslado->subtotal = $request->input('total');
                     $traslado->igv = 0;
                     $traslado->total = $request->input('total');
-                    $traslado->tipomovimiento_id = 3; //VENTA
-                    $traslado->tipodocumento_id = $request->input('tipodocumento');
+                    $traslado->tipomovimiento_id = 3; //MOV ALMACEN
+                    $traslado->tipodocumento_id = 8; //INGRESO
                     $traslado->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
                     $traslado->situacion = 'P'; //Pendiente => P / Cobrado => C / Boleteado => B
                     $traslado->comentario = Libreria::getParam($request->input('comentario'), '');
@@ -290,7 +292,7 @@ class MovimientoalmacenController extends Controller
                     $traslado->totalpagado = 0;
                     $traslado->tarjeta = '';
                     $traslado->sucursal_id = $request->input('sucursaldestino');
-                    $traslado->motivo_id = 5;
+                    $traslado->motivo_id = 5; // TRASLADO DE INGRESO
                     $traslado->save();
                     $arr = explode(",", $request->input('listProducto'));
                     for ($c = 0; $c < count($arr); $c++) {

@@ -3,25 +3,33 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     <div class="row">
     	<div class="col-lg-12 col-md-12 col-sm-12">
-    		<div class="form-group">
-                {!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                <div class="col-lg-12 col-md-12 col-sm-12">
-                    {!! Form::date('fecha', $venta->fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
+            <div class="row col-lg-12 col-md-12 col-sm-12 p-0 m-0">
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::date('fecha', $venta->fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 p-0">
+                    <div class="form-group">
+                        {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            {!! Form::text('numero', $venta->numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+                        </div>
+                    </div>
                 </div>
             </div>
+    		
             <div class="form-group">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     {!! Form::text('tipodocumento', $venta->tipodocumento->nombre, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'readonly' => 'true')) !!}
                 </div>
             </div>
-            <div class="form-group">
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                <div class="col-lg-12 col-md-12 col-sm-12">
-                    {!! Form::text('numero', $venta->numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
-                </div>
-            </div>
-            <div class="form-group">
+            
+            <div class="form-group" hidden>
                 {!! Form::label('persona', 'Proveedor:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                 <div class="col-lg-12 col-md-12 col-sm-12">
                 {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
