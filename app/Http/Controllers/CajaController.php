@@ -134,7 +134,7 @@ class CajaController extends Controller
             $request->replace(array('page' => $paginaactual));
             return view($this->folderview.'.list')->with(compact('caja','lista','estado_caja', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ingreso', 'egreso', 'titulo_anular','user' ));
         }
-        return view($this->folderview.'.list')->with(compact('caja','lista', 'entidad', 'estado_caja', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ruta', 'ingreso', 'egreso','visa', 'master'));
+        return view($this->folderview.'.list')->with(compact('caja','lista', 'entidad', 'estado_caja', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ruta', 'ingreso', 'egreso','visa'));
     }
 
     /**
@@ -145,27 +145,31 @@ class CajaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $caja_sesion= session('caja_sesion_id', '0');
         $entidad          = 'Caja';
-        $title            = $this->tituloAdmin;
-        $ruta             = $this->rutas;
-        $sucursal         = "";
-        $caja ="";
-        if (!$user->isSuperAdmin()) {
-            $sucursal = " Sucursal: ". $user->sucursal->nombre;
-        }
-
-        $sucursales = Sucursal::all();
-       
-        if(!$user->isAdmin() && !$user->isSuperAdmin()){
-            $caja_sesion= session('caja_sesion_id','0');
-            if($caja_sesion == '0'){
-                $sucursales = Sucursal::where('id',$user->sucursal_id)->all();
-            }else{
-                $sucursales = "";
-                $caja = Caja::where('id' , $caja_sesion)->first();
+        if ($caja_sesion =='0' && !$user->isAdmin() && !$user->isSuperAdmin()) {
+            return view('app.caja_sin_asignar')->with(compact('entidad'));
+        }else{
+            $title            = $this->tituloAdmin;
+            $ruta             = $this->rutas;
+            $sucursal         = "";
+            $caja ="";
+            if (!$user->isSuperAdmin() && !$user->isAdmin()) {
+                $sucursal = " Sucursal: ". $user->sucursal->nombre;
             }
-        }
-        return view($this->folderview.'.admin')->with(compact('sucursales','caja','entidad', 'title', 'ruta', 'user', 'sucursal'));
+
+            $sucursales = Sucursal::all();
+       
+            if (!$user->isAdmin() && !$user->isSuperAdmin()) {
+                if ($caja_sesion == '0') {
+                    $sucursales = Sucursal::where('id', $user->sucursal_id)->all();
+                } else {
+                    $sucursales = "";
+                    $caja = Caja::where('id', $caja_sesion)->first();
+                }
+            }
+            return view($this->folderview.'.admin')->with(compact('sucursales', 'caja', 'entidad', 'title', 'ruta', 'user', 'sucursal'));
+        }  
     }
 
     /**
@@ -193,7 +197,7 @@ class CajaController extends Controller
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
 
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDoc', 'numero', 'cboConcepto', 'user'));
+        return view($this->folderview.'.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDoc', 'numero', 'cboConcepto'));
     }
 
     public function store(Request $request)
