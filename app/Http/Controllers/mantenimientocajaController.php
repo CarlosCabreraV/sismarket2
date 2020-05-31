@@ -255,7 +255,7 @@ class mantenimientocajaController extends Controller
         $user = Auth::user();
         $cajas = Caja::where('sucursal_id',$user->sucursal_id)->where('estado','CERRADA');
         $cboCajas = [""=>"ELIJA UNA CAJA"]+$cajas->pluck("nombre","id")->all();
-        return view('app.asignarCaja')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboCajas'));
+        return view('app.asignarCaja')->with(compact('caja', 'formData', 'entidad', 'boton', 'cboCajas'));
     }
     public function guardarasignarcaja(Request $request){
         

@@ -54,14 +54,14 @@ class Movimiento extends Model
 					if (!is_null($sucursal_id) && strlen($sucursal_id) > 0) {
 						$subquery->where('sucursal_id', '=', $sucursal_id);
 					}
-				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,5,8),SIGNED integer) END)*1) AS maximo"))->first();
+				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,1,8),SIGNED integer) END)*1) AS maximo"))->first();
 		} else {
 			$rs = $query
 				->where(function ($subquery) use ($sucursal_id) {
 					if (!is_null($sucursal_id) && strlen($sucursal_id) > 0) {
 						$subquery->where('sucursal_id', '=', $sucursal_id);
 					}
-				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->where('tipodocumento_id', '=', $tipodocumento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,6,8),SIGNED  integer) END)*1) AS maximo"))->first();
+				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->where('tipodocumento_id', '=', $tipodocumento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,1,8),SIGNED  integer) END)*1) AS maximo"))->first();
 		}
 		return str_pad($rs->maximo + 1, 8, '0', STR_PAD_LEFT);
 	}
