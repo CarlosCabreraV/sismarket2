@@ -148,7 +148,7 @@ class CajaController extends Controller
         $caja_sesion= session('caja_sesion_id', '0');
         $entidad          = 'Caja';
         if ($caja_sesion =='0' && !$user->isAdmin() && !$user->isSuperAdmin()) {
-            return view('app.caja_sin_asignar')->with(compact('entidad'));
+            return view('app.caja_sin_asignar');
         }else{
             $title            = $this->tituloAdmin;
             $ruta             = $this->rutas;

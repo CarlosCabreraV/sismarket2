@@ -18,6 +18,7 @@ use App\Detalleproducto;
 use App\Stockproducto;
 use App\Detallemovimiento;
 use App\Person;
+use App\Caja;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use App\Sucursal;
@@ -54,6 +55,7 @@ class VentaController extends Controller
     {
         $this->middleware('auth');
         define("CODIGO_BARRAS", Configuracion::where("nombre", "=", "CODIGO_BARRAS")->first()->valor);
+        define("STOCK_NEGATIVO", Configuracion::where("nombre", "=", "STOCK_NEGATIVO")->first()->valor);
     }
 
 
@@ -132,16 +134,18 @@ class VentaController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $sucursal         = "";
-        if (!$current_user->isSuperAdmin()) {
-            $sucursal = " Sucursal: ". $current_user->sucursal->nombre;
-        } 
-        $cboTipoDocumento = array('' => 'Todos');
-        $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id','=',2)->orderBy('nombre','asc')->pluck('nombre','id')->all();
-        $cboSucursal = [""=>"TODOS"] + Sucursal::pluck('nombre','id')->all();
-        if(!$current_user->isAdmin() && !$current_user->isSuperAdmin()){
-            $cboSucursal = Sucursal::where('id','=',$current_user->sucursal_id)->pluck('nombre', 'id')->all();
-        }
-        return view($this->folderview.'.admin')->with(compact('sucursal','cboSucursal','entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
+        
+            if (!$current_user->isSuperAdmin() && !$current_user->isAdmin()) {
+                $sucursal = " Sucursal: ". $current_user->sucursal->nombre;
+            }
+            $cboTipoDocumento = array('' => 'Todos');
+            $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+            $cboSucursal = [""=>"TODOS"] + Sucursal::pluck('nombre', 'id')->all();
+            if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+                $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+            }
+            return view($this->folderview.'.admin')->with(compact('sucursal', 'cboSucursal', 'entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento' ,'current_user'));
+        
     }
 
     /**
@@ -178,11 +182,13 @@ class VentaController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
                             'persona' => 'required|max:500',
-                            'listProducto'=>'required'
+                            'listProducto'=>'required',
+                            'sucursal_id'   => 'required|integer|exists:sucursal,id,deleted_at,NULL',
                         );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un cliente',
-            'listProducto.required'=>'Agrega al menos un producto'
+            'listProducto.required'=>'Agrega al menos un producto',
+            'sucursal_id.required' => 'Debe seleccionar una sucursal.'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -190,26 +196,26 @@ class VentaController extends Controller
         }
         $user = Auth::user();
         $dat=array();
-        $rst  = Movimiento::where('tipomovimiento_id','=',4)->orderBy('movimiento.id','DESC')->limit(1)->first();
-        if(count($rst)==0){
-            $conceptopago_id=2;
-        }else{
-            $conceptopago_id=$rst->conceptopago_id;
+        
+        $caja_sesion_id     = session('caja_sesion_id','0');
+        $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
+        $estado_caja        = $caja_sesion->estado;
+        
+        if($estado_caja == 'CERRADA'){
+            $dat[0]=array("respuesta"=>"ERROR","msg"=>"CAJA CERRADA");
+            throw new \Exception(json_encode($dat));
         }
-        if($conceptopago_id==2){
-            $dat[0]=array("respuesta"=>"ERROR","msg"=>"Caja cerrada");
-            return json_encode($dat);
-        }
+        try{
         $error = DB::transaction(function() use($request,$user,&$dat){
             $Venta       = new Movimiento();
             $Venta->fecha = $request->input('fecha');
             $Venta->numero = $request->input('numero');
-            if($request->input('tipodocumento')=="4"){//FACTURA
-                $Venta->subtotal = round($request->input('total')/1.18,2);
-                $Venta->igv = round($request->input('total') - $Venta->subtotal,2);
-            }else{
-                $Venta->subtotal = round($request->input('total')/1.18,2);
-                $Venta->igv = round($request->input('total') - $Venta->subtotal,2);
+            if($request->input('tipodocumento')=="4" || $request->input('tipodocumento')=="3" ){//FACTURA O BOLETA
+                $Venta->subtotal = round($request->input('total')/1.18,2); //82%
+                $Venta->igv = round($request->input('total') - $Venta->subtotal,2);//18%
+            }else{ //TICKET
+                $Venta->subtotal = $request->input('total');
+                $Venta->igv = 0;
             }
             $Venta->total = str_replace(",","",$request->input('total')); 
             $Venta->totalpagado=str_replace(",","",$request->input('totalpagado')); 
@@ -221,63 +227,80 @@ class VentaController extends Controller
             $Venta->voucher = '';
             $Venta->comentario = '';
             $Venta->responsable_id=$user->person_id;
+
+            $Venta->sucursal_id = $request->input('sucursal_id');
             $Venta->save();
             $arr=explode(",",$request->input('listProducto'));
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallemovimiento();
                 $Detalle->movimiento_id=$Venta->id;
-                if($request->input('txtTipo'.$arr[$c])=="P"){
-                    $Detalle->producto_id=$request->input('txtIdProducto'.$arr[$c]);
-                }else{
-                    $Detalle->promocion_id=$request->input('txtIdProducto'.$arr[$c]);
-                }
+                $Detalle->producto_id = $request->input('txtIdProducto' . $arr[$c]);
                 $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
                 $Detalle->precioventa=$request->input('txtPrecio'.$arr[$c]);
-                $Detalle->preciocompra=$request->input('txtPrecioCompra'.$arr[$c]);
+                $Detalle->preciocompra=Libreria::getParam($request->input('txtPrecioCompra'.$arr[$c]),'0');
                 $Detalle->save();
 
-                if($request->input('txtTipo'.$arr[$c])=="P"){
+               
                     $detalleproducto = Detalleproducto::where('producto_id','=',$Detalle->producto_id)->get();
                     if(count($detalleproducto)>0){
                         foreach ($detalleproducto as $key => $value){
                             $stock = Stockproducto::where('producto_id','=',$value->presentacion_id)->first();
                             if(count($stock)>0){
-                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
-                                $stock->save();
+                                if($stock->cantidad >= $Detalle->cantidad*$value->cantidad ){
+                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
+                                    $stock->save();
+                                }else{
+                                    //STOCK DEL PRODUCTO MENOR AL QUE SE DESEA VENDER
+                                    if(STOCK_NEGATIVO == 'S'){
+                                        $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
+                                        $stock->save();
+                                    }else{
+                                        $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                        throw new \Exception(json_encode($dat));
+                                    }
+                                }
                             }else{
                                 $stock = new Stockproducto();
+                                $stock->sucursal_id = $request->input('sucursal_id');
                                 $stock->producto_id = $value->presentacion_id;
-                                $stock->cantidad = $Detalle->cantidad*(-1)*$value->cantidad;
+                                if(STOCK_NEGATIVO == 'S'){
+                                    $stock->cantidad = $Detalle->cantidad*(-1)*$value->cantidad;
+                                    $stock->save();
+                                }else{
+                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                    throw new \Exception(json_encode($dat));
+                                }
                                 $stock->save();
                             }
                         }
                     }else{
                         $stock = Stockproducto::where('producto_id','=',$Detalle->producto_id)->first();
                         if(count($stock)>0){
-                            $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
+                            if($stock->cantidad >= $Detalle->cantidad){
+                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
+                            }else{
+                                if(STOCK_NEGATIVO == 'S'){
+                                    $stock->cantidad =$stock->cantidad - $Detalle->cantidad;
+                                }else{
+                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                    throw new \Exception(json_encode($dat));
+                                }
+                            }
                             $stock->save();
                         }else{
                             $stock = new Stockproducto();
+                            $stock->sucursal_id = $request->input('sucursal_id');
                             $stock->producto_id = $Detalle->producto_id;
-                            $stock->cantidad = $Detalle->cantidad*(-1);
+                            if(STOCK_NEGATIVO == 'S'){
+                                $stock->cantidad = $Detalle->cantidad*(-1);
+                            }else{
+                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                throw new \Exception(json_encode($dat));
+                            }
                             $stock->save();
                         }
                     }
-                }else{
-                    $lista = Detallepromocion::where('promocion_id','=',$Detalle->promocion_id)->get();
-                    foreach ($lista as $key => $value) {
-                        $stock = Stockproducto::where('producto_id','=',$value->producto_id)->first();
-                        if(count($stock)>0){
-                            $stock->cantidad = $stock->cantidad - $value->cantidad*$Detalle->cantidad;
-                            $stock->save();
-                        }else{
-                            $stock = new Stockproducto();
-                            $stock->producto_id = $value->producto_id;
-                            $stock->cantidad = $value->cantidad*$Detalle->cantidad*(-1);
-                            $stock->save();
-                        }   
-                    }
-                }
+                
             }
             $movimiento        = new Movimiento();
             $movimiento->fecha = date("Y-m-d");
@@ -296,9 +319,15 @@ class VentaController extends Controller
             $movimiento->comentario='Pago de Documento de Venta '.$Venta->numero;
             $movimiento->situacion='N';
             $movimiento->movimiento_id=$Venta->id;
+
+            $movimiento->sucursal_id =$request->input('sucursal_id');
+            $movimiento->caja_id =session('caja_sesion_id','');
             $movimiento->save();
             $dat[0]=array("respuesta"=>"OK","venta_id"=>$Venta->id,"tipodocumento_id"=>$Venta->tipodocumento_id);
         });
+        } catch (\Exception $e) {
+                return $e->getMessage();
+        }
         return is_null($error) ? json_encode($dat) : $error;
     }
 
@@ -411,48 +440,35 @@ class VentaController extends Controller
             $venta->save();
             $lst = Detallemovimiento::where('movimiento_id','=',$id)->get();
             foreach ($lst as $key => $Detalle) {
-                if(!is_null($Detalle->producto_id) && $Detalle->producto_id>0){
-                    $detalleproducto = Detalleproducto::where('producto_id','=',$Detalle->producto_id)->get();
-                    if(count($detalleproducto)>0){
-                        foreach ($detalleproducto as $key => $value){
-                            $stock = Stockproducto::where('producto_id','=',$value->presentacion_id)->first();
-                            if(count($stock)>0){
+                    $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
+                    if (count($detalleproducto)>0) {
+                        foreach ($detalleproducto as $key => $value) {
+                            $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                            if (count($stock)>0) {
                                 $stock->cantidad = $stock->cantidad + $Detalle->cantidad*$value->cantidad;
                                 $stock->save();
-                            }else{
+                            } else {
                                 $stock = new Stockproducto();
+                                $stock->sucursal_id = $venta->sucursal_id;
                                 $stock->producto_id = $value->presentacion_id;
                                 $stock->cantidad = $Detalle->cantidad*$value->cantidad;
                                 $stock->save();
                             }
                         }
-                    }else{
-                        $stock = Stockproducto::where('producto_id','=',$Detalle->producto_id)->first();
-                        if(count($stock)>0){
+                    } else {
+                        $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                        if (count($stock)>0) {
                             $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
                             $stock->save();
-                        }else{
+                        } else {
                             $stock = new Stockproducto();
+                            $stock->sucursal_id = $venta->sucursal_id;
                             $stock->producto_id = $Detalle->producto_id;
                             $stock->cantidad = $Detalle->cantidad;
                             $stock->save();
-                        } 
-                    }       
-                }else{
-                    $lista = Detallepromocion::where('promocion_id','=',$Detalle->promocion_id)->get();
-                    foreach ($lista as $key1 => $value) {
-                        $stock = Stockproducto::where('producto_id','=',$value->producto_id)->first();
-                        if(count($stock)>0){
-                            $stock->cantidad = $stock->cantidad + $value->cantidad*$Detalle->cantidad;
-                            $stock->save();
-                        }else{
-                            $stock = new Stockproducto();
-                            $stock->producto_id = $value->producto_id;
-                            $stock->cantidad = $value->cantidad*$Detalle->cantidad;
-                            $stock->save();
-                        }  
+                        }
                     }
-                }
+               
             }
             $caja = Movimiento::where('movimiento_id','=',$venta->id)->where('tipomovimiento_id','=','4')->first();
             $caja->situacion='A';
@@ -501,7 +517,6 @@ class VentaController extends Controller
                 $c++;                
             }
         }
-       
         return json_encode($data);
     }
     

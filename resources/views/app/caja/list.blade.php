@@ -1,14 +1,14 @@
 <?php 
 $user = Auth::user(); 
 ?>
-@if($caja->estado == 'ABIERTA' && ($caja->user_id != $user->id) && !$user->isAdmin())
+@if($caja->estado == 'ABIERTA' && ($caja->user_id != $user->id) && !$user->isAdmin() && !$user->isSuperAdmin())
     <!--ALERTA CAJA APERTURADA-->
     <div class="alert alert-warning ">
         <h5><i class="icon fas fa-exclamation-triangle"></i> Caja aperturada!</h5>
         La caja ha sido aperturada por otro usuario , vuelve a iniciar sesión y elige otra.
     </div>
     <!--ALERTA CAJA APERTURADA-->
-@elseif(!$user->isAdmin() || (!$user->isAdmin() && ($caja->user_id == $user->id)) || ($caja->estado == 'CERRADA' && !$user->isAdmin()))
+@elseif((!$user->isSuperAdmin() && !$user->isAdmin() || ($caja->estado == 'CERRADA' && !$user->isAdmin() && !$user->isSuperAdmin())))
     <!--OPCIONES CAJA-->
     <div class="row">
         @if($estado_caja == 'ABIERTA')
@@ -49,7 +49,7 @@ $user = Auth::user();
     <!--OPCIONES CAJA-->
 @endif
 
-@if($user->isAdmin() || ($caja->user_id == $user->id) || ($caja->estado=='CERRADA') )
+@if($user->isAdmin() || $user->isSuperAdmin() || ($caja->user_id == $user->id) || ($caja->estado=='CERRADA') )
 <?php 
 $saldo = number_format($ingreso - $egreso,2,'.','');
 ?>
