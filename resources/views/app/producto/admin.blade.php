@@ -41,7 +41,7 @@
 									{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
 								</div>
 								<div class="col-lg-4 col-md-4 form-group">
-									{!! Form::label('categoria', 'Categoria:') !!}
+									{!! Form::label('categoria', 'Categoria') !!}
 									{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
 								<div class="col-lg-4 col-md-4 form-group">
@@ -51,8 +51,12 @@
 							</div>
 							<div class="row w-100 d-flex">
 								<div class="col-lg-4 col-md-4 form-group">
-									{!! Form::label('precio', 'Opciones precio:') !!}
+									{!! Form::label('precio', 'Opciones precio') !!}
 									{!! Form::select('precio', ['S'=>'Sin precio' , 'C'=>'Con precio'], 'C', array('class' => 'form-control input-xs', 'id' => 'precio', 'onChange'=>'buscar(\''.$entidad.'\')')) !!}
+								</div>
+								<div class="col-lg-4 col-md-4 form-group">
+									{!! Form::label('lblsucursal', 'Sucursal') !!}
+									{!! Form::select('sucursal_id', $cboSucursal, '', array('class' => 'form-control input-xs', 'id' => 'sucursal_id', 'onChange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
 								<div class="col-lg-2 col-md-2 form-group" style="min-width: 150px;">
 									{!! Form::label('nombre', 'Filas a mostrar') !!}

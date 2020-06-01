@@ -18,6 +18,8 @@ use Excel;
 use File;
 use Illuminate\Support\Facades\Storage;
 use App\Imports\ProductoImport;
+use App\Sucursal;
+use Illuminate\Support\Facades\Auth;
 
 class ProductoController extends Controller
 {
@@ -58,13 +60,17 @@ class ProductoController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Producto';
         $nombre           = Libreria::getParam($request->input('nombre'));
+        $sucursal_id      = Libreria::getParam($request->input('sucursal_id'));
         $codigobarra      = Libreria::getParam($request->input('codigobarra'));
         $resultado        = Producto::join('marca','marca.id','=','producto.marca_id')
                                 ->join('unidad','unidad.id','=','producto.unidad_id')
                                 ->join('categoria','categoria.id','=','producto.categoria_id')
-                                ->leftjoin('stockproducto','stockproducto.producto_id','=','producto.id')
+                                ->leftjoin('stockproducto',function($subquery) use ($sucursal_id){
+                                    $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
+                                })
                                 ->where('producto.nombre','like','%'.strtoupper($nombre).'%')
                                 ->where('producto.codigobarra','like','%'.trim($codigobarra).'%');
+         
         if($request->input('categoria')!=""){
             $resultado = $resultado->where('categoria.id','=',$request->input('categoria'));
         }
@@ -115,18 +121,23 @@ class ProductoController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
+        $current_user = Auth::user();
         $cboCategoria = array('' => 'Todos');
         $categoria = Categoria::orderBy('nombre','asc')->get();
         foreach($categoria as $k=>$v){
             $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
         }
-        $cboMarca = array('' => 'Todos');
+        $cboSucursal =  Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }
+            $cboMarca = array('' => 'Todos');
         $marca = Marca::orderBy('nombre','asc')->get();
         foreach($marca as $k=>$v){
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
         
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca','cboSucursal'));
     }
 
     /**
