@@ -5,8 +5,8 @@
 		<div class="container-fluid">
 		  <div class="row mb-2">
 			<div class="col-sm-6">
-			  <h5 class="m-2 text-dark">{{$sucursal}}</h5>
-			  <h1 class="m-0 text-dark">{{$title}}</h1>
+				<h1 class="m-0 text-dark">{{$title}}</h1>
+				<h5 class="m-2 text-dark">{{$sucursal}}</h5>
 			</div><!-- /.col -->
 			<div class="col-sm-6">
 			  <ol class="breadcrumb float-sm-right">
@@ -71,9 +71,14 @@
 						  <div class="card">
 							<div class="card-header">
 							  <h3 class="card-title">{{$title}}</h3>
-							  <div class="card-tools">
-								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
-							  </div>
+							  <?php 
+								$user = Auth::User();
+							  ?>
+							  @if ($user->usertype_id != "2")
+								<div class="card-tools">
+									{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+								</div>
+							  @endif
 							</div>
 							<!-- /.card-header -->
 							<div class="card-body table-responsive px-3">
