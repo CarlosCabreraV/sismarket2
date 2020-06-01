@@ -144,7 +144,7 @@
                         {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:20px;color:darkblue;')) !!}
                     </div>
                 </div>
-                <div class="col-md-3 col-lg-3 form-group row">
+                <div class="col-md-3 col-lg-3 form-group d-none">
                     <input type="hidden" name="acuenta" id="acuenta" value="N">
                     {!! Form::label('lblcuenta', 'A CUENTA', array('class' => 'col-form-label col-lg-4 col-md-4 col-sm-4 bold')) !!}
                     <div class="col-md-8 col-lg-8 mt-2">
@@ -162,7 +162,7 @@
                         </div>
                     </div>
                     <div class="col-md-3 col-lg-3 form-group row">
-                        {!! Form::label('lblvisa', 'VISA', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
+                        {!! Form::label('lblvisa', 'TARJETA', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
                         <div class="col-md-9 col-lg-9">
                             {!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
                         </div>
@@ -355,6 +355,7 @@ var contador=0;
 function guardarPago (entidad, idboton) {
     var band=true;
     var msg="";
+
     if($("#person_id").val()==""){
         band = false;
         msg += " *No se selecciono un cliente \n";    
@@ -374,11 +375,16 @@ function guardarPago (entidad, idboton) {
             msg += " *Debe registrar un correcto RUC \n";   
         }
     }
+    if($("#tarjeta").val() >= $('#total').val()){
+        band = false;
+        msg += " *El monto de la tarjeta no debe superar al total \n";
+    }
     if(band && contador==0){
         contador=1;
     	var idformulario = IDFORMMANTENIMIENTO + entidad;
     	var data         = submitForm(idformulario);
     	var respuesta    = '';
+        var error = '';
     	var btn = $(idboton);
     	btn.button('loading');
     	data.done(function(msg) {
@@ -390,6 +396,7 @@ function guardarPago (entidad, idboton) {
     		btn.button('reset');
             contador=0;
     		if(respuesta === 'ERROR'){
+                console.log(error);
     		}else{
     		  //alert(respuesta);
                 var dat = JSON.parse(respuesta);
@@ -401,20 +408,21 @@ function guardarPago (entidad, idboton) {
                 
     			if (resp === 'OK') {
                     if(dat[0].tipodocumento_id!="5"){
-                        declarar(dat[0].venta_id,dat[0].tipodocumento_id);
+                        console.log('DECLARAR');
+                        //declarar(dat[0].venta_id,dat[0].tipodocumento_id);
                     }
     				cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                     //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
     			} else if(resp === 'ERROR') {
-    				alert(dat[0].msg);
+    				toastr.error(dat[0].msg , 'Error');
     			} else {
     				mostrarErrores(respuesta, idformulario, entidad);
     			}
     		}
     	});
     }else{
-        alert("Corregir los sgtes errores: \n"+msg);
+        toastr.error(msg , "Corrige los siguientes errores");
     }
 }
 
@@ -667,7 +675,8 @@ function aCuenta(check){
 }
 
 function calcularTarjeta(){
-    var tar = parseFloat($("#tarjeta").val());
+
+    var tar = parseFloat(($("#tarjeta").val())?$("#tarjeta").val():0);
     var tot = parseFloat($("#total").val());
     var efe = Math.round((tot - tar)*100)/100;
     $("#totalpagado").val(efe);
