@@ -12,6 +12,7 @@ use App\Rolpersona;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
 
 class PersonaController extends Controller
 {
@@ -20,15 +21,16 @@ class PersonaController extends Controller
     protected $tituloRegistrar = 'Registrar persona';
     protected $tituloModificar = 'Modificar persona';
     protected $tituloEliminar  = 'Eliminar persona';
-    protected $rutas           = array('create' => 'persona.create', 
-            'edit'   => 'persona.edit', 
-            'delete' => 'persona.eliminar',
-            'search' => 'persona.buscar',
-            'index'  => 'persona.index',
-        );
+    protected $rutas           = array(
+        'create' => 'persona.create',
+        'edit'   => 'persona.edit',
+        'delete' => 'persona.eliminar',
+        'search' => 'persona.buscar',
+        'index'  => 'persona.index',
+    );
 
 
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -50,8 +52,8 @@ class PersonaController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Persona';
         $nombre             = Libreria::getParam($request->input('nombre'));
-        $resultado        = Person::where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', '%'.strtoupper($nombre).'%')
-                                ->orderBy('person.apellidopaterno', 'ASC');
+        $resultado        = Person::where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', '%' . strtoupper($nombre) . '%')
+            ->orderBy('person.apellidopaterno', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -61,7 +63,7 @@ class PersonaController extends Controller
         $cabecera[]       = array('valor' => 'Telefono', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Correo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
-        
+
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
@@ -74,9 +76,9 @@ class PersonaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
+            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
+        return view($this->folderview . '.list')->with(compact('lista', 'entidad'));
     }
     /**
      * Display a listing of the resource.
@@ -89,7 +91,7 @@ class PersonaController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
+        return view($this->folderview . '.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
     }
 
     /**
@@ -105,13 +107,13 @@ class PersonaController extends Controller
         $formData = array('persona.store');
         $cboRol = array();
         $cboRp = array();
-        $rol = Rol::orderBy('nombre','asc')->get();
-        foreach($rol as $k=>$v){
+        $rol = Rol::orderBy('nombre', 'asc')->get();
+        foreach ($rol as $k => $v) {
             $cboRol = $cboRol + array($v->id => $v->nombre);
         }
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('persona', 'formData', 'entidad', 'boton', 'listar', 'cboRol', 'cboRp'));
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton    = 'Registrar';
+        return view($this->folderview . '.mant')->with(compact('persona', 'formData', 'entidad', 'boton', 'listar', 'cboRol', 'cboRp'));
     }
 
     /**
@@ -123,17 +125,19 @@ class PersonaController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $reglas     = array('nombres' => 'required|max:50',
-                            'roles'=>'required');
+        $reglas     = array(
+            'nombres' => 'required|max:50',
+            'roles' => 'required'
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'roles.required'         => 'Debe seleccionar al menos un Rol'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request){
+        $error = DB::transaction(function () use ($request) {
             $person = new Person();
             $person->apellidopaterno = strtoupper($request->input('apellidopaterno'));
             $person->apellidomaterno = strtoupper($request->input('apellidomaterno'));
@@ -144,11 +148,11 @@ class PersonaController extends Controller
             $person->email = strtoupper($request->input('email'));
             $person->telefono = strtoupper($request->input('telefono'));
             $person->save();
-            $roles = explode(",",$request->input('roles'));
-            for($c=0;$c<count($roles);$c++){
+            $roles = explode(",", $request->input('roles'));
+            for ($c = 0; $c < count($roles); $c++) {
                 $rolpersona = new Rolpersona();
-                $rolpersona->person_id=$person->id;
-                $rolpersona->rol_id=$roles[$c];
+                $rolpersona->person_id = $person->id;
+                $rolpersona->rol_id = $roles[$c];
                 $rolpersona->save();
             }
         });
@@ -181,20 +185,20 @@ class PersonaController extends Controller
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $persona = Person::find($id);
         $cboRol = array();
-        $rol = Rol::orderBy('nombre','asc')->get();
-        foreach($rol as $k=>$v){
+        $rol = Rol::orderBy('nombre', 'asc')->get();
+        foreach ($rol as $k => $v) {
             $cboRol = $cboRol + array($v->id => $v->nombre);
         }
-        $rolpersona = Rolpersona::where('person_id','=',$id)->get();
+        $rolpersona = Rolpersona::where('person_id', '=', $id)->get();
         $cboRp = array();
         foreach ($rolpersona as $key => $value) {
             $cboRp = $cboRp + array($value->rol_id => $value->rol_id);
         }
         $entidad  = 'Persona';
         $formData = array('persona.update', $id);
-        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('persona', 'formData', 'entidad', 'boton', 'listar','cboRol', 'cboRp'));
+        return view($this->folderview . '.mant')->with(compact('persona', 'formData', 'entidad', 'boton', 'listar', 'cboRol', 'cboRp'));
     }
 
     /**
@@ -210,17 +214,19 @@ class PersonaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $reglas     = array('nombres' => 'required|max:50',
-                            'roles'=>'required');
+        $reglas     = array(
+            'nombres' => 'required|max:50',
+            'roles' => 'required'
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'roles.required'         => 'Debe seleccionar al menos un Rol'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        } 
-        $error = DB::transaction(function() use($request, $id){
+        }
+        $error = DB::transaction(function () use ($request, $id) {
             $person = Person::find($id);
             $person->apellidopaterno = strtoupper($request->input('apellidopaterno'));
             $person->apellidomaterno = strtoupper($request->input('apellidomaterno'));
@@ -231,15 +237,15 @@ class PersonaController extends Controller
             $person->email = strtoupper($request->input('email'));
             $person->telefono = strtoupper($request->input('telefono'));
             $person->save();
-            $dat = Rolpersona::where('person_id','=',$person->id)->get();
+            $dat = Rolpersona::where('person_id', '=', $person->id)->get();
             foreach ($dat as $key => $value) {
                 $value->delete();
             }
-            $roles = explode(",",$request->input('roles'));
-            for($c=0;$c<count($roles);$c++){
+            $roles = explode(",", $request->input('roles'));
+            for ($c = 0; $c < count($roles); $c++) {
                 $rolpersona = new Rolpersona();
-                $rolpersona->person_id=$person->id;
-                $rolpersona->rol_id=$roles[$c];
+                $rolpersona->person_id = $person->id;
+                $rolpersona->rol_id = $roles[$c];
                 $rolpersona->save();
             }
         });
@@ -258,7 +264,7 @@ class PersonaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id){
+        $error = DB::transaction(function () use ($id) {
             $person = Person::find($id);
             $person->delete();
         });
@@ -277,8 +283,34 @@ class PersonaController extends Controller
         }
         $modelo   = Person::find($id);
         $entidad  = 'Person';
-        $formData = array('route' => array('person.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => array('person.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function buscarDNI(Request $request)
+    {
+        $respuesta = array();
+        $dni = $request->input('dni');
+        $client = new Client();
+        $res = $client->get('http://facturae-garzasoft.com/facturacion/buscaCliente/BuscaCliente2.php?' . 'dni=' . $dni . '&fe=N&token=qusEj_w7aHEpX');
+        if ($res->getStatusCode() == 200) { // 200 OK
+            $response_data = $res->getBody()->getContents();
+            $respuesta = json_decode($response_data);
+        }
+        return json_encode($respuesta);
+    }
+
+    public function buscarRUC(Request $request)
+    {
+        $respuesta = array();
+        $ruc = $request->input('ruc');
+        $client = new Client();
+        $res = $client->get('http://161.35.114.213/SunatPHP/demo.php?' . 'ruc=' . $ruc);
+        if ($res->getStatusCode() == 200) { // 200 OK
+            $response_data = $res->getBody()->getContents();
+            $respuesta = json_decode($response_data);
+        }
+        return json_encode($respuesta);
     }
 }

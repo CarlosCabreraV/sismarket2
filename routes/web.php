@@ -93,6 +93,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('persona/buscar', 'PersonaController@buscar')->name('persona.buscar');
     Route::get('persona/eliminar/{id}/{listarluego}', 'PersonaController@eliminar')->name('persona.eliminar');
     Route::resource('persona', 'PersonaController', array('except' => array('show')));
+    Route::post('persona/buscarDNI', 'PersonaController@buscarDNI')->name('persona.buscarDNI');
+    Route::post('persona/buscarRUC', 'PersonaController@buscarRUC')->name('persona.buscarRUC');
 
     /* PRODUCTO */
     Route::post('producto/buscar', 'ProductoController@buscar')->name('producto.buscar');
