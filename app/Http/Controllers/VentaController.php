@@ -37,16 +37,17 @@ class VentaController extends Controller
     protected $tituloModificar = 'Modificar venta';
     protected $tituloEliminar  = 'Anular venta';
     protected $tituloVer       = 'Ver Venta';
-    protected $rutas           = array('create' => 'venta.create', 
-            'edit'   => 'venta.edit',
-            'show'   => 'venta.show', 
-            'delete' => 'venta.eliminar',
-            'search' => 'venta.buscar',
-            'index'  => 'venta.index',
-        );
+    protected $rutas           = array(
+        'create' => 'venta.create',
+        'edit'   => 'venta.edit',
+        'show'   => 'venta.show',
+        'delete' => 'venta.eliminar',
+        'search' => 'venta.buscar',
+        'index'  => 'venta.index',
+    );
 
 
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -71,28 +72,28 @@ class VentaController extends Controller
         $entidad          = 'Venta';
         $nombre             = Libreria::getParam($request->input('cliente'));
         $sucursal         = Libreria::getParam($request->input('sucursal_id'));
-        $resultado        = Movimiento::join('person','person.id','=','movimiento.persona_id')
-                                ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
-                                ->where('tipomovimiento_id','=',2);
-                            if ($sucursal != null) {
-                                $resultado = $resultado->where('sucursal_id', '=', $sucursal);
-                            }
-                            if($request->input('fechainicio')!=""){
-                                $resultado = $resultado->where('fecha','>=',$request->input('fechainicio'));
-                            }
-                            if($request->input('fechafin')!=""){
-                                $resultado = $resultado->where('fecha','<=',$request->input('fechafin'));
-                            }
-                            if($request->input('numero')!=""){
-                                $resultado = $resultado->where('numero','like','%'.$request->input('numero').'%');
-                            }
-                            if($request->input('tipodocumento_id')!=""){
-                                $resultado = $resultado->where('movimiento.tipodocumento_id','=',$request->input('tipodocumento_id'));
-                            }
-                            if($request->input('cliente')!=""){
-                                $resultado = $resultado->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'),'LIKE',"%".$request->input('cliente')."%");
-                            }
-        $lista            = $resultado->select('movimiento.*',DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'),DB::raw('responsable.nombres as responsable2'))->orderBy('movimiento.id', 'desc')->orderBy('fecha', 'desc')->get();
+        $resultado        = Movimiento::join('person', 'person.id', '=', 'movimiento.persona_id')
+            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+            ->where('tipomovimiento_id', '=', 2);
+        if ($sucursal != null) {
+            $resultado = $resultado->where('sucursal_id', '=', $sucursal);
+        }
+        if ($request->input('fechainicio') != "") {
+            $resultado = $resultado->where('fecha', '>=', $request->input('fechainicio'));
+        }
+        if ($request->input('fechafin') != "") {
+            $resultado = $resultado->where('fecha', '<=', $request->input('fechafin'));
+        }
+        if ($request->input('numero') != "") {
+            $resultado = $resultado->where('numero', 'like', '%' . $request->input('numero') . '%');
+        }
+        if ($request->input('tipodocumento_id') != "") {
+            $resultado = $resultado->where('movimiento.tipodocumento_id', '=', $request->input('tipodocumento_id'));
+        }
+        if ($request->input('cliente') != "") {
+            $resultado = $resultado->where(DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres)'), 'LIKE', "%" . $request->input('cliente') . "%");
+        }
+        $lista            = $resultado->select('movimiento.*', DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'), DB::raw('responsable.nombres as responsable2'))->orderBy('movimiento.id', 'desc')->orderBy('fecha', 'desc')->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
@@ -103,7 +104,7 @@ class VentaController extends Controller
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
-        
+
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $titulo_ver       = $this->tituloVer;
@@ -117,9 +118,9 @@ class VentaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver'));
+            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
+        return view($this->folderview . '.list')->with(compact('lista', 'entidad'));
     }
     /**
      * Display a listing of the resource.
@@ -134,18 +135,17 @@ class VentaController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $sucursal         = "";
-        
-            if (!$current_user->isSuperAdmin() && !$current_user->isAdmin()) {
-                $sucursal = " Sucursal: ". $current_user->sucursal->nombre;
-            }
-            $cboTipoDocumento = array('' => 'Todos');
-            $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
-            $cboSucursal = [""=>"TODOS"] + Sucursal::pluck('nombre', 'id')->all();
-            if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
-                $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
-            }
-            return view($this->folderview.'.admin')->with(compact('sucursal', 'cboSucursal', 'entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento' ,'current_user'));
-        
+
+        if (!$current_user->isSuperAdmin() && !$current_user->isAdmin()) {
+            $sucursal = " Sucursal: " . $current_user->sucursal->nombre;
+        }
+        $cboTipoDocumento = array('' => 'Todos');
+        $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboSucursal = ["" => "TODOS"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }
+        return view($this->folderview . '.admin')->with(compact('sucursal', 'cboSucursal', 'entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento', 'current_user'));
     }
 
     /**
@@ -160,15 +160,15 @@ class VentaController extends Controller
         $entidad  = 'Venta';
         $movimiento = null;
         $formData = array('venta.store');
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $conf_codigobarra = CODIGO_BARRAS; 
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $conf_codigobarra = CODIGO_BARRAS;
         $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
         $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
         if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
             $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
-        }    
-        $boton    = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
+        }
+        $boton    = 'Registrar';
+        return view($this->folderview . '.mant')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
     }
 
     /**
@@ -181,152 +181,151 @@ class VentaController extends Controller
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
-                            'persona' => 'required|max:500',
-                            'listProducto'=>'required',
-                            'sucursal_id'   => 'required|integer|exists:sucursal,id,deleted_at,NULL',
-                        );
+            'persona' => 'required|max:500',
+            'listProducto' => 'required',
+            'sucursal_id'   => 'required|integer|exists:sucursal,id,deleted_at,NULL',
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un cliente',
-            'listProducto.required'=>'Agrega al menos un producto',
+            'listProducto.required' => 'Agrega al menos un producto',
             'sucursal_id.required' => 'Debe seleccionar una sucursal.'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
         $user = Auth::user();
-        $dat=array();
-        
-        $caja_sesion_id     = session('caja_sesion_id','0');
+        $dat = array();
+
+        $caja_sesion_id     = session('caja_sesion_id', '0');
         $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
         $estado_caja        = $caja_sesion->estado;
-        
-        if($estado_caja == 'CERRADA'){
-            $dat[0]=array("respuesta"=>"ERROR","msg"=>"CAJA CERRADA");
-            throw new \Exception(json_encode($dat));
-        }
-        try{
-        $error = DB::transaction(function() use($request,$user,&$dat){
-            $Venta       = new Movimiento();
-            $Venta->fecha = $request->input('fecha');
-            $Venta->numero = $request->input('numero');
-            if($request->input('tipodocumento')=="4" || $request->input('tipodocumento')=="3" ){//FACTURA O BOLETA
-                $Venta->subtotal = round($request->input('total')/1.18,2); //82%
-                $Venta->igv = round($request->input('total') - $Venta->subtotal,2);//18%
-            }else{ //TICKET
-                $Venta->subtotal = $request->input('total');
-                $Venta->igv = 0;
+
+        try {
+            if ($estado_caja == 'CERRADA') {
+                $dat[0] = array("respuesta" => "ERROR", "msg" => "CAJA CERRADA");
+                throw new \Exception(json_encode($dat));
             }
-            $Venta->total = str_replace(",","",$request->input('total')); 
-            $Venta->totalpagado=str_replace(",","",$request->input('totalpagado')); 
-            $Venta->tarjeta=str_replace(",","",$request->input('tarjeta')); 
-            $Venta->tipomovimiento_id=2;//VENTA
-            $Venta->tipodocumento_id=$request->input('tipodocumento');
-            $Venta->persona_id = $request->input('persona_id')=="0"?1:$request->input('persona_id');
-            $Venta->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
-            $Venta->voucher = '';
-            $Venta->comentario = '';
-            $Venta->responsable_id=$user->person_id;
+            $error = DB::transaction(function () use ($request, $user, &$dat) {
+                $Venta       = new Movimiento();
+                $Venta->fecha = $request->input('fecha');
+                $Venta->numero = $request->input('numero');
+                if ($request->input('tipodocumento') == "4" || $request->input('tipodocumento') == "3") { //FACTURA O BOLETA
+                    $Venta->subtotal = round($request->input('total') / 1.18, 2); //82%
+                    $Venta->igv = round($request->input('total') - $Venta->subtotal, 2); //18%
+                } else { //TICKET
+                    $Venta->subtotal = $request->input('total');
+                    $Venta->igv = 0;
+                }
+                $Venta->total = str_replace(",", "", $request->input('total'));
+                $Venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                $Venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                $Venta->tipomovimiento_id = 2; //VENTA
+                $Venta->tipodocumento_id = $request->input('tipodocumento');
+                $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
+                $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                $Venta->voucher = '';
+                $Venta->comentario = '';
+                $Venta->responsable_id = $user->person_id;
 
-            $Venta->sucursal_id = $request->input('sucursal_id');
-            $Venta->save();
-            $arr=explode(",",$request->input('listProducto'));
-            for($c=0;$c<count($arr);$c++){
-                $Detalle = new Detallemovimiento();
-                $Detalle->movimiento_id=$Venta->id;
-                $Detalle->producto_id = $request->input('txtIdProducto' . $arr[$c]);
-                $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
-                $Detalle->precioventa=$request->input('txtPrecio'.$arr[$c]);
-                $Detalle->preciocompra=Libreria::getParam($request->input('txtPrecioCompra'.$arr[$c]),'0');
-                $Detalle->save();
+                $Venta->sucursal_id = $request->input('sucursal_id');
+                $Venta->save();
+                $arr = explode(",", $request->input('listProducto'));
+                for ($c = 0; $c < count($arr); $c++) {
+                    $Detalle = new Detallemovimiento();
+                    $Detalle->movimiento_id = $Venta->id;
+                    $Detalle->producto_id = $request->input('txtIdProducto' . $arr[$c]);
+                    $Detalle->cantidad = $request->input('txtCantidad' . $arr[$c]);
+                    $Detalle->precioventa = $request->input('txtPrecio' . $arr[$c]);
+                    $Detalle->preciocompra = Libreria::getParam($request->input('txtPrecioCompra' . $arr[$c]), '0');
+                    $Detalle->save();
 
-               
-                    $detalleproducto = Detalleproducto::where('producto_id','=',$Detalle->producto_id)->get();
-                    if(count($detalleproducto)>0){
-                        foreach ($detalleproducto as $key => $value){
-                            $stock = Stockproducto::where('producto_id','=',$value->presentacion_id)->first();
-                            if(count($stock)>0){
-                                if($stock->cantidad >= $Detalle->cantidad*$value->cantidad ){
-                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
+
+                    $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
+                    if (count($detalleproducto) > 0) {
+                        foreach ($detalleproducto as $key => $value) {
+                            $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
+                            if (count($stock) > 0) {
+                                if ($stock->cantidad >= $Detalle->cantidad * $value->cantidad) {
+                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
                                     $stock->save();
-                                }else{
+                                } else {
                                     //STOCK DEL PRODUCTO MENOR AL QUE SE DESEA VENDER
-                                    if(STOCK_NEGATIVO == 'S'){
-                                        $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$value->cantidad;
+                                    if (STOCK_NEGATIVO == 'S') {
+                                        $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
                                         $stock->save();
-                                    }else{
+                                    } else {
                                         $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
                                         throw new \Exception(json_encode($dat));
                                     }
                                 }
-                            }else{
+                            } else {
                                 $stock = new Stockproducto();
                                 $stock->sucursal_id = $request->input('sucursal_id');
                                 $stock->producto_id = $value->presentacion_id;
-                                if(STOCK_NEGATIVO == 'S'){
-                                    $stock->cantidad = $Detalle->cantidad*(-1)*$value->cantidad;
+                                if (STOCK_NEGATIVO == 'S') {
+                                    $stock->cantidad = $Detalle->cantidad * (-1) * $value->cantidad;
                                     $stock->save();
-                                }else{
+                                } else {
                                     $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
                                     throw new \Exception(json_encode($dat));
                                 }
                                 $stock->save();
                             }
                         }
-                    }else{
-                        $stock = Stockproducto::where('producto_id','=',$Detalle->producto_id)->first();
-                        if(count($stock)>0){
-                            if($stock->cantidad >= $Detalle->cantidad){
+                    } else {
+                        $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
+                        if (count($stock) > 0) {
+                            if ($stock->cantidad >= $Detalle->cantidad) {
                                 $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
-                            }else{
-                                if(STOCK_NEGATIVO == 'S'){
-                                    $stock->cantidad =$stock->cantidad - $Detalle->cantidad;
-                                }else{
+                            } else {
+                                if (STOCK_NEGATIVO == 'S') {
+                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
+                                } else {
                                     $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
                                     throw new \Exception(json_encode($dat));
                                 }
                             }
                             $stock->save();
-                        }else{
+                        } else {
                             $stock = new Stockproducto();
                             $stock->sucursal_id = $request->input('sucursal_id');
                             $stock->producto_id = $Detalle->producto_id;
-                            if(STOCK_NEGATIVO == 'S'){
-                                $stock->cantidad = $Detalle->cantidad*(-1);
-                            }else{
+                            if (STOCK_NEGATIVO == 'S') {
+                                $stock->cantidad = $Detalle->cantidad * (-1);
+                            } else {
                                 $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
                                 throw new \Exception(json_encode($dat));
                             }
                             $stock->save();
                         }
                     }
-                
-            }
-            $movimiento        = new Movimiento();
-            $movimiento->fecha = date("Y-m-d");
-            $movimiento->numero= Movimiento::NumeroSigue(4,6);
-            $movimiento->responsable_id=$user->person_id;
-            $movimiento->persona_id=$request->input('persona_id')=="0"?1:$request->input('persona_id'); 
-            $movimiento->subtotal=0;
-            $movimiento->igv=0;
-            $movimiento->total=str_replace(",","",$request->input('total')); 
-            $movimiento->totalpagado=str_replace(",","",$request->input('totalpagado')); 
-            $movimiento->tarjeta=str_replace(",","",$request->input('tarjeta')); 
-            $movimiento->tipomovimiento_id=4;
-            $movimiento->tipodocumento_id=6;
-            $movimiento->concepto_id=3;
-            $movimiento->voucher='';
-            $movimiento->comentario='Pago de Documento de Venta '.$Venta->numero;
-            $movimiento->situacion='N';
-            $movimiento->movimiento_id=$Venta->id;
+                }
+                $movimiento        = new Movimiento();
+                $movimiento->fecha = date("Y-m-d");
+                $movimiento->numero = Movimiento::NumeroSigue(4, 6);
+                $movimiento->responsable_id = $user->person_id;
+                $movimiento->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
+                $movimiento->subtotal = 0;
+                $movimiento->igv = 0;
+                $movimiento->total = str_replace(",", "", $request->input('total'));
+                $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                $movimiento->tipomovimiento_id = 4;
+                $movimiento->tipodocumento_id = 6;
+                $movimiento->concepto_id = 3;
+                $movimiento->voucher = '';
+                $movimiento->comentario = 'Pago de Documento de Venta ' . $Venta->numero;
+                $movimiento->situacion = 'N';
+                $movimiento->movimiento_id = $Venta->id;
 
-            $movimiento->sucursal_id =$request->input('sucursal_id');
-            $movimiento->caja_id =session('caja_sesion_id','');
-            $movimiento->save();
-            $dat[0]=array("respuesta"=>"OK","venta_id"=>$Venta->id,"tipodocumento_id"=>$Venta->tipodocumento_id);
-        });
+                $movimiento->sucursal_id = $request->input('sucursal_id');
+                $movimiento->caja_id = session('caja_sesion_id', '');
+                $movimiento->save();
+                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id);
+            });
         } catch (\Exception $e) {
-                return $e->getMessage();
+            return $e->getMessage();
         }
         return is_null($error) ? json_encode($dat) : $error;
     }
@@ -348,13 +347,13 @@ class VentaController extends Controller
         $entidad             = 'Venta';
         $cboTipoDocumento        = Tipodocumento::pluck('nombre', 'id')->all();
         $formData            = array('venta.update', $id);
-        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
         //$cuenta = Cuenta::where('movimiento_id','=',$compra->id)->orderBy('id','ASC')->first();
         //$fechapago =  Date::createFromFormat('Y-m-d', $cuenta->fecha)->format('d/m/Y');
-        $detalles = Detallemovimiento::where('movimiento_id','=',$venta->id)->get();
+        $detalles = Detallemovimiento::where('movimiento_id', '=', $venta->id)->get();
         //$numerocuotas = count($cuentas);
-        return view($this->folderview.'.mantView')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboTipoDocumento','detalles'));
+        return view($this->folderview . '.mantView')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'detalles'));
     }
 
     /**
@@ -372,21 +371,21 @@ class VentaController extends Controller
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $seccion = Seccion::find($id);
         $cboEspecialidad = array();
-        $especialidad = Especialidad::orderBy('nombre','asc')->get();
-        foreach($especialidad as $k=>$v){
+        $especialidad = Especialidad::orderBy('nombre', 'asc')->get();
+        foreach ($especialidad as $k => $v) {
             $cboEspecialidad = $cboEspecialidad + array($v->id => $v->nombre);
         }
         $cboCiclo = array();
-        $ciclo = Grado::orderBy('nombre','asc')->get();
-        foreach($ciclo as $k=>$v){
+        $ciclo = Grado::orderBy('nombre', 'asc')->get();
+        foreach ($ciclo as $k => $v) {
             $cboCiclo = $cboCiclo + array($v->id => $v->nombre);
         }
-        
+
         $entidad  = 'Seccion';
         $formData = array('seccion.update', $id);
-        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar', 'cboEspecialidad', 'cboCiclo'));
+        return view($this->folderview . '.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar', 'cboEspecialidad', 'cboCiclo'));
     }
 
     /**
@@ -405,13 +404,13 @@ class VentaController extends Controller
         $reglas     = array('nombre' => 'required|max:50');
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        } 
-        $error = DB::transaction(function() use($request, $id){
-            $anio = Anio::where('situacion','like','A')->first();
+        }
+        $error = DB::transaction(function () use ($request, $id) {
+            $anio = Anio::where('situacion', 'like', 'A')->first();
             $seccion = Seccion::find($id);
             $seccion->nombre = strtoupper($request->input('nombre'));
             $seccion->grado_id = $request->input('grado_id');
@@ -434,44 +433,43 @@ class VentaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id){
+        $error = DB::transaction(function () use ($id) {
             $venta = Movimiento::find($id);
-            $venta->situacion='A';
+            $venta->situacion = 'A';
             $venta->save();
-            $lst = Detallemovimiento::where('movimiento_id','=',$id)->get();
+            $lst = Detallemovimiento::where('movimiento_id', '=', $id)->get();
             foreach ($lst as $key => $Detalle) {
-                    $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
-                    if (count($detalleproducto)>0) {
-                        foreach ($detalleproducto as $key => $value) {
-                            $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
-                            if (count($stock)>0) {
-                                $stock->cantidad = $stock->cantidad + $Detalle->cantidad*$value->cantidad;
-                                $stock->save();
-                            } else {
-                                $stock = new Stockproducto();
-                                $stock->sucursal_id = $venta->sucursal_id;
-                                $stock->producto_id = $value->presentacion_id;
-                                $stock->cantidad = $Detalle->cantidad*$value->cantidad;
-                                $stock->save();
-                            }
-                        }
-                    } else {
-                        $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
-                        if (count($stock)>0) {
-                            $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
+                $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
+                if (count($detalleproducto) > 0) {
+                    foreach ($detalleproducto as $key => $value) {
+                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                        if (count($stock) > 0) {
+                            $stock->cantidad = $stock->cantidad + $Detalle->cantidad * $value->cantidad;
                             $stock->save();
                         } else {
                             $stock = new Stockproducto();
                             $stock->sucursal_id = $venta->sucursal_id;
-                            $stock->producto_id = $Detalle->producto_id;
-                            $stock->cantidad = $Detalle->cantidad;
+                            $stock->producto_id = $value->presentacion_id;
+                            $stock->cantidad = $Detalle->cantidad * $value->cantidad;
                             $stock->save();
                         }
                     }
-               
+                } else {
+                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                    if (count($stock) > 0) {
+                        $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
+                        $stock->save();
+                    } else {
+                        $stock = new Stockproducto();
+                        $stock->sucursal_id = $venta->sucursal_id;
+                        $stock->producto_id = $Detalle->producto_id;
+                        $stock->cantidad = $Detalle->cantidad;
+                        $stock->save();
+                    }
+                }
             }
-            $caja = Movimiento::where('movimiento_id','=',$venta->id)->where('tipomovimiento_id','=','4')->first();
-            $caja->situacion='A';
+            $caja = Movimiento::where('movimiento_id', '=', $venta->id)->where('tipomovimiento_id', '=', '4')->first();
+            $caja->situacion = 'A';
             $caja->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -489,11 +487,11 @@ class VentaController extends Controller
         }
         $modelo   = Movimiento::find($id);
         $entidad  = 'Venta';
-        $formData = array('route' => array('venta.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => array('venta.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Anular';
         return view('app.confirmarAnular')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
-    
+
     public function buscarproducto(Request $request)
     {
         $sucursal_id = $request->input("sucursal_id");
@@ -501,25 +499,26 @@ class VentaController extends Controller
         $resultado = Producto::leftjoin('stockproducto', function ($subquery) use ($sucursal_id) {
             $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
         })
-        ->where('nombre','like','%'.strtoupper($descripcion).'%')
-        ->select('producto.*','stockproducto.cantidad')->get();
-        $c=0;$data=array();
-        if(count($resultado)>0){
-            foreach ($resultado as $key => $value){
+            ->where('nombre', 'like', '%' . strtoupper($descripcion) . '%')
+            ->select('producto.*', 'stockproducto.cantidad')->get();
+        $c = 0;
+        $data = array();
+        if (count($resultado) > 0) {
+            foreach ($resultado as $key => $value) {
                 $data[$c] = array(
-                        'producto' => $value->nombre,
-                        'codigobarra' => $value->codigobarra,
-                        'precioventa' => $value->precioventa,
-                        'preciocompra' => $value->preciocompra,
-                        'idproducto' => $value->id,
-                        'stock' => round($value->cantidad,2),
-                    );
-                $c++;                
+                    'producto' => $value->nombre,
+                    'codigobarra' => $value->codigobarra,
+                    'precioventa' => $value->precioventa,
+                    'preciocompra' => $value->preciocompra,
+                    'idproducto' => $value->id,
+                    'stock' => round($value->cantidad, 2),
+                );
+                $c++;
             }
         }
         return json_encode($data);
     }
-    
+
     public function buscarproductobarra(Request $request)
     {
         $sucursal_id = $request->input("sucursal_id");
@@ -527,178 +526,183 @@ class VentaController extends Controller
         $resultado = Producto::leftjoin('stockproducto', function ($subquery) use ($sucursal_id) {
             $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
         })
-        ->where(DB::raw('trim(codigobarra)'),'like',trim($codigobarra))
-        ->select('producto.*','stockproducto.cantidad')->get();
-        $c=0;$data=array();
-        if(count($resultado)>0){
-            foreach ($resultado as $key => $value){
+            ->where(DB::raw('trim(codigobarra)'), 'like', trim($codigobarra))
+            ->select('producto.*', 'stockproducto.cantidad')->get();
+        $c = 0;
+        $data = array();
+        if (count($resultado) > 0) {
+            foreach ($resultado as $key => $value) {
                 $data[$c] = array(
-                        'producto' => $value->nombre,
-                        'codigobarra' => $value->codigobarra,
-                        'precioventa' => $value->precioventa,
-                        'preciocompra' => $value->preciocompra,
-                        'idproducto' => $value->id,
-                        'stock' => round($value->cantidad,2),
-                    );
-                $c++;                
+                    'producto' => $value->nombre,
+                    'codigobarra' => $value->codigobarra,
+                    'precioventa' => $value->precioventa,
+                    'preciocompra' => $value->preciocompra,
+                    'idproducto' => $value->id,
+                    'stock' => round($value->cantidad, 2),
+                );
+                $c++;
             }
-        }else{         
+        } else {
             $data = array();
         }
         return json_encode($data);
     }
-    
-    public function generarNumero(Request $request){
-        $numeroventa = Movimiento::NumeroSigue(2,$request->input('tipodocumento'));
-        if($request->input('tipodocumento')==3){
-            echo "B001-".$numeroventa;
-        }elseif($request->input('tipodocumento')==4){
-            echo "F001-".$numeroventa;
-        }else{
-            echo "T001-".$numeroventa;
+
+    public function generarNumero(Request $request)
+    {
+        $numeroventa = Movimiento::NumeroSigue(2, $request->input('tipodocumento'));
+        if ($request->input('tipodocumento') == 3) {
+            echo "B001-" . $numeroventa;
+        } elseif ($request->input('tipodocumento') == 4) {
+            echo "F001-" . $numeroventa;
+        } else {
+            echo "T001-" . $numeroventa;
         }
     }
 
-    public function personautocompletar($searching){
-        $resultado        = Person::join('rolpersona','rolpersona.person_id','=','person.id')->where('rolpersona.rol_id','=',3)
-                            ->where(function($sql) use($searching){
-                                $sql->where(DB::raw('CONCAT(apellidopaterno," ",apellidomaterno," ",nombres)'), 'LIKE', '%'.strtoupper($searching).'%')->orWhere('bussinesname', 'LIKE', '%'.strtoupper($searching).'%');
-                            })
-                            ->whereNull('person.deleted_at')->whereNull('rolpersona.deleted_at')->orderBy('apellidopaterno', 'ASC');
+    public function personautocompletar($searching)
+    {
+        $resultado        = Person::join('rolpersona', 'rolpersona.person_id', '=', 'person.id')->where('rolpersona.rol_id', '=', 3)
+            ->where(function ($sql) use ($searching) {
+                $sql->where(DB::raw('CONCAT(apellidopaterno," ",apellidomaterno," ",nombres)'), 'LIKE', '%' . strtoupper($searching) . '%')->orWhere('bussinesname', 'LIKE', '%' . strtoupper($searching) . '%');
+            })
+            ->whereNull('person.deleted_at')->whereNull('rolpersona.deleted_at')->orderBy('apellidopaterno', 'ASC');
         $list      = $resultado->select('person.*')->get();
         $data = array();
         foreach ($list as $key => $value) {
             $name = '';
             if ($value->bussinesname != null) {
                 $name = $value->bussinesname;
-            }else{
-                $name = $value->apellidopaterno." ".$value->apellidomaterno." ".$value->nombres;
+            } else {
+                $name = $value->apellidopaterno . " " . $value->apellidomaterno . " " . $value->nombres;
             }
             $data[] = array(
-                            'label' => trim($name),
-                            'id'    => $value->id,
-                            'value' => trim($name),
-                            'ruc' => $value->ruc,
-                        );
+                'label' => trim($name),
+                'id'    => $value->id,
+                'value' => trim($name),
+                'ruc' => $value->ruc,
+            );
         }
         return json_encode($data);
     }
 
-    public function imprimirVenta(Request $request){
+    public function imprimirVenta(Request $request)
+    {
         $venta = Movimiento::find($request->input('id'));
         $connector = new WindowsPrintConnector("CAJA");
         $printer = new Printer($connector);
-        $printer -> setJustification(Printer::JUSTIFY_CENTER);
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
         //$printer -> bitImage($tux,Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
-        $printer -> text("MINIMARKET LEONELA II");
-        $printer -> feed();
-        $printer -> text("DE: CARRERA BURGA SARA");
-        $printer -> feed();
-        $printer -> text("AV. PACHACUTECT 1003");
-        $printer -> feed();
-        $printer -> text("LA VICTORIA-CHICLAYO-LAMBAYEQUE");
-        $printer -> feed();
-        $printer -> text("RUC:10403745991");
-        $printer -> feed();
-        $printer -> setJustification(Printer::JUSTIFY_LEFT);
-        if($venta->tipodocumento_id=="3"){//BOLETA
-            $printer -> text("Boleta Electronica: ".substr($venta->numero,0,13));
-            $printer -> feed();
-            $num = "03-".$venta->numero;
-        }elseif($venta->tipodocumento_id=="4"){//FACTURA
-            $printer -> text("Factura Electronica: ".substr($venta->numero,0,13));
-            $printer -> feed();
-            $num = "01-".$venta->numero;
-        }else{
-            $printer -> text("Ticket: ".substr($venta->numero,0,13));
-            $printer -> feed();
-            $num = "07-".$venta->numero;
+        $printer->text("MINIMARKET LEONELA II");
+        $printer->feed();
+        $printer->text("DE: CARRERA BURGA SARA");
+        $printer->feed();
+        $printer->text("AV. PACHACUTECT 1003");
+        $printer->feed();
+        $printer->text("LA VICTORIA-CHICLAYO-LAMBAYEQUE");
+        $printer->feed();
+        $printer->text("RUC:10403745991");
+        $printer->feed();
+        $printer->setJustification(Printer::JUSTIFY_LEFT);
+        if ($venta->tipodocumento_id == "3") { //BOLETA
+            $printer->text("Boleta Electronica: " . substr($venta->numero, 0, 13));
+            $printer->feed();
+            $num = "03-" . $venta->numero;
+        } elseif ($venta->tipodocumento_id == "4") { //FACTURA
+            $printer->text("Factura Electronica: " . substr($venta->numero, 0, 13));
+            $printer->feed();
+            $num = "01-" . $venta->numero;
+        } else {
+            $printer->text("Ticket: " . substr($venta->numero, 0, 13));
+            $printer->feed();
+            $num = "07-" . $venta->numero;
         }
-        $printer -> text("Fecha: ".substr($venta->fecha,0,10));
-        $printer -> feed();
-        if($venta->nombres!="VARIOS"){
-            $printer -> text("Cliente: ".$venta->persona->apellidopaterno." ".$venta->persona->apellidomaterno." ".$venta->persona->nombres);
-            $printer -> feed();
-            $printer -> text("Dir.: ".$venta->persona->direccion);
-            $printer -> feed();
-            if($venta->idtipodocumento=="3"){
-                $printer -> text("RUC/DNI: 0");
-            }else{
-                $printer -> text("RUC/DNI: ".$venta->persona->ruc." ".$venta->persona->dni);
+        $printer->text("Fecha: " . substr($venta->fecha, 0, 10));
+        $printer->feed();
+        if ($venta->nombres != "VARIOS") {
+            $printer->text("Cliente: " . $venta->persona->apellidopaterno . " " . $venta->persona->apellidomaterno . " " . $venta->persona->nombres);
+            $printer->feed();
+            $printer->text("Dir.: " . $venta->persona->direccion);
+            $printer->feed();
+            if ($venta->idtipodocumento == "3") {
+                $printer->text("RUC/DNI: 0");
+            } else {
+                $printer->text("RUC/DNI: " . $venta->persona->ruc . " " . $venta->persona->dni);
             }
-            $printer -> feed();
-        }else{
-            $printer -> text("Cliente: ");
-            $printer -> feed();
-            $printer -> text("Dir.: SIN DOMICILIO");
-            $printer -> feed();
-            $printer -> text("RUC/DNI: 0");
-            $printer -> feed();
+            $printer->feed();
+        } else {
+            $printer->text("Cliente: ");
+            $printer->feed();
+            $printer->text("Dir.: SIN DOMICILIO");
+            $printer->feed();
+            $printer->text("RUC/DNI: 0");
+            $printer->feed();
         }
-        $printer -> text("----------------------------------------"."\n");
-        $printer -> text("Cant.  Producto                 Importe");
-        $printer -> feed();
-        $printer -> text("----------------------------------------"."\n");
-        
-        $lst = Detallemovimiento::where('movimiento_id','=',$request->input('id'))->get();
+        $printer->text("----------------------------------------" . "\n");
+        $printer->text("Cant.  Producto                 Importe");
+        $printer->feed();
+        $printer->text("----------------------------------------" . "\n");
+
+        $lst = Detallemovimiento::where('movimiento_id', '=', $request->input('id'))->get();
         $exonerada = 0;
         foreach ($lst as $key => $Detalle) {
-            if(!is_null($Detalle->producto_id) && $Detalle->producto_id>0){
-                $printer -> text(number_format($Detalle->cantidad,0,'.','')."  ".str_pad(($Detalle->producto->nombre),30," ")." ".number_format($Detalle->cantidad*$Detalle->precioventa,2,'.',' ')."\n");
-                if($Detalle->producto->igv!="S"){
-                    $exonerada = $Detalle->cantidad*$Detalle->precioventa;
+            if (!is_null($Detalle->producto_id) && $Detalle->producto_id > 0) {
+                $printer->text(number_format($Detalle->cantidad, 0, '.', '') . "  " . str_pad(($Detalle->producto->nombre), 30, " ") . " " . number_format($Detalle->cantidad * $Detalle->precioventa, 2, '.', ' ') . "\n");
+                if ($Detalle->producto->igv != "S") {
+                    $exonerada = $Detalle->cantidad * $Detalle->precioventa;
                 }
-            }else{
-                $printer -> text(number_format($Detalle->cantidad,0,'.','')."  ".str_pad(($Detalle->promocion->nombre),30," ")." ".number_format($Detalle->cantidad*$Detalle->precioventa,2,'.',' ')."\n");
+            } else {
+                $printer->text(number_format($Detalle->cantidad, 0, '.', '') . "  " . str_pad(($Detalle->promocion->nombre), 30, " ") . " " . number_format($Detalle->cantidad * $Detalle->precioventa, 2, '.', ' ') . "\n");
             }
         }
-        if($exonerada>0){
-            $venta->subtotal = round(($venta->total - $exonerada)/1.18,2);
-            $venta->igv = round($venta->total - $exonerada - $venta->subtotal,2);
+        if ($exonerada > 0) {
+            $venta->subtotal = round(($venta->total - $exonerada) / 1.18, 2);
+            $venta->igv = round($venta->total - $exonerada - $venta->subtotal, 2);
         }
-        $printer -> text("----------------------------------------"."\n");
-        $printer -> text(str_pad("Op. Gravada:",32," "));
-        $printer -> text(number_format($venta->subtotal,2,'.',' ')."\n");
-        $printer -> text(str_pad("I.G.V. (18%)",32," "));
-        $printer -> text(number_format($venta->igv,2,'.',' ')."\n");
-        $printer -> text(str_pad("Op. Inafecta:",32," "));
-        $printer -> text(number_format(0,2,'.',' ')."\n");
-        $printer -> text(str_pad("Op. Exonerada:",32," "));
-        $printer -> text(number_format($exonerada,2,'.',' ')."\n");
-        $printer -> text(str_pad("TOTAL S/ ",32," "));
-        $printer -> text(number_format($venta->total,2,'.',' ')."\n");
-        $printer -> text("----------------------------------------"."\n");
+        $printer->text("----------------------------------------" . "\n");
+        $printer->text(str_pad("Op. Gravada:", 32, " "));
+        $printer->text(number_format($venta->subtotal, 2, '.', ' ') . "\n");
+        $printer->text(str_pad("I.G.V. (18%)", 32, " "));
+        $printer->text(number_format($venta->igv, 2, '.', ' ') . "\n");
+        $printer->text(str_pad("Op. Inafecta:", 32, " "));
+        $printer->text(number_format(0, 2, '.', ' ') . "\n");
+        $printer->text(str_pad("Op. Exonerada:", 32, " "));
+        $printer->text(number_format($exonerada, 2, '.', ' ') . "\n");
+        $printer->text(str_pad("TOTAL S/ ", 32, " "));
+        $printer->text(number_format($venta->total, 2, '.', ' ') . "\n");
+        $printer->text("----------------------------------------" . "\n");
         //CODIGO QR
         //print_r(__DIR__."../../../../../htdocs/clifacturacion/ficheros/10403745991-".$num.".png");die();
-        if(file_exists(__DIR__."../../../../../htdocs/clifacturacion/ficheros/10403745991-".$num.".png")){
-            $tux = EscposImage::load(__DIR__."../../../../../htdocs/clifacturacion/ficheros/10403745991-".$num.".png",true);
-            $printer -> setJustification(Printer::JUSTIFY_CENTER);
-            $printer -> bitImage($tux,Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
-            $printer -> text("---------------------------------------"."\n");
+        if (file_exists(__DIR__ . "../../../../../htdocs/clifacturacion/ficheros/10403745991-" . $num . ".png")) {
+            $tux = EscposImage::load(__DIR__ . "../../../../../htdocs/clifacturacion/ficheros/10403745991-" . $num . ".png", true);
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->bitImage($tux, Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
+            $printer->text("---------------------------------------" . "\n");
         }
         //CODIGO QR
-        $printer -> setJustification(Printer::JUSTIFY_LEFT);
-        $printer -> text("Hora: ".date("H:i:s")."\n");
-        $printer -> text("\n");
-        $printer -> text(("Representación impresa del Comprobante Electrónico, consulte en https://facturae-garzasoft.com"));
-        $printer -> text("\n");
-        $printer -> text("\n");
-        $printer -> text("           GRACIAS POR SU PREFERENCIA"."\n");
-        $printer -> text("\n");
-        $printer -> feed();
-        $printer -> feed();
-        $printer -> cut();
-        $printer -> pulse();
-        
+        $printer->setJustification(Printer::JUSTIFY_LEFT);
+        $printer->text("Hora: " . date("H:i:s") . "\n");
+        $printer->text("\n");
+        $printer->text(("Representación impresa del Comprobante Electrónico, consulte en https://facturae-garzasoft.com"));
+        $printer->text("\n");
+        $printer->text("\n");
+        $printer->text("           GRACIAS POR SU PREFERENCIA" . "\n");
+        $printer->text("\n");
+        $printer->feed();
+        $printer->feed();
+        $printer->cut();
+        $printer->pulse();
+
         /* Close printer */
-        $printer -> close();       
+        $printer->close();
     }
 
-    public function declarar(Request $request){
-        $lista = Movimiento::where('tipomovimiento_id','=',2)->get();
-        $dato="";
+    public function declarar(Request $request)
+    {
+        $lista = Movimiento::where('tipomovimiento_id', '=', 2)->get();
+        $dato = "";
         foreach ($lista as $key => $value) {
-            $dato.=$value->id."|".$value->tipodocumento_id."@";
+            $dato .= $value->id . "|" . $value->tipodocumento_id . "@";
         }
         echo substr($dato, 0, strlen($dato) - 1);
     }

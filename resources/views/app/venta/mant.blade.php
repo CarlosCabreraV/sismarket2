@@ -76,7 +76,7 @@
             </div>
             <!--DATOS CLIENTE -->
         </div>
-        <div class="col-lg-6 col-md-6 ml-5">
+        <div class="col-lg-7 col-md-7 ">
             <!--DATOS PRODUCTO -->
             <div class="row ">
                 @if ($conf_codigobarra=="S")
@@ -182,7 +182,7 @@
         overflow-x: scroll;
         border-radius: 0.25rem;
         border: 2px solid #001f3f;
-        border-right:none;
+        /* border-right:none; */
         cursor: pointer;
     }
     .dataTables_scrollBody::-webkit-scrollbar{ 
@@ -194,7 +194,7 @@
         border-radius: 5px;
     background-color: #e9ecef;
     border-left: 0.5px solid #001f3f;
-    border-right: 0.5px solid #001f3f;
+    /* border-right: 0.5px solid #001f3f; */
 }
     .mostrarBarra{
         overflow-y: scroll;
@@ -472,7 +472,7 @@ function buscarProducto(valor){
                 data:"sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
                 success: function(a) {
                     datos=JSON.parse(a);
-                    var strTable = "<table class='table table-striped table-bordered table-sm table-condensed table-hover' border='1' id='tablaProducto'><thead><tr>";
+                    var strTable = "<table class='table table-striped table-bordered table-sm table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr>";
                     @if($conf_codigobarra=="S")
                         strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
                     @endif   
@@ -490,7 +490,7 @@ function buscarProducto(valor){
                         $("#tbodyProducto").append(a);           
                     }
                     $('#tablaProducto').DataTable({
-                        "scrollY":        "150px",
+                        "scrollY":        "200px",
                         "scrollCollapse": true,
                         "paging":         false
                     });
@@ -513,7 +513,7 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         }      
     }
     if(band){
-        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
+        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 60px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
         @if ($conf_codigobarra=="S")
             strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
         @endif
