@@ -183,7 +183,7 @@ class CompraController extends Controller
             $Venta->tipomovimiento_id = 1; //COMPRA
             $Venta->tipodocumento_id = $request->input('tipodocumento');
             $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
-            $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+            $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B / Anulado => A
             $Venta->comentario = '';
             $Venta->voucher = '';
             $Venta->totalpagado = 0;
