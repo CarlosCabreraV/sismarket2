@@ -19,6 +19,7 @@ use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
 use Excel;
 use App\Exports\CajaExport;
+use App\Sucursal;
 
 // class MTCPDF extends TCPDF {
 
@@ -59,8 +60,9 @@ class CajareporteController extends Controller
         $entidad          = 'Cajareporte';
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
+        $sucursales = Sucursal::all();
         $user = Auth::user();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'user'));
+        return view($this->folderview.'.admin')->with(compact('sucursales','entidad', 'title', 'ruta', 'user'));
     }
 
 
@@ -72,7 +74,7 @@ class CajareporteController extends Controller
 
     public function excelCaja(Request $request){
         setlocale(LC_TIME, 'spanish');
-        return Excel::download(new CajaExport($request->input('fechainicio'),$request->input('fechafin')), 'caja.xlsx');
+        return Excel::download(new CajaExport($request->input('fechainicio'),$request->input('fechafin'), $request->input('caja_id')), 'caja.xlsx');
         // $resultado        = Movimiento::where('movimiento.tipomovimiento_id', '=', 4)
         //                     ->where('movimiento.concepto_id','=',1)
         //                     ->where('movimiento.fecha','>=',$request->input('fechainicio'))

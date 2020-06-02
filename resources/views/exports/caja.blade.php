@@ -26,8 +26,13 @@ use Illuminate\Support\Facades\DB;
         <tbody>
         @php
             $cierre = Movimiento::where('movimiento.concepto_id','=',2)
-                        ->where('movimiento.id','>',$value1->id)
-                        ->orderBy('movimiento.id','asc')->first();
+                        ->where('movimiento.id','>',$value1->id);
+                        if($caja_id && $caja_id != '0'){
+                            $cierre = $cierre->where('movimiento.caja_id',$caja_id);
+                        }else{
+                            $cierre = $cierre->where('movimiento.caja_id',$value1->caja_id);
+                        }
+                        $cierre = $cierre->orderBy('movimiento.id','asc')->first();
             if(!is_null($cierre)){
                 $idcierre=$cierre->id;
             }else{
@@ -40,6 +45,11 @@ use Illuminate\Support\Facades\DB;
                                         ->whereNull('movimiento.cajaapertura_id')
                                         ->where('movimiento.id', '>=', $value1->id)
                                         ->where('movimiento.id','<=',$idcierre);
+                        if($caja_id && $caja_id != '0'){
+                            $resultado = $resultado->where('movimiento.caja_id',$caja_id);
+                        }else{
+                            $resultado = $resultado->where('movimiento.caja_id',$value1->caja_id);
+                        }
                     $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as cliente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
             $lista            = $resultado->get();
             $ingreso=0;$egreso=0;$garantia=0;$efectivo=0;$visa=0;$master=0;

@@ -11,10 +11,11 @@ class CajaExport implements FromView
 	protected $fechaini;
 	protected $fechafin;
 
-    public function __construct($fechaini, $fechafin)
+    public function __construct($fechaini, $fechafin , $caja_id)
     {
         $this->fechaini = $fechaini;
         $this->fechafin = $fechafin;
+        $this->caja_id = $caja_id;
     }
     
     public function view(): View
@@ -23,9 +24,13 @@ class CajaExport implements FromView
                             ->where('movimiento.concepto_id','=',1)
                             ->where('movimiento.fecha','>=',$this->fechaini)
                             ->where('movimiento.fecha','<=',$this->fechafin);
-        $resultado        = $resultado->select('movimiento.*');
+
+        if($this->caja_id  && $this->caja_id != ''){
+            $resultado = $resultado->where('movimiento.caja_id',$this->caja_id);
+        }
+        $caja_id = ($this->caja_id)?$this->caja_id:'0';
         $lista1            = $resultado->get();
-        return view('exports.caja')->with(compact('lista1'));
+        return view('exports.caja')->with(compact('lista1','caja_id'));
     }
 
    

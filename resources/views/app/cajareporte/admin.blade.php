@@ -43,6 +43,25 @@
 							</div>
 						  </div>
 						  <div class="row">
+							<div class="col-lg-12 col-md-12  form-group">
+									{!! Form::label('lblcaja_id', 'Caja') !!}
+								<select id="caja_id" name='caja_id' class="form-control input-xs">
+										@if($sucursales)
+											<option value="">TODOS</option>
+											@foreach($sucursales as $sucursal)
+											<optgroup label="{{$sucursal->nombre}}">
+													@foreach($sucursal->cajas as $caja)
+														<option  value={{$caja->id}}>{{$caja->nombre}}</option>
+													@endforeach
+											</optgroup>
+											@endforeach
+										@else
+										<option value={{$caja->id}} selected>{{$caja->nombre}}</option>
+										@endif
+									</select>
+							</div>
+						  </div>
+						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group text-right">
 								{!! Form::button('<i class="fa fa-file-excel"></i> EXCEL', array('class' => 'btn btn-success btn-sm  ', 'id' => 'btnDetalle', 'onclick' => 'imprimir();' ,'style'=>'width:200px;')) !!}   
 							</div>
@@ -78,6 +97,6 @@
 	});
 
     function imprimir(){
-        window.open("cajareporte/excelCaja?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val(),"_blank");
+        window.open("cajareporte/excelCaja?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&caja_id="+$('#caja_id').val(),"_blank");
     }
 </script>
