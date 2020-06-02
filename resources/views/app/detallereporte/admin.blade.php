@@ -26,7 +26,7 @@
 				  <div class="col-lg-8 col-md-8 col-offset-2">
 					  <div class="card mt-4">
 						<div class="card-body">
-							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => '', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+							{!! Form::open(['route' => $ruta["index"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => '', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							
