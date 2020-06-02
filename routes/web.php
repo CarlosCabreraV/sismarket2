@@ -137,6 +137,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('promocion/productoautocompletar2/', 'PromocionController@productoautocompletar2')->name('promocion.productoautocompletar2');
     Route::get('promocion/categoriaautocompletar', 'PromocionController@categoriaautocompletar')->name('promocion.categoriaautocompletar');
     Route::get('promocion/subcategoriaautocompletar', 'PromocionController@subcategoriaautocompletar')->name('promocion.subcategoriaautocompletar');
+    Route::get('promocion/sucursalautocompletar', 'PromocionController@sucursalautocompletar')->name('promocion.sucursalautocompletar');
 
     /* CONCEPTOPAGO */
     Route::post('concepto/buscar', 'ConceptoController@buscar')->name('concepto.buscar');

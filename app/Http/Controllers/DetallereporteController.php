@@ -10,6 +10,7 @@ use App\Categoria;
 use App\Category;
 use App\Producto;
 use App\Marca;
+use App\Sucursal;
 use App\Caja;
 use App\Person;
 use App\Venta;
@@ -46,9 +47,10 @@ class DetallereporteController extends Controller
     protected $tituloRegistrar = 'Reporte de Ventas';
     protected $tituloModificar = 'Modificar Caja';
     protected $tituloEliminar  = 'Eliminar Caja';
-    protected $rutas           = array('create' => 'detallereporte.create', 
-            'index'  => 'detallereporte.index',
-        );
+    protected $rutas           = array(
+        'create' => 'detallereporte.create',
+        'index'  => 'detallereporte.index',
+    );
 
     public function __construct()
     {
@@ -66,19 +68,20 @@ class DetallereporteController extends Controller
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
         $user = Auth::user();
-        $category = [""=>"TODOS"]+Category::orderBy('nombre','asc')->pluck('nombre','id')->all();
-        $producto = [""=>"TODOS"]+Producto::orderBy('nombre','asc')->pluck('nombre','id')->all();
+        $category = ["" => "TODOS"] + Category::orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $producto = ["" => "TODOS"] + Producto::orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $sucursal = Sucursal::orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
         $cboCategoria = array('' => 'TODOS');
-        $categoria = Categoria::orderBy('nombre','asc')->get();
-        foreach($categoria as $k=>$v){
+        $categoria = Categoria::orderBy('nombre', 'asc')->get();
+        foreach ($categoria as $k => $v) {
             $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
         }
         $cboMarca = array('' => 'TODOS');
-        $marca = Marca::orderBy('nombre','asc')->get();
-        foreach($marca as $k=>$v){
+        $marca = Marca::orderBy('nombre', 'asc')->get();
+        foreach ($marca as $k => $v) {
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
-        return view($this->folderview.'.admin')->with(compact('category','entidad', 'title', 'ruta', 'user','cboCategoria','cboMarca','producto'));
+        return view($this->folderview . '.admin')->with(compact('category', 'entidad', 'title', 'ruta', 'user', 'cboCategoria', 'cboMarca', 'producto', 'sucursal'));
     }
 
 
@@ -88,10 +91,11 @@ class DetallereporteController extends Controller
     }
 
 
-    public function excelDetalle(Request $request){
+    public function excelDetalle(Request $request)
+    {
         setlocale(LC_TIME, 'spanish');
         //$guia = $request->input('guia');
-        return Excel::download(new DetalleVentaExport($request->input('fechainicio'),$request->input('fechafin'),$request->input('category'),$request->input('categoria'),$request->input('producto'),$request->input('marca')), 'detalleventa.xlsx');
+        return Excel::download(new DetalleVentaExport($request->input('fechainicio'), $request->input('fechafin'), $request->input('category'), $request->input('categoria'), $request->input('producto'), $request->input('marca'), $request->input('sucursal')), 'detalleventa.xlsx');
         // $resultado        = Movimiento::where('movimiento.tipomovimiento_id', '=', 2)
         //                     ->join('detallemovimiento','detallemovimiento.movimiento_id','=','movimiento.id')
         //                     ->join('producto','producto.id','=','detallemovimiento.producto_id')
@@ -160,43 +164,41 @@ class DetallereporteController extends Controller
         //             $detalle[] = "TOTAL";
         //             $detalle[] = $total;
         //             $sheet->row($c,$detalle);
-                    
+
         //         });
         //     })->export('xls');                    
         // }
     }
 
-    function cambiarcategoria(Request $request){
-        if($request->input('category') != ""){
-            $categorias = Categoria::where('categoria_id','=',$request->input('category'))->orderBy("nombre","ASC")->get();
-        }else{
-            $categorias = Categoria::orderBy("nombre","ASC")->get();
+    function cambiarcategoria(Request $request)
+    {
+        if ($request->input('category') != "") {
+            $categorias = Categoria::where('categoria_id', '=', $request->input('category'))->orderBy("nombre", "ASC")->get();
+        } else {
+            $categorias = Categoria::orderBy("nombre", "ASC")->get();
         }
-        $productos = Producto::listar($request->input('category'),null,$request->input('marca'));
+        $productos = Producto::listar($request->input('category'), null, $request->input('marca'));
         $productos = $productos->get();
         $cadena = '';
         foreach ($categorias as $key => $value) {
-            $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
+            $cadena = $cadena . "<option value=" . $value->id . ">" . $value->nombre . "</option>";
         }
 
         $cadena2 = '';
         foreach ($productos as $key => $value) {
-            $cadena2 = $cadena2. "<option value=".$value->id.">".$value->nombre."</option>";
+            $cadena2 = $cadena2 . "<option value=" . $value->id . ">" . $value->nombre . "</option>";
         }
-        return json_encode(array("categorias"=>$cadena,"productos"=>$cadena2));
+        return json_encode(array("categorias" => $cadena, "productos" => $cadena2));
     }
 
-    function cambiarproducto(Request $request){
-        $productos = Producto::listar(null,$request->input('categoria'),$request->input('marca'));
+    function cambiarproducto(Request $request)
+    {
+        $productos = Producto::listar(null, $request->input('categoria'), $request->input('marca'));
         $productos = $productos->get();
         $cadena = '';
         foreach ($productos as $key => $value) {
-            $cadena = $cadena. "<option value=".$value->id.">".$value->nombre."</option>";
+            $cadena = $cadena . "<option value=" . $value->id . ">" . $value->nombre . "</option>";
         }
-        return json_encode(array("productos"=>$cadena));
+        return json_encode(array("productos" => $cadena));
     }
-
-    
-
-
 }
