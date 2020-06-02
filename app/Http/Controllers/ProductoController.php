@@ -491,7 +491,7 @@ class ProductoController extends Controller
         $formData            = array('producto.saveimport');
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off','enctype'=>'multipart/form-data');
         $boton               = 'Importar'; 
-        return view($this->folderview.'.mant2')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboCategory'));
+        return view($this->folderview.'.mant2')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     /**
@@ -514,7 +514,7 @@ class ProductoController extends Controller
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request,$currentUser){
+        $error = DB::transaction(function() use($request){
             if($request->hasFile("file")){
                 $file = $request->file("file");
                 if($file->getClientMimeType() == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $file->getClientMimeType() == "application/vnd.ms-excel" || $file->getClientMimeType()=="application/octet-stream"){

@@ -132,7 +132,7 @@ class mantenimientocajaController extends Controller
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request,$empresa){
+        $error = DB::transaction(function() use($request){
             $caja = new Caja();
             $caja->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')),"àèìòùáéíóúçñäëïöü","ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"),"");
             $caja->sucursal_id = $request->input('sucursal_id');
