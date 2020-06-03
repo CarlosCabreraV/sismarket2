@@ -28,6 +28,7 @@ use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\EscposImage;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class VentaController extends Controller
 {
@@ -710,5 +711,18 @@ class VentaController extends Controller
             $dato .= $value->id . "|" . $value->tipodocumento_id . "@";
         }
         echo substr($dato, 0, strlen($dato) - 1);
+    }
+
+
+    public function pdfTicket($id){
+        $venta = Movimiento::where('id', $id)->first();
+        $detalles = Detallemovimiento::where('movimiento_id',$id)->get();
+        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,302,500));  
+        //HOJA HORIZONTAL ->setPaper('a4', 'landscape')
+    //descargar
+       // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  
+    //Ver
+       return $pdf->stream('ticket.pdf');
+    
     }
 }
