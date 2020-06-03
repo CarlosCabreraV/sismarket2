@@ -48,7 +48,7 @@ $current_user = Auth::user();
 			<td>{{ $value->responsable2 }}</td>
 			@if($caja_sesion_id != '0' && !$current_user->isAdmin() && !$current_user->isSuperAdmin())
 				<td>{!! Form::button('<div class="fas fa-eye"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-sm btn'.$btno.'info')) !!}</td>
-				<td>{!! Form::button('<div class="fas fa-print"></div> Imprimir', array('onclick' => 'imprimirVenta('. $value->id.')', 'class' => 'btn btn-sm btn'.$btno.'info')) !!}</td>
+				<td><a target="_blank" href="{{route('venta.verpdf' , ['id'=> $value->id])}}"><button class="btn btn-sm btn-primary"><i class="fas fa-print"></i> Imprimir</button></a>
 				{{--{!! Form::button('<div class="glyphicon glyphicon-file"></div> Declarar', array('onclick' => 'declarar (\''.$value->id.'\','.$value->tipodocumento_id.' );', 'class' => 'btn btn-xs btn-warning')) !!}--}}
 				@if($value->situacion!='A')
 					<td>{!! Form::button('<div class="fas fa-minus"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn'.$btno.'danger')) !!}</td>
