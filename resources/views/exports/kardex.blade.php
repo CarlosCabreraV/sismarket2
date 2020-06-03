@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\DB;
             <th style="width: 20px" ><b>PRODUCTO: {{ $value1->nombre }}</b></th>
         </tr>
         <tr>
+            <th style="width: 20px" ><b>SUCURSAL: {{ $nombre_sucursal }}</b></th>
+        </tr>
+        <tr>
             <th style="width: 15px;text-align: center"><b>FECHA</b></th>
             <th style="width: 15px;text-align: center"><b>NUMERO</b></th>
             <th colspan="3" style="width: 36px;text-align: center"><b>ENTRADAS</b></th>
@@ -39,6 +42,7 @@ use Illuminate\Support\Facades\DB;
                         ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
                         ->where('detallemovimiento.producto_id','=',$value1->id)
                         ->where('movimiento.fecha','<',$fechaini)
+                        ->where('movimiento.sucursal_id','=',$sucursal)
                         ->whereNotIn('movimiento.situacion',['A'])
                         ->select(DB::raw('sum(case when tipodocumento.stock=\'S\' then detallemovimiento.cantidad else detallemovimiento.cantidad*(-1) end) as stock'))
                         ->groupBy('detallemovimiento.producto_id')
@@ -54,6 +58,7 @@ use Illuminate\Support\Facades\DB;
                         ->where('tipodocumento.id','=','movimiento.tipodocumento_id')
                         ->where('detallemovimiento.producto_id','=',$value1->id)
                         ->where('movimiento.fecha','<',$fechaini)
+                        ->where('movimiento.sucursal_id','=',$sucursal)
                         ->select('detallemovimiento.preciocompra')
                         ->orderBy('movimiento.fecha','desc')
                         ->first();
@@ -67,6 +72,7 @@ use Illuminate\Support\Facades\DB;
                                 ->join('categoria','producto.categoria_id','=','categoria.id')
                                 ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
                                 ->join('marca','producto.marca_id','=','marca.id')
+                                ->where('movimiento.sucursal_id','=',$sucursal)
                                 ->where('movimiento.fecha','>=',$fechaini)
                                 ->where('detallemovimiento.producto_id','=',$value1->id)
                                 ->whereNotIn('movimiento.situacion',['A'])

@@ -117,6 +117,12 @@
 				buscar('{{ $entidad }}');
 			}
 		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
 	});
 
 function imprimirVenta(id){

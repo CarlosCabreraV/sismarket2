@@ -44,6 +44,12 @@
 						  </div>
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
+								{!! Form::label('sucursal', 'Sucursal:') !!}
+								{!! Form::select('sucursal', $sucursal, '', array('class' => 'form-control input-xs slc2', 'id' => 'sucursal', 'style'=>'width: 100%!important','onchange'=>'' )) !!}
+							</div>
+						  </div>
+						  <div class="row">
+							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('category', 'Categoría:') !!}
 								{!! Form::select('category', $category, '', array('class' => 'form-control input-xs slc2', 'id' => 'category', 'style'=>'width: 100%!important','onchange'=>'cambiarsubcategoria()' )) !!}
 							</div>
@@ -101,7 +107,7 @@
 	});
 
     function imprimir(){
-        window.open("detallereporte/excelDetalle?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val()+"&category="+$("#category").val()+"&producto="+$("#producto").val(),"_blank");
+        window.open("detallereporte/excelDetalle?sucursal="+$("#sucursal").val()+"&fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val()+"&category="+$("#category").val()+"&producto="+$("#producto").val(),"_blank");
     }
 
 	function cambiarsubcategoria() {

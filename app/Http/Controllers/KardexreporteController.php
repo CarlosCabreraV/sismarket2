@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Categoria;
+use App\Sucursal;
 use App\Marca;
 use App\Caja;
 use App\Person;
@@ -45,9 +46,10 @@ class KardexreporteController extends Controller
     protected $tituloRegistrar = 'Reporte de Kardex';
     protected $tituloModificar = 'Modificar Caja';
     protected $tituloEliminar  = 'Eliminar Caja';
-    protected $rutas           = array('create' => 'kardexreporte.create', 
-            'index'  => 'kardexreporte.index',
-        );
+    protected $rutas           = array(
+        'create' => 'kardexreporte.create',
+        'index'  => 'kardexreporte.index',
+    );
 
     public function __construct()
     {
@@ -68,8 +70,9 @@ class KardexreporteController extends Controller
         $cboProductos = array('0' => 'Todos');
         $cboCategoria = array('0' => 'Todos');
         $cboSubcategoria = array('0' => 'Todos');
-        
-        return view($this->folderview.'.admin')->with(compact('cboProductos','cboSubcategoria','entidad', 'title', 'ruta', 'user', 'cboCategoria'));
+        $cboSucursal = Sucursal::orderBy("nombre")->pluck("nombre", "id")->all();
+
+        return view($this->folderview . '.admin')->with(compact('cboProductos', 'cboSubcategoria', 'entidad', 'title', 'ruta', 'user', 'cboCategoria', 'cboSucursal'));
     }
 
 
@@ -79,9 +82,10 @@ class KardexreporteController extends Controller
     }
 
 
-    public function excelKardex(Request $request){
+    public function excelKardex(Request $request)
+    {
         setlocale(LC_TIME, 'spanish');
-        return Excel::download(new KardexExport($request->input('fechainicio'),$request->input('fechafin'),$request->input('categoria'),$request->input('subcategoria'),$request->input('producto')), 'kardex.xlsx');
+        return Excel::download(new KardexExport($request->input('fechainicio'), $request->input('fechafin'), $request->input('categoria'), $request->input('subcategoria'), $request->input('producto'), $request->input('sucursal')), 'kardex.xlsx');
         // $resultado        = Movimiento::join('detallemovimiento','detallemovimiento.movimiento_id','=','movimiento.id')
         //                     ->join('producto','producto.id','=','detallemovimiento.producto_id')
         //                     ->join('categoria','producto.categoria_id','=','categoria.id')
@@ -366,5 +370,4 @@ class KardexreporteController extends Controller
         //     })->export('xls');                    
         // }
     }
-
 }

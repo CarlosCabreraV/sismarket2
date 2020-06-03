@@ -44,6 +44,12 @@
 						  </div>
 						  <div class="row">
 							<div class="col-lg-12 col-md-12  form-group">
+								{!! Form::label('sucursal', 'Sucursal') !!}
+								{!! Form::select('sucursal', $cboSucursal , null, array('class' => 'form-control input-xs', 'id' => 'sucursal', 'style'=>'width:100%;')) !!}
+							</div>
+						  </div>
+						  <div class="row">
+							<div class="col-lg-12 col-md-12  form-group">
 								{!! Form::label('lblcategoria', 'Categoria') !!}
 								{!! Form::select('categoria', $cboCategoria , null, array('class' => 'form-control input-xs', 'id' => 'categoria', 'style'=>'width:100%;')) !!}
 							</div>
@@ -137,6 +143,24 @@
 				
 			}
 		});
+		$('#sucursal').select2({
+			ajax: {
+				url: "promocion/sucursalautocompletar",
+				dataType: 'json',
+				delay: 250,
+				data: function(params){
+					return{
+						q: $.trim(params.term),
+					};
+				},
+				processResults: function(data){
+					return{
+						results: data
+					};
+				}
+				
+			}
+		});
 		$('#subcategoria').select2({
 			ajax: {
 				url: "promocion/subcategoriaautocompletar",
@@ -203,7 +227,7 @@
 
     function imprimir(){
     	//if($("#producto_id").val()!=""){
-        	window.open("kardexreporte/excelKardex?fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&producto="+$("#producto_id").val()+"&producto2="+$("#producto").val()+"&categoria="+$("#categoria").val(),"_blank");
+        	window.open("kardexreporte/excelKardex?sucursal="+$("#sucursal").val()+"&fechainicio="+$("#fechainicio").val()+"&fechafin="+$("#fechafin").val()+"&producto="+$("#producto_id").val()+"&producto2="+$("#producto").val()+"&categoria="+$("#categoria").val(),"_blank");
         //}
     }
 </script>
