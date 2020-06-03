@@ -319,7 +319,7 @@ function guardarPago (entidad, idboton) {
                 
     			if (resp === 'OK') {
                     cerrarModal();
-                    cerrarModal();
+                    //cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                     //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
     			} else if(resp === 'ERROR') {

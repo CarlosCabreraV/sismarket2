@@ -16,20 +16,21 @@ class mantenimientocajaController extends Controller
 {
     protected $folderview      = 'app.mantenimientocaja';
     protected $tituloAdmin     = 'Caja';
-    protected $entidad 		   = 'Caja';
-    protected $tabla 		   = 'caja';
+    protected $entidad            = 'Caja';
+    protected $tabla            = 'caja';
     protected $tituloRegistrar = 'Registrar Caja';
     protected $tituloModificar = 'Modificar Caja';
     protected $tituloEliminar  = 'Eliminar Caja';
-    protected $rutas           = array('create' => 'mantenimientocaja.create', 
-            'edit'   => 'mantenimientocaja.edit', 
-            'delete' => 'mantenimientocaja.eliminar',
-            'search' => 'mantenimientocaja.buscar',
-            'index'  => 'mantenimientocaja.index',
-        );
+    protected $rutas           = array(
+        'create' => 'mantenimientocaja.create',
+        'edit'   => 'mantenimientocaja.edit',
+        'delete' => 'mantenimientocaja.eliminar',
+        'search' => 'mantenimientocaja.buscar',
+        'index'  => 'mantenimientocaja.index',
+    );
 
 
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -52,14 +53,14 @@ class mantenimientocajaController extends Controller
         $entidad          = $this->entidad;
         $nombre           = Libreria::getParam($request->input('nombre'));
         $sucursal_id      = Libreria::getParam($request->input('sucursal_id'));
-        $resultado        = Caja::listar($nombre,$sucursal_id);
+        $resultado        = Caja::listar($nombre, $sucursal_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Sucursal', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
-        
+
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
@@ -72,9 +73,9 @@ class mantenimientocajaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
+            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
+        return view($this->folderview . '.list')->with(compact('lista', 'entidad'));
     }
     /**
      * Display a listing of the resource.
@@ -87,8 +88,8 @@ class mantenimientocajaController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboSucursal	  = [""=>"TODOS"]+Sucursal::pluck("nombre","id")->all();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta','cboSucursal'));
+        $cboSucursal      = ["" => "TODOS"] + Sucursal::pluck("nombre", "id")->all();
+        return view($this->folderview . '.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboSucursal'));
     }
 
     /**
@@ -102,10 +103,10 @@ class mantenimientocajaController extends Controller
         $entidad  = $this->entidad;
         $caja = null;
         $formData = array('mantenimientocaja.store');
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Registrar'; 
-        $cboSucursal = [""=>"ELIJA UNA SUCURSAL"]+Sucursal::pluck("nombre","id")->all();
-        return view($this->folderview.'.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal'));
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton    = 'Registrar';
+        $cboSucursal = ["" => "ELIJA UNA SUCURSAL"] + Sucursal::pluck("nombre", "id")->all();
+        return view($this->folderview . '.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal'));
     }
 
     /**
@@ -117,25 +118,26 @@ class mantenimientocajaController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        
+
         $reglas     = array(
-        	'sucursal_id' => 'required|integer|exists:sucursal,id,deleted_at,NULL',
-        	'nombre' => 'required'
-    		);
-        $mensajes 	= array(
+            'sucursal_id' => 'required|integer|exists:sucursal,id,deleted_at,NULL',
+            'nombre' => 'required'
+        );
+        $mensajes     = array(
             'nombre.required'         => 'Debe ingresar un nombre.',
             'sucursal_id.required'    => 'Debe seleccionar una sucursal.',
             'sucursal_id.exists'    => 'La sucursal seleccionada no existe.',
             'sucursal_id.integer'    => 'El formato de la sucursal es incorrecto.'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request){
+        $error = DB::transaction(function () use ($request) {
             $caja = new Caja();
-            $caja->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')),"àèìòùáéíóúçñäëïöü","ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"),"");
+            $caja->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')), "àèìòùáéíóúçñäëïöü", "ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"), "");
             $caja->sucursal_id = $request->input('sucursal_id');
+            $caja->serie = Libreria::getParam($request->input('serie'), "1");
             $caja->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -168,10 +170,10 @@ class mantenimientocajaController extends Controller
         $caja = Caja::find($id);
         $entidad  = $this->entidad;
         $formData = array('mantenimientocaja.update', $id);
-        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        $cboSucursal	  = [""=>"TODOS"]+Sucursal::pluck("nombre","id")->all();
-        return view($this->folderview.'.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal'));
+        $cboSucursal      = ["" => "TODOS"] + Sucursal::pluck("nombre", "id")->all();
+        return view($this->folderview . '.mant')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal'));
     }
 
     /**
@@ -188,23 +190,24 @@ class mantenimientocajaController extends Controller
             return $existe;
         }
         $reglas     = array(
-        	'sucursal_id' => 'required|integer|exists:sucursal,id,deleted_at,NULL',
-        	'nombre' => 'required'
-    		);
-        $mensajes 	= array(
+            'sucursal_id' => 'required|integer|exists:sucursal,id,deleted_at,NULL',
+            'nombre' => 'required'
+        );
+        $mensajes     = array(
             'nombre.required'         => 'Debe ingresar un nombre.',
             'sucursal_id.required'    => 'Debe seleccionar una sucursal.',
             'sucursal_id.exists'    => 'La sucursal seleccionada no existe.',
             'sucursal_id.integer'    => 'El formato de la sucursal es incorrecto.'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        } 
-        $error = DB::transaction(function() use($request, $id){
+        }
+        $error = DB::transaction(function () use ($request, $id) {
             $caja = Caja::find($id);
-            $caja->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')),"àèìòùáéíóúçñäëïöü","ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"),"");
+            $caja->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')), "àèìòùáéíóúçñäëïöü", "ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"), "");
             $caja->sucursal_id = $request->input('sucursal_id');
+            $caja->serie = Libreria::getParam($request->input('serie'), "1");
             $caja->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -222,7 +225,7 @@ class mantenimientocajaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id){
+        $error = DB::transaction(function () use ($id) {
             $caja = Caja::find($id);
             $caja->delete();
         });
@@ -241,39 +244,41 @@ class mantenimientocajaController extends Controller
         }
         $modelo   = Caja::find($id);
         $entidad  = $this->entidad;
-        $formData = array('route' => array('mantenimientocaja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => array('mantenimientocaja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
 
-    public function asignarcaja(){
+    public function asignarcaja()
+    {
         $entidad  = $this->entidad;
         $caja = null;
         $formData = array('mantenimientocaja.guardarasignarcaja');
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Aceptar'; 
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton    = 'Aceptar';
         $user = Auth::user();
-        $cajas = Caja::where('sucursal_id',$user->sucursal_id)->where('estado','CERRADA');
-        $cboCajas = [""=>"ELIJA UNA CAJA"]+$cajas->pluck("nombre","id")->all();
+        $cajas = Caja::where('sucursal_id', $user->sucursal_id)->where('estado', 'CERRADA');
+        $cboCajas = ["" => "ELIJA UNA CAJA"] + $cajas->pluck("nombre", "id")->all();
         return view('app.asignarCaja')->with(compact('caja', 'formData', 'entidad', 'boton', 'cboCajas'));
     }
-    public function guardarasignarcaja(Request $request){
-        
+    public function guardarasignarcaja(Request $request)
+    {
+
         $reglas     = array(
-        	'caja_id' => 'required|integer|exists:caja,id,deleted_at,NULL',
-    		);
-        $mensajes 	= array(
+            'caja_id' => 'required|integer|exists:caja,id,deleted_at,NULL',
+        );
+        $mensajes     = array(
             'caja_id.required'    => 'Debe seleccionar una caja.',
             'caja_id.exists'    => 'La caja seleccionada no existe.',
             'caja_id.integer'    => 'El formato de la caja es incorrecto.'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-       
-        session(['caja_sesion_id' => $request->caja_id]); 
-        
+
+        session(['caja_sesion_id' => $request->caja_id]);
+
         return "OK";
     }
 }

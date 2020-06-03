@@ -238,11 +238,8 @@ $(document).ready(function() {
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona_id"]').val(datum.id);
 	});
 
-    @if ($conf_codigobarra=="S")
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="codigobarra"]').focus();
-    @else
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').focus();
-    @endif
+    
+    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').focus();
 
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="sucursal_id"]').change(function (e) {
         buscarProducto();
@@ -519,8 +516,8 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         @endif
 
         strDetalle = strDetalle + "<td align='left'>"+descripcion+"</td>" + 
-        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
-        "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
+        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
+        "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+precioventa+"' /></td>"+
         "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
        
         $("#tbDetalle").append(strDetalle);
@@ -534,7 +531,16 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         $("#tdDescripcion"+idproducto).css('color','');
         $("#tdDescripcion"+idproducto).css('font-weight','');
         idant=idproducto;
+        $('#txtCantidad'+idproducto).val("1");
+        $('#txtCantidad'+idproducto).keyup(function (e) {
+            var key = window.event ? e.keyCode : e.which;
+			if (key == '13') {
+                $('#descripcion').val("");
+				$('#descripcion').focus();
+			}
+        });
         $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+        $('#txtCantidad'+idproducto).select();
         calcularTotal();
     }else{
         if(idant>0){
@@ -548,6 +554,14 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         idant=idproducto;
         var cant = parseInt($('#txtCantidad'+idproducto).val())+1; 
         $('#txtCantidad'+idproducto).val(cant);
+        $('#txtCantidad'+idproducto).select();
+        $('#txtCantidad'+idproducto).keyup(function (e) {
+            var key = window.event ? e.keyCode : e.which;
+			if (key == '13') {
+				$('#descripcion').val("");
+				$('#descripcion').focus();
+			}
+        });
         calcularTotalItem(idproducto);
     }
 }
