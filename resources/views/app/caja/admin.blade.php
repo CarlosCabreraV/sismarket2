@@ -94,7 +94,7 @@
 	});
 
     function imprimir(){
-        window.open("caja/pdfCierre","_blank");
+        window.open("caja/pdfCierre?caja_id="+$("#caja_id").val(),"_blank");
     }
 
     function imprimirDetalle(){

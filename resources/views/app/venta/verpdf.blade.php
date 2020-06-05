@@ -42,10 +42,10 @@
             $iddoc = $venta->tipodocumento_id;
             $nombre_doc = ($iddoc == 3)?'BOLETA ELECTRÓNICA':(($iddoc==4)?'FACTURA ELECTRONICA':'TICKET');
         @endphp
-        <h3 style=" padding-top:15px; font-family:Georgia, 'Times New Roman', Times, serif;  margin:0px; text-align: center; ">IMPORTADORA ANDINA S.A.C</h3>
-        <p style=" margin:10px 5px 5px; text-align:center; font-size:15px; ">RUC 12345678911</p>
+        <h3 style=" padding-top:15px; font-family:Georgia, 'Times New Roman', Times, serif;  margin:0px; text-align: center; ">EXPRESS MARKET</h3>
+        <!--p style=" margin:10px 5px 5px; text-align:center; font-size:15px; ">RUC 12345678911</p>
         <p style=" margin:5px;  text-align:center; font-size:15px;">TEL: 123456789</p>
-        <p style=" margin:5px;  text-align:center; font-size:15px;">DIRECCION EMPRESA #360</p>
+        <p style=" margin:5px;  text-align:center; font-size:15px;">DIRECCION EMPRESA #360</p-->
     <p style=" margin:5px;  text-align:center; font-size:15px; font-weight:bold;">{{$nombre_doc}}</p>
         <p style=" margin:5px;  text-align:center; font-size:15px; font-weight:bold;">{{$venta->numero}}</p>
         <table width='100%' style="  margin-top:20px; border-collapse: collapse;  ">

@@ -13,6 +13,12 @@
 		{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre')) !!}
 	</div>
 </div>
+<div class="form-group">
+	{!! Form::label('serie', 'Serie:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+	<div class="col-lg-12 col-md-12 col-sm-12">
+		{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'Ingrese Serie')) !!}
+	</div>
+</div>
 
 <div class="form-group">
 	<div class="col-lg-12 col-md-12 col-sm-12 text-right">

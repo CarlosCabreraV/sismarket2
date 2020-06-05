@@ -714,13 +714,18 @@ $rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->prese
 
     public function generarNumero(Request $request)
     {
+        $caja = Caja::find(session("caja_sesion_id"));
+        if ($caja->serie == null) {
+            $caja->serie = 1;
+        }
+        $serie = str_pad($caja->serie, 3, '0', STR_PAD_LEFT);
         $numeroventa = Movimiento::NumeroSigue(2, $request->input('tipodocumento'));
         if ($request->input('tipodocumento') == 3) {
-            echo "B001-" . $numeroventa;
+            echo "B" . $serie . "-" . $numeroventa;
         } elseif ($request->input('tipodocumento') == 4) {
-            echo "F001-" . $numeroventa;
+            echo "F" . $serie . "-" . $numeroventa;
         } else {
-            echo "T001-" . $numeroventa;
+            echo "T" . $serie . "-" . $numeroventa;
         }
     }
 
@@ -875,7 +880,7 @@ $rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->prese
     public function pdfTicket($id){
         $venta = Movimiento::where('id', $id)->first();
         $detalles = Detallemovimiento::where('movimiento_id',$id)->get();
-        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,302,500));  
+        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,220,600));  
         //HOJA HORIZONTAL ->setPaper('a4', 'landscape')
     //descargar
        // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  
