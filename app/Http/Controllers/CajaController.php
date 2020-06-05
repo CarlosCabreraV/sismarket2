@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Jenssegers\Date\Date;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class MTCPDF extends TCPDF
 {
@@ -2438,5 +2439,96 @@ class CajaController extends Controller
         $formData = array('route' => array('caja.aceptar', $id), 'method' => 'Acept', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Aceptar';
         return view('app.confirmar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function pdfCierreTicket($caja_id)
+    {
+        //return $caja_id;
+        $rst  = Movimiento::where('tipomovimiento_id', '=', 4)->where("caja_id", "=", $caja_id)->orderBy('movimiento.id', 'DESC')->limit(1)->first();
+        if (count($rst) == 0) {
+            $conceptopago_id = 2;
+        } else {
+            $conceptopago_id = $rst->concepto_id;
+        }
+
+        $rst              = Movimiento::where('tipomovimiento_id', '=', 4)->where("caja_id", "=", $caja_id)->where('concepto_id', '=', 1)->orderBy('id', 'DESC')->limit(1)->first();
+        if (count($rst) > 0) {
+            $movimiento_mayor = $rst->id;
+        } else {
+            $movimiento_mayor = 0;
+        }
+
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+            ->join('concepto', 'concepto.id', '=', 'movimiento.concepto_id')
+            ->leftjoin('movimiento as m2', 'm2.movimiento_id', '=', 'movimiento.id')
+            ->where('movimiento.id', '>=', $movimiento_mayor)
+            ->where('movimiento.caja_id', '=', $caja_id);
+        $resultado        = $resultado->select('movimiento.*', 'm2.situacion as situacion2', 'responsable.nombres as responsable2', DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as cliente'), 'concepto.tipo as tipoconcepto')->orderBy('movimiento.id', 'desc');
+        $lista            = $resultado->get();
+        $usuario = ""; //OK
+        $arrayProductosN = array(); //OK
+        $arrayProductosA = array(); //OK
+        $totalVenta = 0; //OK
+        $totalTarjeta = 0; //OK
+        $totalEfectivo = 0; //OK
+        $cajaInicio = 0; // OK
+        $arrayIngresos = array();
+        $totalIngresos = 0;
+        $arrayGastos = array();
+        $totalGastos = 0;
+        foreach ($lista as $key => $movcaja) {
+            if ($movcaja->concepto_id == 1) {
+                $cajaInicio = $cajaInicio + $movcaja->total;
+                $usuario = $movcaja->resoonsable;
+            }
+            if ($movcaja->concepto_id == 3 && $movcaja->situacion != "A") {
+                $detalles = Detallemovimiento::where("movimiento_id", "=", $movcaja->movimiento_id)->get();
+                foreach ($detalles as $key => $detalle) {
+                    if ($detalle->producto_id != null) {
+                        $arrayProductosN[] = array("cantidad" => $detalle->cantidad, "producto" => $detalle->producto);
+                    } else {
+                        $arrayProductosN[] = array("cantidad" => $detalle->cantidad, "producto" => $detalle->promocion);
+                    }
+                }
+                $totalVenta = $totalVenta + $movcaja->total;
+                $totalTarjeta = $totalTarjeta +  $movcaja->tarjeta;
+                $totalEfectivo = $totalEfectivo + ($movcaja->total - $movcaja->tarjeta);
+            } else if ($movcaja->concepto_id == 3 && $movcaja->situacion == "A") {
+                $detalles = Detallemovimiento::where("movimiento_id", "=", $movcaja->movimiento_id)->get();
+                foreach ($detalles as $key => $detalle) {
+                    if ($detalle->producto_id != null) {
+                        $arrayProductosA[] = array("cantidad" => $detalle->cantidad, "producto" => $detalle->producto);
+                    } else {
+                        $arrayProductosA[] = array("cantidad" => $detalle->cantidad, "producto" => $detalle->promocion);
+                    }
+                }
+            }
+            if ($movcaja->concepto_id != 1 && $movcaja->concepto_id != 2 && $movcaja->concepto_id != 3) {
+                if ($movcaja->tipoconcepto == "I") {
+                    $arrayIngresos[] = array("concepto" => $movcaja->concepto->nombre, "comentario" => $movcaja->comentario, "total" => $movcaja->total);
+                    $totalIngresos = $totalIngresos + $movcaja->total;
+                } else {
+                    $arrayGastos[] = array("concepto" => $movcaja->concepto->nombre, "comentario" => $movcaja->comentario, "total" => $movcaja->total);
+                    $totalGastos = $totalGastos + $movcaja->total;
+                }
+            }
+        }
+        // return array(
+        //     $lista,
+        //     $usuario, //OK
+        //     $arrayProductosN, //OK
+        //     $arrayProductosA, //OK
+        //     $totalVenta, //OK
+        //     $totalTarjeta, //OK
+        //     $totalEfectivo, //OK
+        //     $cajaInicio,  // OK
+        //     $arrayIngresos,
+        //     $totalIngresos,
+        //     $arrayGastos,
+        //     $totalGastos
+        // );
+        $pdf = PDF::loadView('app.caja.pdfcierre', compact('usuario', 'arrayProductosN', 'arrayProductosA', 'totalVenta', 'totalTarjeta', 'totalEfectivo', 'cajaInicio', 'arrayIngresos', 'totalIngresos', 'arrayGastos', 'totalGastos'))->setPaper(array(0, 0, 220, 600));
+        return $pdf->stream('ticket.pdf');
     }
 }

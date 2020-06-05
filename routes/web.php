@@ -159,6 +159,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/pdfCierre', 'CajaController@pdfCierre')->name('caja.pdfCierre');
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
     Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');
+    Route::get('caja/verpdfcierre/{caja_id}', 'CajaController@pdfCierreTicket')->name('caja.verpdfcierre');
+
 
     /* VENTA */
     Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');
@@ -171,7 +173,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('venta/imprimirVenta', 'VentaController@imprimirVenta')->name('venta.imprimirVenta');
     Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
     Route::get('venta/verpdf/{id}', 'VentaController@pdfTicket')->name('venta.verpdf');
-    
+
     /* PEDIDO*/
     Route::post('pedido/buscar', 'PedidoController@buscar')->name('pedido.buscar');
     Route::resource('pedido', 'PedidoController');

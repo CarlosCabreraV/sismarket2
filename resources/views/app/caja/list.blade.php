@@ -12,38 +12,42 @@ $user = Auth::user();
     <!--OPCIONES CAJA-->
     <div class="row">
         @if($estado_caja == 'ABIERTA')
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-plus"></i> Apertura', array('class' => 'btn btn-block btn-outline-info btn-sm', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-hand-holding-usd"></i> Nuevo', array('class' => 'btn btn-block btn-outline-success btn-sm', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-trash-alt"></i> Cierre', array('class' => 'btn btn-block btn-outline-danger btn-sm', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
             </div>
         @elseif($estado_caja == 'CERRADA')
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-plus"></i> Apertura', array('class' => 'btn btn-block btn-outline-info btn-sm', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-hand-holding-usd"></i> Nuevo', array('class' => 'btn btn-block btn-outline-success btn-sm', 'disabled' => 'true', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-trash-alt"></i> Cierre', array('class' => 'btn btn-block btn-outline-danger btn-sm' , 'disabled' => 'true', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
             </div>
         @else
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-plus"></i> Apertura', array('class' => 'btn btn-block btn-outline-info btn-sm', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-hand-holding-usd"></i> Nuevo', array('class' => 'btn btn-block btn-outline-success btn-sm', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-2 col-lg-2">
                 {!! Form::button('<i class="fas fa-trash-alt"></i> Cierre', array('class' => 'btn btn-block btn-outline-danger btn-sm', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
             </div>
         @endif
-            <div class="col-md-3 col-lg-3">
-                {!! Form::button('<i class="fas fa-print"></i> Imprimir', array('class' => 'btn btn-block btn-outline-warning btn-sm', 'id' => 'btnDetalle', 'onclick' => 'imprimir();')) !!}   
+            <div class="col-md-2 col-lg-2">
+                {!! Form::button('<i class="fas fa-print"></i> Imprimir A4', array('class' => 'btn btn-block btn-outline-warning btn-sm', 'id' => 'btnDetalle', 'onclick' => 'imprimir();')) !!}   
+            </div>
+            <div class="col-md-2 col-lg-2">
+				<td><a target="_blank" href="{{route('caja.verpdfcierre' , ['caja_id'=> $caja->id])}}"><button class="btn btn-block btn-outline-warning btn-sm"><i class="fas fa-print"></i> Imprimir Ticket</button></a>
+                {{-- {!! Form::button('<i class="fas fa-print"></i> Imprimir Ticket', array('class' => 'btn btn-block btn-outline-warning btn-sm', 'id' => 'btnDetalle', 'onclick' => 'imprimir();')) !!}    --}}
             </div>
     </div>
     <!--OPCIONES CAJA-->
