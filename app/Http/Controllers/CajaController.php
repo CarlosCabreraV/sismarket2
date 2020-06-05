@@ -2528,7 +2528,7 @@ class CajaController extends Controller
         //     $arrayGastos,
         //     $totalGastos
         // );
-        $pdf = PDF::loadView('app.caja.pdfcierre', compact('usuario', 'arrayProductosN', 'arrayProductosA', 'totalVenta', 'totalTarjeta', 'totalEfectivo', 'cajaInicio', 'arrayIngresos', 'totalIngresos', 'arrayGastos', 'totalGastos'))->setPaper(array(0, 0, 220, 600));
+        $pdf = PDF::loadView('app.caja.pdfcierre', compact('usuario', 'arrayProductosN', 'arrayProductosA', 'totalVenta', 'totalTarjeta', 'totalEfectivo', 'cajaInicio', 'arrayIngresos', 'totalIngresos', 'arrayGastos', 'totalGastos'))->setPaper(array(0, 0, 220, 1800));
         return $pdf->stream('ticket.pdf');
     }
 }

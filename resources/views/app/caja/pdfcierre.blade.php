@@ -138,7 +138,7 @@
         <hr style="height: 0.5px;">
         <h5 style=" padding-top:0px;  margin:0px; text-align: left; font-size:11px;">CIERRE CAJA:</h5>
         <table width='100%' style=" margin-top:4px; border-collapse: collapse; ">
-            @foreach ($arrayGastos as $detalle)
+            
                 <tr>
                     <td style="width:100%; padding:4px 2px 2px;  text-align:left; font-weight:bold;  font-size:12px;  ">E + I - G : {{ number_format($totalEfectivo + $totalIngresos - $totalGastos,2) }}</td>
                 </tr>
@@ -148,7 +148,7 @@
                 <tr>
                     <td style="width:100%; padding:4px 2px 2px;  text-align:left;   font-size:11px;  ">CAJA CHICA FINAL : </td>
                 </tr>
-            @endforeach
+            
                 
         </table>
         <hr style="height: 0.5px;">
