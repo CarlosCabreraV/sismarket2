@@ -59,7 +59,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('categoria/buscar', 'CategoriaController@buscar')->name('categoria.buscar');
     Route::get('categoria/eliminar/{id}/{listarluego}', 'CategoriaController@eliminar')->name('categoria.eliminar');
     Route::resource('categoria', 'CategoriaController', array('except' => array('show')));
-   
+
     /* UNIDAD */
     Route::post('unidad/buscar', 'UnidadController@buscar')->name('unidad.buscar');
     Route::get('unidad/eliminar/{id}/{listarluego}', 'UnidadController@eliminar')->name('unidad.eliminar');
@@ -139,6 +139,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('promocion/productoautocompletar2/', 'PromocionController@productoautocompletar2')->name('promocion.productoautocompletar2');
     Route::get('promocion/categoriaautocompletar', 'PromocionController@categoriaautocompletar')->name('promocion.categoriaautocompletar');
     Route::get('promocion/subcategoriaautocompletar', 'PromocionController@subcategoriaautocompletar')->name('promocion.subcategoriaautocompletar');
+    Route::get('promocion/categoriaautocompletar2', 'PromocionController@categoriaautocompletar2')->name('promocion.categoriaautocompletar2');
+    Route::get('promocion/subcategoriaautocompletar2', 'PromocionController@subcategoriaautocompletar2')->name('promocion.subcategoriaautocompletar2');
     Route::get('promocion/sucursalautocompletar', 'PromocionController@sucursalautocompletar')->name('promocion.sucursalautocompletar');
 
     /* CONCEPTOPAGO */

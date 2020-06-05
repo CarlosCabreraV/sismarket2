@@ -408,4 +408,40 @@ class PromocionController extends Controller
         }
         return \Response::json($formatted_tags);
     }
+
+    public function subcategoriaautocompletar2(Request $request)
+    {
+
+        $term = trim($request->q);
+        $idcat = trim($request->idcat);
+
+        $resultado        = Categoria::where('categoria.nombre', 'like', '%' . strtoupper($term) . '%');
+        if (!empty($idcat) && $idcat != 0 && $idcat != '0') {
+            $resultado = $resultado->where('categoria.categoria_id', '=', $idcat);
+        }
+        $resultado = $resultado->orderBy('categoria.nombre', 'ASC');
+        $tags     = $resultado->select('categoria.*')->get();
+        $formatted_tags = [];
+        //$formatted_tags[] = ['id' => '0', 'text' => 'Todos'];
+        foreach ($tags as $tag) {
+            $formatted_tags[] = ['id' => $tag->id, 'text' => $tag->nombre];
+        }
+        return \Response::json($formatted_tags);
+    }
+    public function categoriaautocompletar2(Request $request)
+    {
+
+        $term = trim($request->q);
+
+        $resultado        = Category::where('category.nombre', 'like', '%' . strtoupper($term) . '%');
+
+        $resultado = $resultado->orderBy('category.nombre', 'ASC');
+        $tags     = $resultado->select('category.*')->get();
+        $formatted_tags = [];
+        //$formatted_tags[] = ['id' => '0', 'text' => 'Todos'];
+        foreach ($tags as $tag) {
+            $formatted_tags[] = ['id' => $tag->id, 'text' => $tag->nombre];
+        }
+        return \Response::json($formatted_tags);
+    }
 }

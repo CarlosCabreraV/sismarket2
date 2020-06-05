@@ -41,17 +41,18 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('categoria_id', 'Subcategoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('category_id', 'Categoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::select('categoria_id', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
+					{!! Form::select('category_id', array(), null, array('class' => 'form-control input-xs', 'id' => 'category_id')) !!}
 				</div>
 			</div>
+			
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('marca_id', 'Marca', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				{!! Form::label('categoria_id', 'Subcategoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::select('marca_id', $cboMarca, null, array('class' => 'form-control input-xs', 'id' => 'marca_id')) !!}
+					{!! Form::select('categoria_id', array(), null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
 				</div>
 			</div>
 		</div>
@@ -67,21 +68,23 @@
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-					{!! Form::label('preciocompra', 'Precio compra', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
-					<div class="col-lg-12 col-md-12 col-sm-12">
-						{!! Form::text('preciocompra', null, array('class' => 'form-control input-xs', 'id' => 'preciocompra', 'onblur' => 'calcularPrecio();')) !!}
-					</div>
+				{!! Form::label('marca_id', 'Marca', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					{!! Form::select('marca_id', $cboMarca, null, array('class' => 'form-control input-xs', 'id' => 'marca_id')) !!}
+				</div>
 			</div>
+			
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
-				{!! Form::label('ganancia', '% Ganancia', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					{!! Form::label('preciocompra', 'Precio compra', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
 					<div class="col-lg-12 col-md-12 col-sm-12">
-						{!! Form::text('ganancia', null, array('class' => 'form-control input-xs', 'id' => 'ganancia', 'onblur' => 'calcularPrecio();')) !!}
+						{!! Form::text('preciocompra', null, array('class' => 'form-control input-xs', 'id' => 'preciocompra', 'onblur' => 'calcularPrecio();')) !!}
 					</div>
 			</div>
+			
 		</div>
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
@@ -96,6 +99,27 @@
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">
+				{!! Form::label('stockminimo', 'Stock minimo', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					{!! Form::text('stockminimo', null, array('class' => 'form-control input-xs', 'id' => 'stockminimo')) !!}
+				</div>
+			</div>
+			
+		</div>
+		<div class="col-md-6 col-lg-6">
+			<div class="form-group">
+				{!! Form::label('ganancia', '% Ganancia', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::text('ganancia', null, array('class' => 'form-control input-xs', 'id' => 'ganancia', 'onblur' => 'calcularPrecio();')) !!}
+					</div>
+			</div>
+			
+			
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6 col-lg-6">
+			<div class="form-group">
 				{!! Form::label('lbligv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::hidden('igv', 'N', array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
@@ -105,12 +129,7 @@
 			</div>
 		</div>
 		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('stockminimo', 'Stock minimo', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::text('stockminimo', null, array('class' => 'form-control input-xs', 'id' => 'stockminimo')) !!}
-				</div>
-			</div>
+			
 			
 		</div>
 	</div>
@@ -155,7 +174,43 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ganancia"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="stockminimo"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-
+	$('#category_id').select2({
+			ajax: {
+				url: "promocion/categoriaautocompletar2",
+				dataType: 'json',
+				delay: 250,
+				data: function(params){
+					return{
+						q: $.trim(params.term),
+					};
+				},
+				processResults: function(data){
+					return{
+						results: data
+					};
+				}
+				
+			}
+		});
+		$('#categoria_id').select2({
+			ajax: {
+				url: "promocion/subcategoriaautocompletar2",
+				dataType: 'json',
+				delay: 250,
+				data: function(params){
+					return{
+						q: $.trim(params.term),
+						idcat: ($('#category_id').val())?($('#category_id').val()):'0',
+					};
+				},
+				processResults: function(data){
+					return{
+						results: data
+					};
+				}
+				
+			}
+		});
 	
 });
 function calcularPrecio(){
@@ -173,6 +228,8 @@ function consumo(check){
 		$("#consumo").val('N');
 	}
 }
+
+
 
 $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigobarra"]').focus();
 
