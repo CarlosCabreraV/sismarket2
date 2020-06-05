@@ -360,6 +360,10 @@ function guardarPago (entidad, idboton) {
         band = false;
         msg += " *No se selecciono un cliente \n";    
     }
+    if(carro.length==0){
+        band = false;
+        msg += " *No se agregó ningún producto \n";    
+    }
     if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
         if($("#dni").val().trim().length!=8){
             band = false;
@@ -375,7 +379,7 @@ function guardarPago (entidad, idboton) {
             msg += " *Debe registrar un correcto RUC \n";   
         }
     }
-    if($("#tarjeta").val() >= $('#total').val()){
+    if($("#tarjeta").val() > $('#total').val() && carro.length != 0){
         band = false;
         msg += " *El monto de la tarjeta no debe superar al total \n";
     }
@@ -453,7 +457,7 @@ function buscarProductoBarra(barra){
         success: function(a) {
             datos=JSON.parse(a);
             if(datos.length > 0){
-                seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock);
+                seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock,datos[0].tipo);
             }
 	    }
     });
@@ -482,7 +486,7 @@ function buscarProducto(valor){
                     var pag=parseInt($("#pag").val());
                     var d=0;
                     for(c=0; c < datos.length; c++){
-                        var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"')\">";
+                        var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"')\">";
                         @if ($conf_codigobarra=="S")
                             a = a + "<td align='center'>"+datos[c].codigobarra+"</td>";
                         @endif 
@@ -505,21 +509,23 @@ var carro = new Array();
 var carroDoc = new Array();
 var copia = new Array();
 var idant = 0;
-function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock){
+function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock, tipo){
     var band=true;
+    var id=idproducto;
+    idproducto = idproducto+'-'+tipo;
     for(c=0; c < carro.length; c++){
         if(carro[c]==idproducto){
             band=false;
         }      
     }
     if(band){
-        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+idproducto+"' /><input type='text' data='numero' style='width: 60px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>";
+        var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' /><input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' /><input type='text' data='numero' style='width: 60px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>";
         @if ($conf_codigobarra=="S")
             strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
         @endif
 
         strDetalle = strDetalle + "<td align='left'>"+descripcion+"</td>" + 
-        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+idproducto+")}\" onblur=\"calcularTotalItem("+idproducto+")\" /></td>"+
+        "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+preciocompra+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
         "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+preciocompra+"' /></td>"+
         "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
        
@@ -691,32 +697,4 @@ if(!is_null($movimiento)){
 @endphp
 
 
-function buscarProducto2(valor){
-    $.ajax({
-        type: "POST",
-        url: "venta/buscarproducto",
-        data: "descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
-        success: function(a) {
-            datos=JSON.parse(a);
-            var strTable = "<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead class='bg-navy'><tr>";
-            @if ($conf_codigobarra=="S")
-                strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
-            @endif   
-            strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
-            $("#divBusqueda").html(strTable);
-            var pag=parseInt($("#pag").val());
-            var d=0;
-            
-            $('#tablaProducto').DataTable({
-                "scrollY":        "250px",
-                "scrollCollapse": true,
-                "paging":         false
-            });
-            $('#tablaProducto_filter').css('display','none');
-            $("#tablaProducto_info").css("display","none");
-        }
-    });
-}
-
-buscarProducto2();
 </script>
