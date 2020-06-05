@@ -211,8 +211,13 @@ $(document).ready(function() {
 				
 			}
 		});
+
 	
 });
+		$('#category_id').on('change',function(){
+			$('#categoria_id').val(null).trigger('change');
+			//buscar('{{ $entidad }}');
+		});
 function calcularPrecio(){
     var ganancia = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ganancia"]').val();
     var compra = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciocompra"]').val();
