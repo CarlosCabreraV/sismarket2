@@ -717,7 +717,7 @@ class VentaController extends Controller
     public function pdfTicket($id){
         $venta = Movimiento::where('id', $id)->first();
         $detalles = Detallemovimiento::where('movimiento_id',$id)->get();
-        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,302,500));  
+        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,220,600));  
         //HOJA HORIZONTAL ->setPaper('a4', 'landscape')
     //descargar
        // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  

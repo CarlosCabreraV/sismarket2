@@ -209,7 +209,7 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dinero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="vuelto"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-
+    
     var personas2 = new Bloodhound({
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
@@ -372,7 +372,7 @@ function guardarPago (entidad, idboton) {
             msg += " *Debe registrar un correcto RUC \n";   
         }
     }
-    if($("#tarjeta").val() >= $('#total').val()){
+    if($("#tarjeta").val() > $('#total').val()){
         band = false;
         msg += " *El monto de la tarjeta no debe superar al total \n";
     }
@@ -695,7 +695,7 @@ function calcularTarjeta(){
     var efe = Math.round((tot - tar)*100)/100;
     $("#totalpagado").val(efe);
 }
-
+$("#tipodocumento option[value=5]").attr("selected",true);
 @php
 if(!is_null($movimiento)){
     echo "agregarDetalle(".$movimiento->id.");";
