@@ -36,25 +36,30 @@
 									{!! Form::label('codigobarra', 'Cod. Barra:') !!}
 									{!! Form::text('codigobarra', '', array('class' => 'form-control input-xs', 'id' => 'codigobarra')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4 form-group">
+								<div class="col-lg-3 col-md-3 form-group">
 									{!! Form::label('nombre', 'Nombre:') !!}
 									{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4 form-group">
+								
+								<div class="col-lg-3 col-md-3 form-group">
 									{!! Form::label('categoria', 'Categoria') !!}
 									{!! Form::select('categoria', $cboCategoria, '', array('class' => 'form-control input-xs', 'id' => 'categoria' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4 form-group">
+								<div class="col-lg-3 col-md-3 form-group">
+									{!! Form::label('lblsubcategoria', 'Subcategoria') !!}
+									{!! Form::select('subcategoria', $cboSubcategoria,'', array('class' => 'form-control input-xs', 'id' => 'subcategoria')) !!}
+								</div>
+								<div class="col-lg-3 col-md-3 form-group">
 									{!! Form::label('marca', 'Marca:') !!}
 									{!! Form::select('marca', $cboMarca, '', array('class' => 'form-control input-xs', 'id' => 'marca' ,'onchange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
 							</div>
 							<div class="row w-100 d-flex">
-								<div class="col-lg-4 col-md-4 form-group">
+								<div class="col-lg-3 col-md-3 form-group">
 									{!! Form::label('precio', 'Opciones precio') !!}
 									{!! Form::select('precio', ['S'=>'Sin precio' , 'C'=>'Con precio'], 'C', array('class' => 'form-control input-xs', 'id' => 'precio', 'onChange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4 form-group">
+								<div class="col-lg-3 col-md-3 form-group">
 									{!! Form::label('lblsucursal', 'Sucursal') !!}
 									{!! Form::select('sucursal_id', $cboSucursal, '', array('class' => 'form-control input-xs', 'id' => 'sucursal_id', 'onChange'=>'buscar(\''.$entidad.'\')')) !!}
 								</div>
@@ -97,7 +102,14 @@
 	  </div>
 	  <!-- /.content -->
 	
-  </div>	
+  </div>
+  <style>
+	  .select2-container--default .select2-selection--single {
+				border: 1px solid #ced4da;
+				padding: .46875rem .75rem;
+				height: calc(2.25rem + 2px);
+		}
+		</style>	
 <script>
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
@@ -113,6 +125,52 @@
 			if (key == '13') {
 				buscar('{{ $entidad }}');
 			}
+		});
+
+		$('#categoria').select2({
+			ajax: {
+				url: "promocion/categoriaautocompletar",
+				dataType: 'json',
+				delay: 250,
+				data: function(params){
+					return{
+						q: $.trim(params.term),
+					};
+				},
+				processResults: function(data){
+					return{
+						results: data
+					};
+				}
+				
+			}
+		});
+		$('#subcategoria').select2({
+			ajax: {
+				url: "promocion/subcategoriaautocompletar",
+				dataType: 'json',
+				delay: 250,
+				data: function(params){
+					return{
+						q: $.trim(params.term),
+						idcat: ($('#categoria').val())?($('#categoria').val()):'0',
+					};
+				},
+				processResults: function(data){
+					return{
+						results: data
+					};
+				}
+				
+			}
+		});
+		$('#subcategoria').on('change',function(){
+			buscar('{{ $entidad }}');
+		});
+
+		$('#categoria').on('change',function(){
+			$('#subcategoria').val(null).trigger('change');
+			buscar('{{ $entidad }}');
 		});
 	});
 	function excel(){

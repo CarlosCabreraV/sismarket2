@@ -65,6 +65,7 @@ class ProductoController extends Controller
         $resultado        = Producto::join('marca','marca.id','=','producto.marca_id')
                                 ->join('unidad','unidad.id','=','producto.unidad_id')
                                 ->join('categoria','categoria.id','=','producto.categoria_id')
+                                ->join('category','categoria.categoria_id','=','category.id')
                                 ->leftjoin('stockproducto',function($subquery) use ($sucursal_id){
                                     $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
                                 })
@@ -72,7 +73,10 @@ class ProductoController extends Controller
                                 ->where('producto.codigobarra','like','%'.trim($codigobarra).'%');
          
         if($request->input('categoria')!=""){
-            $resultado = $resultado->where('categoria.id','=',$request->input('categoria'));
+            $resultado = $resultado->where('category.id','=',$request->input('categoria'));
+        }
+        if($request->input('subcategoria')!=""){
+            $resultado = $resultado->where('categoria.id','=',$request->input('subcategoria'));
         }
         if($request->input('marca')!=""){
             $resultado = $resultado->where('marca.id','=',$request->input('marca'));
@@ -123,10 +127,8 @@ class ProductoController extends Controller
         $ruta             = $this->rutas;
         $current_user = Auth::user();
         $cboCategoria = array('' => 'Todos');
-        $categoria = Categoria::orderBy('nombre','asc')->get();
-        foreach($categoria as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
+        $cboSubcategoria = array('' => 'Todos');
+        
         $cboSucursal =  Sucursal::pluck('nombre', 'id')->all();
         if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
             $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
@@ -137,7 +139,7 @@ class ProductoController extends Controller
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
         
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca','cboSucursal'));
+        return view($this->folderview.'.admin')->with(compact('cboSubcategoria','entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca','cboSucursal'));
     }
 
     /**
