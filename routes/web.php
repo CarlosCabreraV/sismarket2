@@ -59,6 +59,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('categoria/buscar', 'CategoriaController@buscar')->name('categoria.buscar');
     Route::get('categoria/eliminar/{id}/{listarluego}', 'CategoriaController@eliminar')->name('categoria.eliminar');
     Route::resource('categoria', 'CategoriaController', array('except' => array('show')));
+   
     /* UNIDAD */
     Route::post('unidad/buscar', 'UnidadController@buscar')->name('unidad.buscar');
     Route::get('unidad/eliminar/{id}/{listarluego}', 'UnidadController@eliminar')->name('unidad.eliminar');
@@ -107,6 +108,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('producto/archivos', 'ProductoController@archivos')->name('producto.archivos');
     Route::get('product/import', 'ProductoController@import')->name('producto.import');
     Route::post('product/saveimport', 'ProductoController@saveimport')->name('producto.saveimport');
+
     /* COMPRA */
     Route::post('compra/buscar', 'CompraController@buscar')->name('compra.buscar');
     Route::get('compra/eliminar/{id}/{listarluego}', 'CompraController@eliminar')->name('compra.eliminar');

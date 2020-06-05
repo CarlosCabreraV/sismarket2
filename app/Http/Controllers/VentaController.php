@@ -183,12 +183,10 @@ class VentaController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
             'persona' => 'required|max:500',
-            'listProducto' => 'required',
             'sucursal_id'   => 'required|integer|exists:sucursal,id,deleted_at,NULL',
         );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un cliente',
-            'listProducto.required' => 'Agrega al menos un producto',
             'sucursal_id.required' => 'Debe seleccionar una sucursal.'
         );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
@@ -208,122 +206,235 @@ class VentaController extends Controller
                 throw new \Exception(json_encode($dat));
             }
             $error = DB::transaction(function () use ($request, $user, &$dat) {
-                $Venta       = new Movimiento();
-                $Venta->fecha = $request->input('fecha');
-                $Venta->numero = $request->input('numero');
-                if ($request->input('tipodocumento') == "4" || $request->input('tipodocumento') == "3") { //FACTURA O BOLETA
-                    $Venta->subtotal = round($request->input('total') / 1.18, 2); //82%
-                    $Venta->igv = round($request->input('total') - $Venta->subtotal, 2); //18%
-                } else { //TICKET
-                    $Venta->subtotal = $request->input('total');
-                    $Venta->igv = 0;
-                }
-                $Venta->total = str_replace(",", "", $request->input('total'));
-                $Venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
-                $Venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
-                $Venta->tipomovimiento_id = 2; //VENTA
-                $Venta->tipodocumento_id = $request->input('tipodocumento');
-                $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
-                $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
-                $Venta->voucher = '';
-                $Venta->comentario = '';
-                $Venta->responsable_id = $user->person_id;
 
-                $Venta->sucursal_id = $request->input('sucursal_id');
-                $Venta->save();
-                $arr = explode(",", $request->input('listProducto'));
-                for ($c = 0; $c < count($arr); $c++) {
-                    $Detalle = new Detallemovimiento();
-                    $Detalle->movimiento_id = $Venta->id;
-                    $Detalle->producto_id = $request->input('txtIdProducto' . $arr[$c]);
-                    $Detalle->cantidad = $request->input('txtCantidad' . $arr[$c]);
-                    $Detalle->precioventa = $request->input('txtPrecio' . $arr[$c]);
-                    $Detalle->preciocompra = Libreria::getParam($request->input('txtPrecioCompra' . $arr[$c]), '0');
-                    $Detalle->save();
+                //-------------------CREAR VENTA------------------------
+                    $Venta       = new Movimiento();
+                    $Venta->fecha = $request->input('fecha');
+                    $Venta->numero = $request->input('numero');
+                    if ($request->input('tipodocumento') == "4" || $request->input('tipodocumento') == "3") { //FACTURA O BOLETA
+                        $Venta->subtotal = round($request->input('total') / 1.18, 2); //82%
+                        $Venta->igv = round($request->input('total') - $Venta->subtotal, 2); //18%
+                    } else { //TICKET
+                        $Venta->subtotal = $request->input('total');
+                        $Venta->igv = 0;
+                    }
+                    $Venta->total = str_replace(",", "", $request->input('total'));
+                    $Venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                    $Venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                    $Venta->tipomovimiento_id = 2; //VENTA
+                    $Venta->tipodocumento_id = $request->input('tipodocumento');
+                    $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
+                    $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                    $Venta->voucher = '';
+                    $Venta->comentario = '';
+                    $Venta->responsable_id = $user->person_id;
 
+                    $Venta->sucursal_id = $request->input('sucursal_id');
+                    $Venta->save();
+                //---------------------FIN CREAR VENTA------------------------
 
-                    $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
-                    if (count($detalleproducto) > 0) {
-                        foreach ($detalleproducto as $key => $value) {
-                            $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
-                            if (count($stock) > 0) {
-                                if ($stock->cantidad >= $Detalle->cantidad * $value->cantidad) {
-                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
-                                    $stock->save();
-                                } else {
-                                    //STOCK DEL PRODUCTO MENOR AL QUE SE DESEA VENDER
-                                    if (STOCK_NEGATIVO == 'S') {
-                                        $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
-                                        $stock->save();
-                                    } else {
-                                        $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
-                                        throw new \Exception(json_encode($dat));
+                //---------------------DETALLES VENTA------------------------------
+                    $arr = explode(",", $request->input('listProducto'));
+                    //dd($request);
+                    for ($c = 0; $c < count($arr); $c++) {
+                        $Detalle = new Detallemovimiento();
+                        $Detalle->movimiento_id = $Venta->id;
+                        if($request->input('txtTipo'.$arr[$c])=="P"){
+                            $Detalle->producto_id=$request->input('txtIdProducto'.$arr[$c]);
+                        }else{
+                            $Detalle->promocion_id=$request->input('txtIdProducto'.$arr[$c]);
+                        }
+                        $Detalle->cantidad = $request->input('txtCantidad' . $arr[$c]);
+                        $Detalle->precioventa = $request->input('txtPrecio' . $arr[$c]);
+                        $Detalle->preciocompra = Libreria::getParam($request->input('txtPrecioCompra' . $arr[$c]), '0');
+                        $Detalle->save();
+                        
+                        if ($request->input('txtTipo'.$arr[$c])=="P") {
+
+                            //DISMINUIR STOCK DEL PRODUCTO
+                                //SI ES UNA PRESENTACION
+                                $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
+                                if (count($detalleproducto) > 0) {
+                                    //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
+                                    foreach ($detalleproducto as $key => $value) {
+                                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
+                                        //SI TIENE STOCK REGISTRADO
+                                        if (count($stock) > 0) {
+                                            //SI EL STOCK ES SUFICIENTE
+                                            if ($stock->cantidad >= $Detalle->cantidad * $value->cantidad) {
+                                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
+                                                $stock->save();
+                                            }
+                                            //SI NO HAY STOCK SUFICIENTE
+                                            else {
+                                                if (STOCK_NEGATIVO == 'S') {
+                                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad * $value->cantidad;
+                                                    $stock->save();
+                                                } else {
+                                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                    throw new \Exception(json_encode($dat));
+                                                }
+                                            }
+                                        }
+                                        //SI NO TIENE STOCK REGISTRADO
+                                        else {
+                                            $stock = new Stockproducto();
+                                            $stock->sucursal_id = $request->input('sucursal_id');
+                                            $stock->producto_id = $value->presentacion_id;
+                                            if (STOCK_NEGATIVO == 'S') {
+                                                $stock->cantidad = $Detalle->cantidad * (-1) * $value->cantidad;
+                                                $stock->save();
+                                            } else {
+                                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                throw new \Exception(json_encode($dat));
+                                            }
+                                            $stock->save();
+                                        }
                                     }
                                 }
-                            } else {
-                                $stock = new Stockproducto();
-                                $stock->sucursal_id = $request->input('sucursal_id');
-                                $stock->producto_id = $value->presentacion_id;
-                                if (STOCK_NEGATIVO == 'S') {
-                                    $stock->cantidad = $Detalle->cantidad * (-1) * $value->cantidad;
-                                    $stock->save();
-                                } else {
-                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
-                                    throw new \Exception(json_encode($dat));
+                                //SI ES UN PRODUCTO
+                                else {
+                                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
+                                    // SI TIENE STOCK REGISTRADO
+                                    if (count($stock) > 0) {
+                                        if ($stock->cantidad >= $Detalle->cantidad) {
+                                            $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
+                                        } else {
+                                            if (STOCK_NEGATIVO == 'S') {
+                                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
+                                            } else {
+                                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                throw new \Exception(json_encode($dat));
+                                            }
+                                        }
+                                        $stock->save();
+                                    }
+                                    //SI NO TIENE STOCK REGISTRADO
+                                    else {
+                                        $stock = new Stockproducto();
+                                        $stock->sucursal_id = $request->input('sucursal_id');
+                                        $stock->producto_id = $Detalle->producto_id;
+                                        if (STOCK_NEGATIVO == 'S') {
+                                            $stock->cantidad = $Detalle->cantidad * (-1);
+                                        } else {
+                                            $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                            throw new \Exception(json_encode($dat));
+                                        }
+                                        $stock->save();
+                                    }
                                 }
-                                $stock->save();
-                            }
-                        }
-                    } else {
-                        $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
-                        if (count($stock) > 0) {
-                            if ($stock->cantidad >= $Detalle->cantidad) {
-                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
-                            } else {
-                                if (STOCK_NEGATIVO == 'S') {
-                                    $stock->cantidad = $stock->cantidad - $Detalle->cantidad;
-                                } else {
-                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
-                                    throw new \Exception(json_encode($dat));
+                            //FIN DISMINUIR STOCK DEL PRODUCTO
+                        }else{
+                            $rept='';
+
+                            //DISMINUIR STOCK DE CADA UNO DE LOS PRODUCTOS DE LA PROMOCION
+                            $lista = Detallepromocion::where('promocion_id','=',$Detalle->promocion_id)->get();
+                            foreach ($lista as $key => $detallepromo) {
+                            //DISMINUIR STOCK DEL PRODUCTO
+                                //SI ES UNA PRESENTACION
+                                $presentaciones = Detalleproducto::where('producto_id', '=', $detallepromo->producto_id)->get();
+                                if (count($presentaciones) > 0) {
+                                    //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
+                                    foreach ($presentaciones as $key => $presentacion) {
+                                        $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->first();
+                                        //SI TIENE STOCK REGISTRADO
+                                        if (count($stock) > 0) {
+                                            //SI EL STOCK ES SUFICIENTE
+                                            if ($stock->cantidad >= ($Detalle->cantidad * $presentacion->cantidad * $detallepromo->cantidad)) {
+                                                $stock->cantidad = $stock->cantidad - ($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
+$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
+                                                $stock->save();
+                                            }
+                                            //SI NO HAY STOCK SUFICIENTE
+                                            else {
+                                                if (STOCK_NEGATIVO == 'S') {
+                                                    $stock->cantidad = $stock->cantidad - ($Detalle->cantidad *$detallepromo->cantidad* $presentacion->cantidad);
+$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
+                                                    $stock->save();
+                                                } else {
+                                                    $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                    throw new \Exception(json_encode($dat));
+                                                }
+                                            }
+                                        }
+                                        //SI NO TIENE STOCK REGISTRADO
+                                        else {
+                                            $stock = new Stockproducto();
+                                            $stock->sucursal_id = $request->input('sucursal_id');
+                                            $stock->producto_id = $presentacion->presentacion_id;
+                                            if (STOCK_NEGATIVO == 'S') {
+                                                $stock->cantidad =(-1)*$Detalle->cantidad *$detallepromo->cantidad * $presentacion->cantidad;
+$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);                                                
+                                                $stock->save();
+                                            } else {
+                                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                throw new \Exception(json_encode($dat));
+                                            }
+                                        }
+                                    }
                                 }
+                                //SI ES UN PRODUCTO
+                                else {
+                                    $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->first();
+                                    // SI TIENE STOCK REGISTRADO
+                                    if (count($stock) > 0) {
+                                        if ($stock->cantidad >= $Detalle->cantidad*$detallepromo->cantidad) {
+                                            $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$detallepromo->cantidad;
+                                        } else {
+                                            if (STOCK_NEGATIVO == 'S') {
+                                                $stock->cantidad = $stock->cantidad - $Detalle->cantidad*$detallepromo->cantidad;
+                                            } else {
+                                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                                throw new \Exception(json_encode($dat));
+                                            }
+                                        }
+                                        $stock->save();
+                                    }
+                                    //SI NO TIENE STOCK REGISTRADO
+                                    else {
+                                        $stock = new Stockproducto();
+                                        $stock->sucursal_id = $request->input('sucursal_id');
+                                        $stock->producto_id = $detallepromo->producto_id;
+                                        if (STOCK_NEGATIVO == 'S') {
+                                            $stock->cantidad = $Detalle->cantidad *$detallepromo->cantidad*(-1);
+                                        } else {
+                                            $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
+                                            throw new \Exception(json_encode($dat));
+                                        }
+                                        $stock->save();
+                                    }
+                                }
+                            //FIN DISMINUIR STOCK DEL PRODUCTO
                             }
-                            $stock->save();
-                        } else {
-                            $stock = new Stockproducto();
-                            $stock->sucursal_id = $request->input('sucursal_id');
-                            $stock->producto_id = $Detalle->producto_id;
-                            if (STOCK_NEGATIVO == 'S') {
-                                $stock->cantidad = $Detalle->cantidad * (-1);
-                            } else {
-                                $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
-                                throw new \Exception(json_encode($dat));
-                            }
-                            $stock->save();
                         }
                     }
-                }
-                $movimiento        = new Movimiento();
-                $movimiento->fecha = date("Y-m-d");
-                $movimiento->numero = Movimiento::NumeroSigue(4, 6);
-                $movimiento->responsable_id = $user->person_id;
-                $movimiento->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
-                $movimiento->subtotal = 0;
-                $movimiento->igv = 0;
-                $movimiento->total = str_replace(",", "", $request->input('total'));
-                $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
-                $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
-                $movimiento->tipomovimiento_id = 4;
-                $movimiento->tipodocumento_id = 6;
-                $movimiento->concepto_id = 3;
-                $movimiento->voucher = '';
-                $movimiento->comentario = 'Pago de Documento de Venta ' . $Venta->numero;
-                $movimiento->situacion = 'N';
-                $movimiento->movimiento_id = $Venta->id;
+                //-----------------------FIN DETALLES VENTA------------------------------
 
-                $movimiento->sucursal_id = $request->input('sucursal_id');
-                $movimiento->caja_id = session('caja_sesion_id', '');
-                $movimiento->save();
-                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id);
+                //----------------------CAJA--------------------------------
+                    $movimiento        = new Movimiento();
+                    $movimiento->fecha = date("Y-m-d");
+                    $movimiento->numero = Movimiento::NumeroSigue(4, 6);
+                    $movimiento->responsable_id = $user->person_id;
+                    $movimiento->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
+                    $movimiento->subtotal = 0;
+                    $movimiento->igv = 0;
+                    $movimiento->total = str_replace(",", "", $request->input('total'));
+                    $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                    $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                    $movimiento->tipomovimiento_id = 4;
+                    $movimiento->tipodocumento_id = 6;
+                    $movimiento->concepto_id = 3;
+                    $movimiento->voucher = '';
+                    $movimiento->comentario = 'Pago de Documento de Venta ' . $Venta->numero;
+                    $movimiento->situacion = 'N';
+                    $movimiento->movimiento_id = $Venta->id;
+
+                    $movimiento->sucursal_id = $request->input('sucursal_id');
+                    $movimiento->caja_id = session('caja_sesion_id', '');
+                    $movimiento->save();
+                //------------------------FIN CAJA--------------------------------
+
+                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id, "Respuestaaa:"=>$rept);
             });
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -440,33 +551,68 @@ class VentaController extends Controller
             $venta->save();
             $lst = Detallemovimiento::where('movimiento_id', '=', $id)->get();
             foreach ($lst as $key => $Detalle) {
-                $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
-                if (count($detalleproducto) > 0) {
-                    foreach ($detalleproducto as $key => $value) {
-                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                if ($Detalle->producto_id && $Detalle->producto_id != null ) {
+                    $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
+                    if (count($detalleproducto) > 0) {
+                        foreach ($detalleproducto as $key => $value) {
+                            $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                            if (count($stock) > 0) {
+                                $stock->cantidad = $stock->cantidad +($Detalle->cantidad * $value->cantidad);
+                                $stock->save();
+                            } else {
+                                $stock = new Stockproducto();
+                                $stock->sucursal_id = $venta->sucursal_id;
+                                $stock->producto_id = $value->presentacion_id;
+                                $stock->cantidad = $Detalle->cantidad * $value->cantidad;
+                                $stock->save();
+                            }
+                        }
+                    } else {
+                        $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
                         if (count($stock) > 0) {
-                            $stock->cantidad = $stock->cantidad + $Detalle->cantidad * $value->cantidad;
+                            $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
                             $stock->save();
                         } else {
                             $stock = new Stockproducto();
                             $stock->sucursal_id = $venta->sucursal_id;
-                            $stock->producto_id = $value->presentacion_id;
-                            $stock->cantidad = $Detalle->cantidad * $value->cantidad;
+                            $stock->producto_id = $Detalle->producto_id;
+                            $stock->cantidad = $Detalle->cantidad;
                             $stock->save();
                         }
                     }
                 } else {
-                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
-                    if (count($stock) > 0) {
-                        $stock->cantidad = $stock->cantidad + $Detalle->cantidad;
-                        $stock->save();
-                    } else {
-                        $stock = new Stockproducto();
-                        $stock->sucursal_id = $venta->sucursal_id;
-                        $stock->producto_id = $Detalle->producto_id;
-                        $stock->cantidad = $Detalle->cantidad;
-                        $stock->save();
+                    $detallespromocion = Detallepromocion::where('promocion_id', $Detalle->promocion_id)->get();
+                    foreach($detallespromocion as $key => $detallepromo){
+                        $presentaciones = Detalleproducto::where('producto_id', '=', $detallepromo->producto_id)->get();
+                        if(count($presentaciones)>0){
+                            foreach($presentaciones as $key => $presentacion){
+                                $stock = Stockproducto::where('producto_id', $presentacion->presentacion_id)->where('sucursal_id',$venta->sucursal_id)->first();
+                                if($stock){
+                                    $stock->cantidad = $stock->cantidad + ($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
+                                    $stock->save();
+                                }else{
+                                    $stock = new StockProducto();
+                                    $stock->producto_id = $presentacion->presentacion_id;
+                                    $stock->sucursal_id = $venta->sucursal_id;
+                                    $stock->cantidad    = ($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
+                                    $stock->save();
+                                }
+                            }
+                        }else{
+                            $stock = StockProducto::where('producto_id',$detallepromo->producto_id)->where('sucursal_id',$venta->sucursal_id)->first();
+                            if($stock){
+                                $stock->cantidad = $stock->cantidad + ($Detalle->cantidad * $detallepromo->cantidad);
+                                $stock->save();
+                            }else{
+                                $stock = new StockProducto();
+                                $stock->producto_id = $detallepromo->producto_id;
+                                $stock->sucursal_id = $venta->sucursal_id;
+                                $stock->cantidad = $Detalle->cantidad * $detallepromo->cantidad;
+                                $stock->save();
+                            }
+                        }
                     }
+
                 }
             }
             $caja = Movimiento::where('movimiento_id', '=', $venta->id)->where('tipomovimiento_id', '=', '4')->first();
@@ -512,9 +658,25 @@ class VentaController extends Controller
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;
+            }
+        }
+        $resultado = Promocion::where('nombre','like','%'.strtoupper($descripcion).'%')->get();
+        if(count($resultado)>0){
+            foreach ($resultado as $key => $value){
+                $data[$c] = array(
+                        'producto' => $value->nombre,
+                        'codigobarra' => '',
+                        'precioventa' => $value->precioventa,
+                        'preciocompra' => 0,
+                        'idproducto' => $value->id,
+                        'tipo' => 'C',
+                        'stock' => 0,
+                    );
+                $c++;                
             }
         }
         return json_encode($data);
@@ -539,6 +701,7 @@ class VentaController extends Controller
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;
