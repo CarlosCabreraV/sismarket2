@@ -577,7 +577,7 @@ class ProductoController extends Controller
     public function export()
     {
         set_time_limit(300);
-        //ini_set('memory_limit', '-1');
+        ini_set('memory_limit', '1024M');
         Producto::generarCodBarras();
         $lista = Producto::orderBy("nombre", "ASC")->limit(500)->get();
         // return json_encode($lista);
