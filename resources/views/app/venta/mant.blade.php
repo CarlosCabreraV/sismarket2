@@ -376,7 +376,7 @@ function guardarPago (entidad, idboton) {
             msg += " *Debe registrar un correcto RUC \n";   
         }
     }
-    if($("#tarjeta").val() > $('#total').val() && carro.length != 0){
+    if(parseFloat($("#tarjeta").val()) > parseFloat($('#total').val()) && carro.length != 0){
         band = false;
         msg += " *El monto de la tarjeta no debe superar al total \n";
     }
