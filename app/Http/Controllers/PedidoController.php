@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Configuracion;
 use Illuminate\Http\Request;
 
 use Validator;
@@ -9,6 +10,7 @@ use App\Http\Requests;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use App\Pedido;
+use App\Sucursal;
 use App\Tipodocumento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +40,7 @@ class PedidoController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        define("CODIGO_BARRAS", Configuracion::where("nombre", "=", "CODIGO_BARRAS")->first()->valor);
     }
 
     /**
@@ -119,6 +122,33 @@ class PedidoController extends Controller
             $cboTipoDocumento = $cboTipoDocumento + array($v->id => $v->nombre);
         }
         return view($this->folderview.'.admin')->with(compact('entidad','cboEstados', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(Request $request)
+    {
+        $current_user     = Auth::User();
+        $listar   = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad  = 'Pedido';
+        $pedido = null;
+        $formData = array('pedido.store');
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $conf_codigobarra = CODIGO_BARRAS;
+        $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }
+        $boton    = 'Registrar';
+        return view($this->folderview . '.mant')->with(compact('pedido', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
+    }
+
+    public function store(Request $request){
+        return ;
     }
 
 }

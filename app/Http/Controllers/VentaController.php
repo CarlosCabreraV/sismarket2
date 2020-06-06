@@ -250,7 +250,6 @@ class VentaController extends Controller
                         $Detalle->save();
                         
                         if ($request->input('txtTipo'.$arr[$c])=="P") {
-                            $rept='';
                             //DISMINUIR STOCK DEL PRODUCTO
                                 //SI ES UNA PRESENTACION
                                 $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
@@ -325,7 +324,6 @@ class VentaController extends Controller
                                 }
                             //FIN DISMINUIR STOCK DEL PRODUCTO
                         }else{
-                            $rept='';
 
                             //DISMINUIR STOCK DE CADA UNO DE LOS PRODUCTOS DE LA PROMOCION
                             $lista = Detallepromocion::where('promocion_id','=',$Detalle->promocion_id)->get();
@@ -342,14 +340,12 @@ class VentaController extends Controller
                                             //SI EL STOCK ES SUFICIENTE
                                             if ($stock->cantidad >= ($Detalle->cantidad * $presentacion->cantidad * $detallepromo->cantidad)) {
                                                 $stock->cantidad = $stock->cantidad - ($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
-$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
                                                 $stock->save();
                                             }
                                             //SI NO HAY STOCK SUFICIENTE
                                             else {
                                                 if (STOCK_NEGATIVO == 'S') {
                                                     $stock->cantidad = $stock->cantidad - ($Detalle->cantidad *$detallepromo->cantidad* $presentacion->cantidad);
-$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
                                                     $stock->save();
                                                 } else {
                                                     $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
@@ -364,7 +360,6 @@ $rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->prese
                                             $stock->producto_id = $presentacion->presentacion_id;
                                             if (STOCK_NEGATIVO == 'S') {
                                                 $stock->cantidad =(-1)*$Detalle->cantidad *$detallepromo->cantidad * $presentacion->cantidad;
-$rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->presentacion->nombre.' Stock:-'.($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);                                                
                                                 $stock->save();
                                             } else {
                                                 $dat[0] = array("respuesta" => "ERROR", "msg" => "STOCK NEGATIVO: " . $stock->producto->nombre);
@@ -434,7 +429,7 @@ $rept+= 'Prom.:'.$detallepromo->promocion->nombre.' Pres.:'.$presentacion->prese
                     $movimiento->save();
                 //------------------------FIN CAJA--------------------------------
 
-                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id, "Respuestaaa:"=>$rept);
+                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id);
             });
         } catch (\Exception $e) {
             return $e->getMessage();
