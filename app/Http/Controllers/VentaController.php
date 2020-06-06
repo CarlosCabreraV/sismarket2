@@ -250,7 +250,7 @@ class VentaController extends Controller
                         $Detalle->save();
                         
                         if ($request->input('txtTipo'.$arr[$c])=="P") {
-
+                            $rept='';
                             //DISMINUIR STOCK DEL PRODUCTO
                                 //SI ES UNA PRESENTACION
                                 $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
