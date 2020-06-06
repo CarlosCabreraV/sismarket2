@@ -579,7 +579,7 @@ class ProductoController extends Controller
         set_time_limit(300);
         ini_set('memory_limit', '1024M');
         Producto::generarCodBarras();
-        $lista = Producto::orderBy("nombre", "ASC")->limit(500)->get();
+        $lista = Producto::orderBy("nombre", "ASC")->get();
         // return json_encode($lista);
         $pdf = PDF::loadView('app.producto.pdf', compact('lista'));
         return $pdf->stream('ticket.pdf');
