@@ -78,10 +78,10 @@ class ProductoController extends Controller
             ->where('producto.nombre', 'like', '%' . strtoupper($nombre) . '%')
             ->where('producto.codigobarra', 'like', '%' . trim($codigobarra) . '%');
 
-        if ($request->input('categoria') != "") {
+        if ($request->input('categoria') != "" && $request->input('categoria') != "0") {
             $resultado = $resultado->where('category.id', '=', $request->input('categoria'));
         }
-        if ($request->input('subcategoria') != "") {
+        if ($request->input('subcategoria') != "" && $request->input('subcategoria') != "0") {
             $resultado = $resultado->where('categoria.id', '=', $request->input('subcategoria'));
         }
         if ($request->input('marca') != "") {
