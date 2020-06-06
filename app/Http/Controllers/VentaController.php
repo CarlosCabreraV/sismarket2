@@ -250,7 +250,6 @@ class VentaController extends Controller
                         $Detalle->save();
                         
                         if ($request->input('txtTipo'.$arr[$c])=="P") {
-                            $rept='';
                             //DISMINUIR STOCK DEL PRODUCTO
                                 //SI ES UNA PRESENTACION
                                 $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
@@ -430,7 +429,7 @@ class VentaController extends Controller
                     $movimiento->save();
                 //------------------------FIN CAJA--------------------------------
 
-                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id, "Respuestaaa:"=>$rept);
+                $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id);
             });
         } catch (\Exception $e) {
             return $e->getMessage();
