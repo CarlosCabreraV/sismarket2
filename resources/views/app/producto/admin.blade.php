@@ -79,6 +79,7 @@
 							  <div class="card-tools">
 								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 								{!! Form::button(' <i class="fa fa-file fa-fw"></i> Importar', array('class' => 'btn  btn-outline-success', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["import"], array('listar'=>'SI')).'\', \'Importar Productos\', this);')) !!}
+								{!! Form::button(' <i class="fa fa-file-pdf fa-fw"></i> Exportar', array('class' => 'btn  btn-outline-danger', 'id' => 'btnNuevo', 'onclick' => 'imprimir();')) !!}
 							  </div>
 							</div>
 							<!-- /.card-header -->
@@ -175,5 +176,9 @@
 	});
 	function excel(){
         window.open("producto/excel?nombre="+$("#nombre").val()+"&marca="+$("#marca").val()+"&categoria="+$("#categoria").val(),"_blank");
+    }
+
+	function imprimir(){
+        window.open("producto/export","_blank");
     }
 </script>
