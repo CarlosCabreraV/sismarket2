@@ -39,7 +39,7 @@
                     <td style="height: 20px; text-align:center;" > - </td>
                 @endif
                 <td style="height: 20px; text-align:center;" >{{$value->codigobarra}}</td>
-                <td style="height: 20px; text-align:center; padding:10px;" > <div style="margin-left: 18px"> {!!$value->barcode!!} </div> </td>
+                <td style="height: 20px; text-align:center; padding:10px;" > <div style="margin-left: 18px"> <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($value->codigobarra, 'C128', 2, 40)}}" alt="barcode" /> </div> </td>
             </tr>
         @endforeach
     </tbody>

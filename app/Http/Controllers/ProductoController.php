@@ -577,9 +577,9 @@ class ProductoController extends Controller
     public function export()
     {
         set_time_limit(300);
-        ini_set('memory_limit', '-1');
+        //ini_set('memory_limit', '-1');
         Producto::generarCodBarras();
-        $lista = Producto::orderBy("nombre", "ASC")->get();
+        $lista = Producto::orderBy("nombre", "ASC")->limit(500)->get();
         // return json_encode($lista);
         $pdf = PDF::loadView('app.producto.pdf', compact('lista'));
         return $pdf->stream('ticket.pdf');
