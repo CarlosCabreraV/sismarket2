@@ -186,7 +186,11 @@ Route::group(['middleware' => 'auth'], function () {
     /* REPORTE CAJA*/
     Route::get('cajareporte/excelCaja', 'CajareporteController@excelCaja')->name('cajareporte.excelCaja');
     Route::resource('cajareporte', 'CajareporteController', array('except' => array('show')));
-
+    
+    /* REPORTE CATALOGO PRODUCTOS */
+    Route::get('catalogoreporte/excelCatalogo', 'CatalogoreporteController@excelCatalogo')->name('catalogoreporte.excelCatalogo');
+    Route::resource('catalogoreporte', 'CatalogoreporteController', array('except' => array('show')));
+    
     /* REPORTE DETALLE*/
     Route::get('detallereporte/excelDetalle', 'DetallereporteController@excelDetalle')->name('detallereporte.excelDetalle');
     Route::resource('detallereporte', 'DetallereporteController', array('except' => array('show')));

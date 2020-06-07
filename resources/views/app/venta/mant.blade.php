@@ -490,11 +490,14 @@ function buscarProducto(valor){
                         a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
                         $("#tbodyProducto").append(a);           
                     }
+                    
                     $('#tablaProducto').DataTable({
                         "scrollY":        "200px",
                         "scrollCollapse": true,
                         "paging":         false
                     });
+                        
+                       
                     $('#tablaProducto_filter').css('display','none');
                     $("#tablaProducto_info").css("display","none");
                 }

@@ -140,15 +140,36 @@ class PedidoController extends Controller
         $conf_codigobarra = CODIGO_BARRAS;
         $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
         $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        $cboModoPago = ["EFECTIVO" =>'Efectivo','TARJETA'=>'Tarjeta','YAPE'=>'Yape','DEPOSITO'=>'Deposito'];
+        $cboTarjetas = ["VISA" =>'Visa','MASTERCARD'=>'Mastercard'];
         if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
             $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
         }
         $boton    = 'Registrar';
-        return view($this->folderview . '.mant')->with(compact('pedido', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
+        return view($this->folderview . '.mant')->with(compact('cboTarjetas','cboModoPago','pedido', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
     }
 
     public function store(Request $request){
-        return ;
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $reglas     = array(
+            'persona' => 'required|max:500',
+            'sucursal_id'   => 'required|integer|exists:sucursal,id,deleted_at,NULL',
+            'telefono'   => 'required',
+        );
+        $mensajes = array(
+            'nombre.required'         => 'Debe ingresar un cliente',
+            'sucursal_id.required' => 'Debe seleccionar una sucursal.'
+        );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+        $user = Auth::user();
+        $dat = array();
+
+        $caja_sesion_id     = session('caja_sesion_id', '0');
+        $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
+        $estado_caja        = $caja_sesion->estado;
     }
 
 }

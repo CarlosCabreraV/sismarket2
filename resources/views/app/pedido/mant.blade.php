@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-5 ">
         <!--DATOS PEDIDO -->
-            <div class="card ">
+            <div class="card bg-light">
                 <div class="card-body">
                     <div class="card-text">
                         <div class="row">
@@ -78,7 +78,7 @@
             <div class="row">
                 
                 <div class="col-md-6 ">
-                    <div class="card">
+                    <div class="card bg-light">
                         <div class="card-header bg-success">
                             <h6 class="card-title">Servicio delivery</h6>
                         </div>
@@ -93,7 +93,7 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card ">
+                    <div class="card bg-light">
                         <div class="card-body ">
                                 <div class="row form-group">
                                             <label class="col-md-5 col-form-label" style="font-size:20px; font-weight:bold;">TOTAL :</label>
@@ -110,7 +110,7 @@
         </div>
         <!--DATOS AGREGAR PRODUCTO -->
         <div class="col-md-7 ">
-            <div class="card ">
+            <div class="card bg-light ">
                 <div class="card-body">
                     <div class="card-text">
                         <div class="row">
@@ -136,23 +136,13 @@
                         </div>
                         <!-- RESULTADOS BUSQUEDA -->
                         <div class="row mx-2">
-                            <div class="table-responsive busqueda">
-                                <table class="table-striped table-hover table-busqueda " id='tablaProducto' width='100%'>
-                                    <thead >
-                                            <th>Cod.</th>
-                                            <th>Producto</th>
-                                            <th>Stock</th>
-                                            <th>P.Unit</th>
-                                    </thead>
-                                    <tbody id='tbodyProducto'>
-                                        
-                                    </tbody>
-                                </table>
+                            <div class="table-responsive busqueda " id='divBusqueda'>
+                                
                             </div>
                         </div>
                         <!--FIN RESULTADOS BUSQUEDA -->
                         <!-- DETALLES PEDIDO-->
-                        <div class="row mt-3 ">
+                        <div class="row mt-3 d-none" id ='divDetalles'>
                             <div class="table-responsive">
                                 <table class=" table table-sm table-striped table-hover table-borderless " width='100%' >
                                     <thead class="thead-dark">
@@ -174,9 +164,50 @@
                     </div>
                 </div>
             </div>
+
+            <!--PAGO -->
+                <div class="card card-outline card-lightblue d-none" id='divPago'>
+                    <div class="card-body">
+                        <div class="row form-group" style="margin-bottom: 0px !important;">
+                            <label class="col-md-2">Modo pago:</label>
+                            <div class="col-md-3">
+                                    {!! Form::select('modopago', $cboModoPago,'EFECTIVO', array('class' => 'form-control form-control-sm', 'id' => 'modopago' , 'onchange'=>'VerificarModoPago(this.value)')) !!}
+                            </div>
+                            <div class="col-md-5 d-none" id='divcboTarjeta'>
+                                <div class="row " >
+                                    <label class="col-md-3">    Tarjeta</label>
+                                    <div class="col-md-9">
+                                        {!! Form::select('tarjeta', $cboTarjetas,'', array('class' => 'form-control form-control-sm', 'id' => 'tarjeta')) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div  id='divefectivo' class="col-md-7">
+                                <div class="row">
+                                    <div class="col-md-7" >
+                                        <div class="row">
+                                            <label class="col-md-4">Efectivo</label>
+                                            <div class="col-md-8">
+                                                {!! Form::text('dinero','', array('class' => 'form-control form-control-sm ', 'id' => 'dinero','onkeyup' => 'calcularVuelto();')) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" >
+                                        <div class="row">
+                                            <label class="col-md-4">Vuelto</label>
+                                            <div class="col-md-8">
+                                                {!! Form::text('vuelto','', array('class' => 'form-control form-control-sm', 'id' => 'vuelto', 'readonly'=>true)) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            <!-- FIN PAGO -->
             <div class="form-group">
                 <div class="col-lg-12 col-md-12 col-sm-12 text-right">
-                    {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => '')) !!}
+                    {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPago(\''.$entidad.'\', this);')) !!}
                     {!! Form::button('<i class="fa fa-undo fa-lg"></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
                 </div>
             </div>
@@ -202,6 +233,7 @@
 $(document).ready(function() {
 	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
+    $('#totalpagado').inputmask("decimal", { min: 0, allowMinus: false });
 
     $(':input[id="descripcion"]').focus();
 
@@ -311,6 +343,19 @@ function buscarProducto(valor){
                 url: "venta/buscarproducto",
                 data:"sucursal_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="sucursal_id"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
                 success: function(a) {
+
+                    let tabla = `<table class="table-striped table-hover table-busqueda " id='tablaProducto' width='100%'>
+                                    <thead >
+                                            <th>Cod.</th>
+                                            <th>Producto</th>
+                                            <th>Stock</th>
+                                            <th>P.Unit</th>
+                                    </thead>
+                                    <tbody id='tbodyProducto'>
+                                        
+                                    </tbody>
+                                </table>`;
+                    $('#divBusqueda').html(tabla);
                     datos=JSON.parse(a);
                     var pag=parseInt($("#pag").val());
                     var d=0;
@@ -323,10 +368,11 @@ function buscarProducto(valor){
                         a = a + "<td>"+datos[c].producto+"</td><td>"+datos[c].stock+"</td><td>"+datos[c].precioventa+"</td></tr>";
                         $("#tbodyProducto").append(a);           
                     }
+                    
                     $('#tablaProducto').DataTable({
                         "scrollY":        "150px",
                         "scrollCollapse": true,
-                        "paging":         false
+                        "paging":         false,
                     });
                     $('#tablaProducto_filter').css('display','none');
                     $("#tablaProducto_info").css("display","none");
@@ -348,6 +394,7 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
             band=false;
         }      
     }
+    
     if(band){
         var strDetalle = "<tr id='tr"+idproducto+"'><td align='center'><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' />"+
                             "<input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' />"+
@@ -364,6 +411,10 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         "<a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
        
         $("#tbDetalle").append(strDetalle);
+        if(carro.length == 0){
+            $('#divPago').removeClass('d-none');
+            $('#divDetalles').removeClass('d-none');
+        }
          carro.push(idproducto);
         if(idant>0){
             $("#tdDescripcion"+idant).css('font-size','');
@@ -384,7 +435,10 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
         });
         $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
         $('#txtCantidad'+idproducto).select();
+        
         calcularTotal();
+        calcularVuelto();
+
     }else{
         if(idant>0){
             $("#tdDescripcion"+idant).css('font-size','');
@@ -405,8 +459,12 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
 				$('#descripcion').focus();
 			}
         });
+        
         calcularTotalItem(idproducto);
+        calcularVuelto();
+
     }
+    
 }
 function calcularTotal(){
     var total2=0;
@@ -416,6 +474,7 @@ function calcularTotal(){
     }
     $("#total").val(total2);
     $("#totalpagado").val(total2);
+    calcularVuelto();
 }
 
 function calcularTotalItem(id){
@@ -424,6 +483,7 @@ function calcularTotalItem(id){
     var total=Math.round((pv*cant) * 100) / 100;
     $("#txtTotal"+id).val(total);
     calcularTotal();
+    calcularVuelto();
 }
 
 function quitarProducto(id){
@@ -433,13 +493,36 @@ function quitarProducto(id){
             carro.splice(c,1);
         }
     }
+    if(carro.length == 0){
+            $('#divPago').addClass('d-none');
+            $('#divDetalles').addClass('d-none');
+    }
     calcularTotal();
+    calcularVuelto();
+}
+function calcularVuelto(){
+    var tot=parseFloat($("#total").val());
+    var din=parseFloat($("#dinero").val());
+    var vue=Math.round((din - tot) * 100) / 100;
+    $("#vuelto").val(vue);
 }
 function deliveryChange(check){
     if(check){
         $('#delivery').val("S");
     }else{
         $('#delivery').val("N");
+    }
+}
+function VerificarModoPago(val){
+    if (val == 'TARJETA'){
+        $('#divcboTarjeta').removeClass('d-none');
+        $('#divefectivo').addClass('d-none');
+    }else if(val =='EFECTIVO'){
+        $('#divcboTarjeta').addClass('d-none');
+        $('#divefectivo').removeClass('d-none');
+    }else{
+        $('#divcboTarjeta').addClass('d-none');
+        $('#divefectivo').addClass('d-none');
     }
 }
 
