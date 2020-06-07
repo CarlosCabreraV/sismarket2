@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DNS1D;
 
 class Producto extends Model
 {
@@ -52,5 +53,26 @@ class Producto extends Model
             })
             ->select("producto.*")
             ->orderBy('nombre', 'ASC');
+    }
+
+    /**
+     * Genera el codigo de barras de todos los productos que no tengan codigo
+     *
+     * @return void
+     */
+    public static function generarCodBarras()
+    {
+        $ultimocod = Producto::orderBy("codigobarra", "DESC")->first()->codigobarra;
+        if ($ultimocod == null && strlen($ultimocod) == 0) {
+            $ultimocod = 0;
+        }
+        $ultimocod++;
+        $lista = Producto::where("codigobarra", "=", "")->orderBy("nombre", "ASC")->get();
+        foreach ($lista as $key => $producto) {
+            $producto->codigobarra = str_pad($ultimocod, 5, '0', STR_PAD_LEFT);
+            $producto->barcode = DNS1D::getBarcodeHTML($producto->codigobarra, 'C128', 2, 40, 'black');
+            $producto->save();
+            $ultimocod++;
+        }
     }
 }

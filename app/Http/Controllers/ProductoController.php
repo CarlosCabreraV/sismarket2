@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Producto;
+use App\Configuracion;
 use App\Detalleproducto;
 use App\Marca;
 use App\Unidad;
 use App\Categoria;
+use App\Category;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Imports\ProductoImport;
 use App\Sucursal;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ProductoController extends Controller
 {
@@ -28,17 +31,19 @@ class ProductoController extends Controller
     protected $tituloRegistrar = 'Registrar Producto';
     protected $tituloModificar = 'Modificar Producto';
     protected $tituloEliminar  = 'Eliminar Producto';
-    protected $rutas           = array('create' => 'producto.create', 
-            'edit'   => 'producto.edit', 
-            'delete' => 'producto.eliminar',
-            'search' => 'producto.buscar',
-            'index'  => 'producto.index',
-            'presentacion'   => 'producto.presentacion', 
-            'import' => 'producto.import',
-        );
+    protected $rutas           = array(
+        'create' => 'producto.create',
+        'edit'   => 'producto.edit',
+        'delete' => 'producto.eliminar',
+        'search' => 'producto.buscar',
+        'index'  => 'producto.index',
+        'presentacion'   => 'producto.presentacion',
+        'import' => 'producto.import',
+        'export' => 'producto.export',
+    );
 
 
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -46,6 +51,7 @@ class ProductoController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        define("CODIGO_BARRAS", Configuracion::where("nombre", "=", "CODIGO_BARRAS")->first()->valor);
     }
 
 
@@ -62,34 +68,37 @@ class ProductoController extends Controller
         $nombre           = Libreria::getParam($request->input('nombre'));
         $sucursal_id      = Libreria::getParam($request->input('sucursal_id'));
         $codigobarra      = Libreria::getParam($request->input('codigobarra'));
-        $resultado        = Producto::join('marca','marca.id','=','producto.marca_id')
-                                ->join('unidad','unidad.id','=','producto.unidad_id')
-                                ->join('categoria','categoria.id','=','producto.categoria_id')
-                                ->join('category','categoria.categoria_id','=','category.id')
-                                ->leftjoin('stockproducto',function($subquery) use ($sucursal_id){
-                                    $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
-                                })
-                                ->where('producto.nombre','like','%'.strtoupper($nombre).'%')
-                                ->where('producto.codigobarra','like','%'.trim($codigobarra).'%');
-         
-        if($request->input('categoria')!=""){
-            $resultado = $resultado->where('category.id','=',$request->input('categoria'));
+        $resultado        = Producto::join('marca', 'marca.id', '=', 'producto.marca_id')
+            ->join('unidad', 'unidad.id', '=', 'producto.unidad_id')
+            ->join('categoria', 'categoria.id', '=', 'producto.categoria_id')
+            ->join('category', 'categoria.categoria_id', '=', 'category.id')
+            ->leftjoin('stockproducto', function ($subquery) use ($sucursal_id) {
+                $subquery->whereRaw('stockproducto.producto_id = producto.id')->where("stockproducto.sucursal_id", "=", $sucursal_id);
+            })
+            ->where('producto.nombre', 'like', '%' . strtoupper($nombre) . '%')
+            ->where('producto.codigobarra', 'like', '%' . trim($codigobarra) . '%');
+
+        if ($request->input('categoria') != "" && $request->input('categoria') != "0") {
+            $resultado = $resultado->where('category.id', '=', $request->input('categoria'));
         }
-        if($request->input('subcategoria')!=""){
-            $resultado = $resultado->where('categoria.id','=',$request->input('subcategoria'));
+        if ($request->input('subcategoria') != "" && $request->input('subcategoria') != "0") {
+            $resultado = $resultado->where('categoria.id', '=', $request->input('subcategoria'));
         }
-        if($request->input('marca')!=""){
-            $resultado = $resultado->where('marca.id','=',$request->input('marca'));
+        if ($request->input('marca') != "") {
+            $resultado = $resultado->where('marca.id', '=', $request->input('marca'));
         }
-        if($request->input('precio')=="S"){
-            $resultado = $resultado->where('producto.precioventa','=',0);
+        if ($request->input('precio') == "S") {
+            $resultado = $resultado->where('producto.precioventa', '=', 0);
         }
-        $resultado = $resultado->orderBy('producto.nombre','asc')
-                            ->select('producto.*','categoria.nombre as categoria2','marca.nombre as marca2','unidad.nombre as unidad2','stockproducto.cantidad as stock');
+        $resultado = $resultado->orderBy('producto.nombre', 'asc')
+            ->select('producto.*', 'categoria.nombre as categoria2', 'marca.nombre as marca2', 'unidad.nombre as unidad2', 'stockproducto.cantidad as stock');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Producto', 'numero' => '1');
+        if (CODIGO_BARRAS == "S") {
+            $cabecera[]       = array('valor' => 'Cod. Barra', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Categoria', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Marca', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Unidad', 'numero' => '1');
@@ -97,10 +106,11 @@ class ProductoController extends Controller
         $cabecera[]       = array('valor' => 'P. Venta', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Stock', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '4');
-        
+
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
+        $conf_codbarras   = CODIGO_BARRAS;
         if (count($lista) > 0) {
             $clsLibreria     = new Libreria();
             $paramPaginacion = $clsLibreria->generarPaginacion($lista, $pagina, $filas, $entidad);
@@ -110,9 +120,9 @@ class ProductoController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
+            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf_codbarras'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
+        return view($this->folderview . '.list')->with(compact('lista', 'entidad'));
     }
     /**
      * Display a listing of the resource.
@@ -128,18 +138,18 @@ class ProductoController extends Controller
         $current_user = Auth::user();
         $cboCategoria = array('' => 'Todos');
         $cboSubcategoria = array('' => 'Todos');
-        
+
         $cboSucursal =  Sucursal::pluck('nombre', 'id')->all();
         if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
             $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
         }
-            $cboMarca = array('' => 'Todos');
-        $marca = Marca::orderBy('nombre','asc')->get();
-        foreach($marca as $k=>$v){
+        $cboMarca = array('' => 'Todos');
+        $marca = Marca::orderBy('nombre', 'asc')->get();
+        foreach ($marca as $k => $v) {
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
-        
-        return view($this->folderview.'.admin')->with(compact('cboSubcategoria','entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca','cboSucursal'));
+
+        return view($this->folderview . '.admin')->with(compact('cboSubcategoria', 'entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria', 'cboMarca', 'cboSucursal'));
     }
 
     /**
@@ -152,25 +162,33 @@ class ProductoController extends Controller
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $entidad  = 'Producto';
         $producto = null;
-        $cboCategoria = array();
-        $categoria = Categoria::orderBy('nombre','asc')->get();
-        foreach($categoria as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
+        // $cboCategoria = array();
+        // $categoria = Categoria::orderBy('nombre', 'asc')->get();
+        // foreach ($categoria as $k => $v) {
+        //     $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
+        // }
         $cboMarca = array();
-        $marca = Marca::orderBy('nombre','asc')->get();
-        foreach($marca as $k=>$v){
+        $marca = Marca::orderBy('nombre', 'asc')->get();
+        foreach ($marca as $k => $v) {
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
         $cboUnidad = array();
-        $unidad = Unidad::orderBy('nombre','asc')->get();
-        foreach($unidad as $k=>$v){
+        $unidad = Unidad::orderBy('nombre', 'asc')->get();
+        foreach ($unidad as $k => $v) {
             $cboUnidad = $cboUnidad + array($v->id => $v->nombre);
         }
         $formData = array('producto.store');
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboUnidad', 'cboMarca', 'cboCategoria'));
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton    = 'Registrar';
+
+        $cboCategoria = Category::orderBy("nombre", "ASC")->pluck("nombre", "id")->all();
+        $idcategoria = "0";
+        foreach ($cboCategoria as $key => $value) {
+            $idcategoria = $key;
+            break;
+        }
+        $cboSubcategoria = Categoria::where("categoria_id", "=", $idcategoria)->orderBy("nombre", "ASC")->pluck("nombre", "id")->all();
+        return view($this->folderview . '.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboUnidad', 'cboMarca', 'cboCategoria', 'cboSubcategoria'));
     }
 
     /**
@@ -182,22 +200,24 @@ class ProductoController extends Controller
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $reglas     = array('nombre' => 'required|max:50',
-                            'precioventa' => 'required');
+        $reglas     = array(
+            'nombre' => 'required|max:50',
+            'precioventa' => 'required'
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'precioventa.required'         => 'Debe ingresar un precio de venta',
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $dat=array();
-        $error = DB::transaction(function() use($request, &$dat){
+        $dat = array();
+        $error = DB::transaction(function () use ($request, &$dat) {
             $producto = new Producto();
             $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
-            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'),'');
+            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'), '');
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');
@@ -209,8 +229,9 @@ class ProductoController extends Controller
             $producto->consumo = $request->input('consumo');
             $producto->igv = $request->input('igv');
             $producto->save();
-            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id, 'accion'=>'store');
+            $dat[0] = array("respuesta" => "OK", "producto_id" => $producto->id, 'accion' => 'store');
         });
+        Producto::generarCodBarras();
         return is_null($error) ? json_encode($dat) : $error;
     }
 
@@ -239,27 +260,36 @@ class ProductoController extends Controller
         }
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $producto = Producto::find($id);
-        $cboCategoria = array();
-        $categoria = Categoria::orderBy('nombre','asc')->get();
-        foreach($categoria as $k=>$v){
-            $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
-        }
+        $producto->category_id = $producto->categoria->categoria_id;
+        // $cboCategoria = array();
+        // $categoria = Categoria::orderBy('nombre', 'asc')->get();
+        // foreach ($categoria as $k => $v) {
+        //     $cboCategoria = $cboCategoria + array($v->id => $v->nombre);
+        // }
         $cboMarca = array();
-        $marca = Marca::orderBy('nombre','asc')->get();
-        foreach($marca as $k=>$v){
+        $marca = Marca::orderBy('nombre', 'asc')->get();
+        foreach ($marca as $k => $v) {
             $cboMarca = $cboMarca + array($v->id => $v->nombre);
         }
         $cboUnidad = array();
-        $unidad = Unidad::orderBy('nombre','asc')->get();
-        foreach($unidad as $k=>$v){
+        $unidad = Unidad::orderBy('nombre', 'asc')->get();
+        foreach ($unidad as $k => $v) {
             $cboUnidad = $cboUnidad + array($v->id => $v->nombre);
         }
-        
+
         $entidad  = 'Producto';
         $formData = array('producto.update', $id);
-        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboCategoria', 'cboMarca', 'cboUnidad'));
+
+        $cboCategoria = Category::orderBy("nombre", "ASC")->pluck("nombre", "id")->all();
+        $idcategoria = "0";
+        foreach ($cboCategoria as $key => $value) {
+            $idcategoria = $key;
+            break;
+        }
+        $cboSubcategoria = Categoria::where("categoria_id", "=", $producto->categoria->categoria_id)->orderBy("nombre", "ASC")->pluck("nombre", "id")->all();
+        return view($this->folderview . '.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'cboCategoria', 'cboSubcategoria', 'cboMarca', 'cboUnidad'));
     }
 
     /**
@@ -275,22 +305,24 @@ class ProductoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $reglas     = array('nombre' => 'required|max:50',
-                            'precioventa' => 'required');
+        $reglas     = array(
+            'nombre' => 'required|max:50',
+            'precioventa' => 'required'
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'precioventa.required'         => 'Debe ingresar un precio de venta'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        } 
-        $dat=array();
-        $error = DB::transaction(function() use($request, $id, &$dat){
+        }
+        $dat = array();
+        $error = DB::transaction(function () use ($request, $id, &$dat) {
             $producto = Producto::find($id);
             $producto->codigobarra = "";
             $producto->nombre = $request->input('nombre');
-            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'),'');
+            $producto->abreviatura = Libreria::getParam($request->input('abreviatura'), '');
             $producto->unidad_id = $request->input('unidad_id');
             $producto->marca_id = $request->input('marca_id');
             $producto->categoria_id = $request->input('categoria_id');
@@ -302,7 +334,7 @@ class ProductoController extends Controller
             $producto->consumo = $request->input('consumo');
             $producto->igv = $request->input('igv');
             $producto->save();
-            $dat[0]=array("respuesta"=>"OK","producto_id"=>$producto->id , 'accion'=>'update');
+            $dat[0] = array("respuesta" => "OK", "producto_id" => $producto->id, 'accion' => 'update');
         });
         return is_null($error) ? json_encode($dat) : $error;
     }
@@ -319,7 +351,7 @@ class ProductoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id){
+        $error = DB::transaction(function () use ($id) {
             $producto = Producto::find($id);
             $producto->delete();
         });
@@ -338,37 +370,38 @@ class ProductoController extends Controller
         }
         $modelo   = Producto::find($id);
         $entidad  = 'Producto';
-        $formData = array('route' => array('producto.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => array('producto.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
 
 
-    public function excel(Request $request){
+    public function excel(Request $request)
+    {
         setlocale(LC_TIME, 'spanish');
-        $resultado        = Producto::join('marca','marca.id','=','producto.marca_id')
-                                ->join('unidad','unidad.id','=','producto.unidad_id')
-                                ->join('categoria','categoria.id','=','producto.categoria_id')
-                                ->leftjoin('stockproducto','stockproducto.producto_id','=','producto.id')
-                                ->where('producto.nombre','like','%'.strtoupper($request->input('nombre')).'%');
-        if($request->input('categoria')!=""){
-            $resultado = $resultado->where('categoria.id','=',$request->input('categoria'));
+        $resultado        = Producto::join('marca', 'marca.id', '=', 'producto.marca_id')
+            ->join('unidad', 'unidad.id', '=', 'producto.unidad_id')
+            ->join('categoria', 'categoria.id', '=', 'producto.categoria_id')
+            ->leftjoin('stockproducto', 'stockproducto.producto_id', '=', 'producto.id')
+            ->where('producto.nombre', 'like', '%' . strtoupper($request->input('nombre')) . '%');
+        if ($request->input('categoria') != "") {
+            $resultado = $resultado->where('categoria.id', '=', $request->input('categoria'));
         }
-        if($request->input('marca')!=""){
-            $resultado = $resultado->where('marca.id','=',$request->input('marca'));
+        if ($request->input('marca') != "") {
+            $resultado = $resultado->where('marca.id', '=', $request->input('marca'));
         }
-        $resultado = $resultado->orderBy('producto.nombre','asc')
-                            ->select('producto.*','categoria.nombre as categoria2','marca.nombre as marca2','unidad.nombre as unidad2','stockproducto.cantidad as stock');
+        $resultado = $resultado->orderBy('producto.nombre', 'asc')
+            ->select('producto.*', 'categoria.nombre as categoria2', 'marca.nombre as marca2', 'unidad.nombre as unidad2', 'stockproducto.cantidad as stock');
         $lista            = $resultado->get();
-        if (count($lista) > 0) {     
-            Excel::create('ExcelProducto', function($excel) use($lista,$request) {
-                $excel->sheet('PRODUCTO', function($sheet) use($lista,$request) {
-                    $c=1;
-                    $sheet->mergeCells('A'.$c.':J'.$c);
+        if (count($lista) > 0) {
+            Excel::create('ExcelProducto', function ($excel) use ($lista, $request) {
+                $excel->sheet('PRODUCTO', function ($sheet) use ($lista, $request) {
+                    $c = 1;
+                    $sheet->mergeCells('A' . $c . ':J' . $c);
                     $cabecera = array();
                     $cabecera[] = "REPORTE STOCK DE PRODUCTO ";
-                    $sheet->row($c,$cabecera);
-                    $c=$c+1;
+                    $sheet->row($c, $cabecera);
+                    $c = $c + 1;
                     $detalle = array();
                     $detalle[] = "PRODUCTO";
                     $detalle[] = "CATEGORIA";
@@ -377,9 +410,9 @@ class ProductoController extends Controller
                     $detalle[] = "P. COMPRA";
                     $detalle[] = "P. VENTA";
                     $detalle[] = "STOCK";
-                    $sheet->row($c,$detalle);
-                    $c=$c+1;
-                    foreach($lista as $key => $value){
+                    $sheet->row($c, $detalle);
+                    $c = $c + 1;
+                    foreach ($lista as $key => $value) {
                         $detalle = array();
                         $detalle[] = $value->nombre;
                         $detalle[] = $value->categoria2;
@@ -388,11 +421,11 @@ class ProductoController extends Controller
                         $detalle[] = $value->preciocompra;
                         $detalle[] = $value->precioventa;
                         $detalle[] = $value->stock;
-                        $sheet->row($c,$detalle);
-                        $c=$c+1;
+                        $sheet->row($c, $detalle);
+                        $c = $c + 1;
                     }
                 });
-            })->export('xls');                    
+            })->export('xls');
         }
     }
 
@@ -404,12 +437,12 @@ class ProductoController extends Controller
         }
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $producto = Producto::find($id);
-        $detalle = Detalleproducto::where('producto_id','=',$id)->get();
+        $detalle = Detalleproducto::where('producto_id', '=', $id)->get();
         $entidad  = 'Producto';
         $formData = array('producto.presentaciones', $id);
-        $formData = array('route' => $formData, 'method' => 'PRESENTACION', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData = array('route' => $formData, 'method' => 'PRESENTACION', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
         $boton    = 'Guardar';
-        return view($this->folderview.'.presentacion')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'detalle'));
+        return view($this->folderview . '.presentacion')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar', 'detalle'));
     }
 
     public function presentaciones(Request $request)
@@ -419,26 +452,27 @@ class ProductoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $reglas     = array('nombre' => 'required|max:500'
-            );
+        $reglas     = array(
+            'nombre' => 'required|max:500'
+        );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre'
-            );
+        );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        } 
-        $error = DB::transaction(function() use($request, $id){
-            $detalle = Detalleproducto::where('producto_id','=',$id)->get();
+        }
+        $error = DB::transaction(function () use ($request, $id) {
+            $detalle = Detalleproducto::where('producto_id', '=', $id)->get();
             foreach ($detalle as $key => $value) {
                 $value->delete();
             }
 
-            $arr=explode(",",$request->input('listProducto'));
-            for($c=0;$c<count($arr);$c++){
+            $arr = explode(",", $request->input('listProducto'));
+            for ($c = 0; $c < count($arr); $c++) {
                 $detalle = new Detalleproducto();
-                $detalle->presentacion_id = $request->input('txtIdProducto'.$arr[$c]);
-                $detalle->cantidad = $request->input('txtCant'.$arr[$c]);
+                $detalle->presentacion_id = $request->input('txtIdProducto' . $arr[$c]);
+                $detalle->cantidad = $request->input('txtCant' . $arr[$c]);
                 $detalle->producto_id = $id;
                 $detalle->save();
             }
@@ -446,38 +480,38 @@ class ProductoController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    public function archivos(Request $request){
+    public function archivos(Request $request)
+    {
         //obtenemos el campo file definido en el formulario
         $file = $request->file('file-0');
         if ($file) {
             //obtenemos el nombre del archivo
-            
+
             /*
             $carpeta = '/P'.$request->input('id');
             if (!file_exists($carpeta)) {
                 \Storage::makeDirectory($carpeta);
             }
             */
-            if($request->input('accion') == 'update'){
-                $old_image =$request->input('id').'-'.(Producto::find($request->input('id'))->archivo);
-                $old_path = public_path('image/'.$old_image);
-                if(file_exists($old_path)){
+            if ($request->input('accion') == 'update') {
+                $old_image = $request->input('id') . '-' . (Producto::find($request->input('id'))->archivo);
+                $old_path = public_path('image/' . $old_image);
+                if (file_exists($old_path)) {
                     @unlink($old_path);
                 }
             }
             $nombre = $file->getClientOriginalName();
-            $path = public_path('image/'.$request->input('id').'-'.$nombre);
-        
-            $file->move('image', $request->input('id').'-'.$nombre);
-        
+            $path = public_path('image/' . $request->input('id') . '-' . $nombre);
+
+            $file->move('image', $request->input('id') . '-' . $nombre);
+
             $producto = Producto::find($request->input('id'));
             $producto->archivo = $nombre;
             $producto->save();
             return "archivo guardado";
-        }else{
+        } else {
             return "Imagen no enviada";
         }
-        
     }
 
     /**
@@ -491,9 +525,9 @@ class ProductoController extends Controller
         $entidad             = "Producto";
         $producto             = null;
         $formData            = array('producto.saveimport');
-        $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off','enctype'=>'multipart/form-data');
-        $boton               = 'Importar'; 
-        return view($this->folderview.'.mant2')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar'));
+        $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off', 'enctype' => 'multipart/form-data');
+        $boton               = 'Importar';
+        return view($this->folderview . '.mant2')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     /**
@@ -505,26 +539,28 @@ class ProductoController extends Controller
     public function saveimport(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $validacion = Validator::make($request->all(),
+        $validacion = Validator::make(
+            $request->all(),
             array(
                 'file'           => 'required',
-                ),
+            ),
             array(
                 'file.required'  => 'El campo Excel es necesario.',
-                )
-            );
+            )
+        );
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request){
-            if($request->hasFile("file")){
+        $error = DB::transaction(function () use ($request) {
+            if ($request->hasFile("file")) {
                 $file = $request->file("file");
-                if($file->getClientMimeType() == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $file->getClientMimeType() == "application/vnd.ms-excel" || $file->getClientMimeType()=="application/octet-stream"){
-                    $namefile = time().$file->getClientOriginalName();
-                    $file->move(public_path().'/imports/',$namefile);
-                    $data = Excel::import(new ProductoImport,public_path().'/imports/'.$namefile);
-                }else{
-                    echo json_encode(array("file"=>array("El archivo debe ser formato xls o xlsx")));exit();
+                if ($file->getClientMimeType() == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $file->getClientMimeType() == "application/vnd.ms-excel" || $file->getClientMimeType() == "application/octet-stream") {
+                    $namefile = time() . $file->getClientOriginalName();
+                    $file->move(public_path() . '/imports/', $namefile);
+                    $data = Excel::import(new ProductoImport, public_path() . '/imports/' . $namefile);
+                } else {
+                    echo json_encode(array("file" => array("El archivo debe ser formato xls o xlsx")));
+                    exit();
                 }
                 // $product->name  = $request->input('name');
                 // $product->price  = $request->input('price');
@@ -538,5 +574,14 @@ class ProductoController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    
+    public function export()
+    {
+        set_time_limit(300);
+        ini_set('memory_limit', '1024M');
+        Producto::generarCodBarras();
+        $lista = Producto::orderBy("nombre", "ASC")->get();
+        // return json_encode($lista);
+        $pdf = PDF::loadView('app.producto.pdf', compact('lista'));
+        return $pdf->stream('ticket.pdf');
+    }
 }

@@ -43,7 +43,7 @@
 			<div class="form-group">
 				{!! Form::label('category_id', 'Categoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::select('category_id', array(), null, array('class' => 'form-control input-xs', 'id' => 'category_id')) !!}
+					{!! Form::select('category_id', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'category_id')) !!}
 				</div>
 			</div>
 			
@@ -52,7 +52,7 @@
 			<div class="form-group">
 				{!! Form::label('categoria_id', 'Subcategoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::select('categoria_id', array(), null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
+					{!! Form::select('categoria_id', $cboSubcategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id')) !!}
 				</div>
 			</div>
 		</div>

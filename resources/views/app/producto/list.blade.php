@@ -1,3 +1,6 @@
+{{-- @php
+	echo DNS1D::getBarcodeHTML('00001', 'C128',2,50,'black', true);
+@endphp --}}
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -19,6 +22,9 @@
 		<tr>
 			<td>{{ $contador }}</td>
             <td>{{ $value->nombre }}</td>
+			@if ($conf_codbarras=="S")
+            	<td>{{ $value->codigobarra }}</td>
+			@endif
 			<td>{{ $value->categoria2 }}</td>
             <td>{{ $value->marca2 }}</td>
             <td>{{ $value->unidad2 }}</td>

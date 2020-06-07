@@ -107,6 +107,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('producto/presentaciones', 'ProductoController@presentaciones')->name('producto.presentaciones');
     Route::post('producto/archivos', 'ProductoController@archivos')->name('producto.archivos');
     Route::get('product/import', 'ProductoController@import')->name('producto.import');
+    Route::get('producto/export', 'ProductoController@export');
     Route::post('product/saveimport', 'ProductoController@saveimport')->name('producto.saveimport');
 
     /* COMPRA */
