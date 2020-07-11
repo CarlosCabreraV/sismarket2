@@ -1,6 +1,7 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($pedido, $formData) !!}	
-	{!! Form::hidden('listar', $listar, array('id' => 'listar' , 'class'=>'form-horizontal')) !!}
+    {!! Form::hidden('listar', $listar, array('id' => 'listar' , 'class'=>'form-horizontal')) !!}
+    {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
     <div class="row">
         <div class="col-md-5 ">
         <!--DATOS PEDIDO -->
@@ -39,7 +40,7 @@
                                 {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
                                 {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
                                 <div class="col-md-7  ">
-                                    {!! Form::text('persona', '', array('class' => 'form-control form-control-sm ', 'id' => 'persona', 'placeholder' => ' Busca un cliente...')) !!}
+                                    {!! Form::text('persona', 'VARIOS', array('class' => 'form-control form-control-sm ', 'id' => 'persona', 'placeholder' => ' Busca un cliente...')) !!}
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-block btn-sm btn-primary "> Agregar <i class="fas fa-user-plus ml-1"></i></button>
@@ -85,8 +86,9 @@
                         <div class="card-body justify-content-center align-items-center d-flex pb-0">
                             <div class="form-group row">
                                 <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
-                                    <input type="checkbox" checked class="custom-control-input" id="delivery" style="height: 100px;" value="S" onchange="deliveryChange(this.checked)">
-                                    <label class="custom-control-label" for="delivery">Delivery</label>
+                                    <input type="hidden" name='delivery' id="delivery" value="S" >
+                                    <input type="checkbox" checked class="custom-control-input"  style="height: 100px;" id='deliverylabel' value="S" onchange="deliveryChange(this.checked)">
+                                    <label class="custom-control-label" for="deliverylabel">Delivery</label>
                                 </div>
                             </div>
                         </div>
@@ -403,6 +405,7 @@ function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,pre
 
         strDetalle = strDetalle + "<td align='center'>"+descripcion+"</td>" + 
         "<td align='center'>"+
+            "<input type='hidden' id='txtPrecioCompra"+idproducto+"' name='txtPrecioCompra"+idproducto+"' value='"+preciocompra+"' />"+
             "<input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' />"+
             "<input type='text' size='5' class='form-control form-control-sm' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
         "<td align='center'>"+
@@ -509,8 +512,10 @@ function calcularVuelto(){
 function deliveryChange(check){
     if(check){
         $('#delivery').val("S");
+        $('#deliverylabel').val("S");
     }else{
         $('#delivery').val("N");
+        $('#deliverylabel').val("N");
     }
 }
 function VerificarModoPago(val){
@@ -523,6 +528,79 @@ function VerificarModoPago(val){
     }else{
         $('#divcboTarjeta').addClass('d-none');
         $('#divefectivo').addClass('d-none');
+    }
+}
+var contador=0;
+function guardarPago (entidad, idboton) {
+    var band=true;
+    var msg="";
+    if($("#person_id").val()==0){
+        band = false;
+        msg += " *No se selecciono un cliente \n";    
+    }
+    if(carro.length==0){
+        band = false;
+        msg += " *No se agregó ningún producto \n";    
+    }
+    if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
+        if($("#dni").val().trim().length!=8){
+            band = false;
+            msg += " *El cliente debe tener DNI correcto \n";
+        }
+    }   
+    if($("#tipodocumento").val()=="4"){//FACTURA
+        var ruc = $("#ruc").val();
+        ruc = ruc.replace("_"," ");
+        console.log(ruc);
+        if(ruc.trim().length<11){
+            band = false;
+            msg += " *Debe registrar un correcto RUC \n";   
+        }
+    }
+    if(band && contador==0){
+        contador=1;
+    	var idformulario = IDFORMMANTENIMIENTO + entidad;
+    	var data         = submitForm(idformulario);
+    	var respuesta    = '';
+        var error = '';
+    	var btn = $(idboton);
+    	btn.button('loading');
+    	data.done(function(msg) {
+    		respuesta = msg;
+    	}).fail(function(xhr, textStatus, errorThrown) {
+    		respuesta = 'ERROR';
+            contador=0;
+    	}).always(function() {
+    		btn.button('reset');
+            contador=0;
+    		if(respuesta === 'ERROR'){
+                console.log(error);
+    		}else{
+    		  //alert(respuesta);
+                var dat = JSON.parse(respuesta);
+                if(dat[0]!==undefined){
+                    resp=dat[0].respuesta;    
+                }else{
+                    resp='VALIDACION';
+                }
+                
+    			if (resp === 'OK') {
+                    if(dat[0].tipodocumento_id!="5"){
+                        console.log('DECLARAR');
+                        //declarar(dat[0].venta_id,dat[0].tipodocumento_id);
+                    }
+    				cerrarModal();
+                    buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+                    //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
+    			} else if(resp === 'ERROR') {
+    				toastr.error(dat[0].msg , 'Error');
+    			} else {
+    				mostrarErrores(respuesta, idformulario, entidad);
+    			}
+    		}
+    	});
+    }else{
+        toastr.error(msg , "Corrige los siguientes errores");
     }
 }
 

@@ -95,15 +95,17 @@ class ProductoController extends Controller
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Producto', 'numero' => '1');
         if (CODIGO_BARRAS == "S") {
             $cabecera[]       = array('valor' => 'Cod. Barra', 'numero' => '1');
         }
+        $cabecera[]       = array('valor' => 'Producto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Categoria', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Marca', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Unidad', 'numero' => '1');
         $cabecera[]       = array('valor' => 'P. Compra', 'numero' => '1');
         $cabecera[]       = array('valor' => 'P. Venta', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'P. Venta Kiosko', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'P. Venta Mayorista', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Stock', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '4');
 
@@ -215,7 +217,7 @@ class ProductoController extends Controller
         $dat = array();
         $error = DB::transaction(function () use ($request, &$dat) {
             $producto = new Producto();
-            $producto->codigobarra = "";
+            $producto->codigobarra = $request->input('codigobarra');
             $producto->nombre = $request->input('nombre');
             $producto->abreviatura = Libreria::getParam($request->input('abreviatura'), '');
             $producto->unidad_id = $request->input('unidad_id');
@@ -223,7 +225,8 @@ class ProductoController extends Controller
             $producto->categoria_id = $request->input('categoria_id');
             $producto->preciocompra =  Libreria::getParam($request->input('preciocompra'), '0.00');
             $producto->precioventa = $request->input('precioventa');
-            $producto->precioventaespecial = $request->input('precioventaespecial');
+            $producto->precioventaespecial = Libreria::getParam($request->input('precioventaespecial'), '0.00');
+            $producto->precioventaespecial2 = Libreria::getParam($request->input('precioventaespecial2'), '0.00');
             $producto->ganancia =  Libreria::getParam($request->input('ganancia'), '0.00');
             $producto->stockminimo = Libreria::getParam($request->input('stockminimo'), '0.00');
             $producto->consumo = $request->input('consumo');
@@ -320,7 +323,7 @@ class ProductoController extends Controller
         $dat = array();
         $error = DB::transaction(function () use ($request, $id, &$dat) {
             $producto = Producto::find($id);
-            $producto->codigobarra = "";
+            $producto->codigobarra = $request->input('codigobarra');
             $producto->nombre = $request->input('nombre');
             $producto->abreviatura = Libreria::getParam($request->input('abreviatura'), '');
             $producto->unidad_id = $request->input('unidad_id');
@@ -328,7 +331,8 @@ class ProductoController extends Controller
             $producto->categoria_id = $request->input('categoria_id');
             $producto->preciocompra =  Libreria::getParam($request->input('preciocompra'), '0.00');
             $producto->precioventa = $request->input('precioventa');
-            $producto->precioventaespecial = $request->input('precioventaespecial');
+            $producto->precioventaespecial = Libreria::getParam($request->input('precioventaespecial'), '0.00');
+            $producto->precioventaespecial2 = Libreria::getParam($request->input('precioventaespecial2'), '0.00');
             $producto->stockminimo = Libreria::getParam($request->input('stockminimo'), '0.00');
             $producto->ganancia =  Libreria::getParam($request->input('ganancia'), '0.00');
             $producto->consumo = $request->input('consumo');
@@ -576,10 +580,10 @@ class ProductoController extends Controller
 
     public function export()
     {
-        set_time_limit(300);
+        set_time_limit(1800);
         ini_set('memory_limit', '1024M');
         Producto::generarCodBarras();
-        $lista = Producto::orderBy("nombre", "ASC")->get();
+        $lista = Producto::orderBy("categoria_id", "ASC")->orderBy("nombre", "ASC")->get();
         // return json_encode($lista);
         $pdf = PDF::loadView('app.producto.pdf', compact('lista'));
         return $pdf->stream('ticket.pdf');

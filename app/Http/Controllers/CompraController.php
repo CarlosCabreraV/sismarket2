@@ -414,12 +414,15 @@ class CompraController extends Controller
         //echo json_encode($resultado);exit();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;
@@ -443,12 +446,15 @@ class CompraController extends Controller
         $data = array();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;

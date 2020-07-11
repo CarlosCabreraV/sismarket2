@@ -128,7 +128,7 @@ class MotivoController extends Controller
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request,$empresa){
+        $error = DB::transaction(function() use($request){
             $motivo = new Motivo();
             $motivo->nombre = Libreria::getParam(strtr(strtoupper($request->input('nombre')),"àèìòùáéíóúçñäëïöü","ÀÈÌÒÙÁÉÍÓÚÇÑÄËÏÖÜ"),"");
             $motivo->tipo = $request->input('tipo');

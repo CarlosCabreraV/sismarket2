@@ -16,6 +16,9 @@ if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
     error_reporting(E_ALL ^ E_WARNING); // Maybe this is enough
 }
 
+//Route::get('/colocarstockreal', 'MovimientostockController@colocarstockreal');
+
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -96,6 +99,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('persona', 'PersonaController', array('except' => array('show')));
     Route::post('persona/buscarDNI', 'PersonaController@buscarDNI')->name('persona.buscarDNI');
     Route::post('persona/buscarRUC', 'PersonaController@buscarRUC')->name('persona.buscarRUC');
+    Route::resource('persona', 'PersonaController', array('except' => array('show')));
 
     /* PRODUCTO */
     Route::post('producto/buscar', 'ProductoController@buscar')->name('producto.buscar');
@@ -129,7 +133,27 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('movimientoalmacen/generarNumero', 'MovimientoalmacenController@generarNumero')->name('movimientoalmacen.generarNumero');
     Route::post('movimientoalmacen/cambiarMotivo', 'MovimientoalmacenController@cambiarMotivo')->name('movimientoalmacen.cambiarMotivo');
     Route::post('movimientoalmacen/cambiarSucursalDestino', 'MovimientoalmacenController@cambiarSucursalDestino')->name('movimientoalmacen.cambiarSucursalDestino');
+    Route::get('movimientoalmacen/import/id', 'MovimientoalmacenController@import')->name('movimientoalmacen.import');
+    Route::post('movimientoalmacen/saveimport', 'MovimientoalmacenController@saveimport')->name('movimientoalmacen.saveimport');
+    Route::get('movimientoalmacen/pdf/{id}', 'MovimientoalmacenController@pdf')->name('movimientoalmacen.pdf');
 
+    /* REQUERIMIENTO */
+    Route::post('requerimiento/buscar', 'RequerimientoController@buscar')->name('requerimiento.buscar');
+    Route::get('requerimiento/eliminar/{id}/{listarluego}', 'RequerimientoController@eliminar')->name('requerimiento.eliminar');
+    Route::resource('requerimiento', 'RequerimientoController');
+    Route::post('requerimiento/buscarproducto', 'RequerimientoController@buscarproducto')->name('requerimiento.buscarproducto');
+    Route::post('requerimiento/buscarproductobarra', 'RequerimientoController@buscarproductobarra')->name('requerimiento.buscarproductobarra');
+    Route::post('requerimiento/generarNumero', 'RequerimientoController@generarNumero')->name('movimientoalmacen.generarNumero');
+    Route::post('requerimiento/cambiarSucursalDestino', 'RequerimientoController@cambiarSucursalDestino')->name('requerimiento.cambiarSucursalDestino');
+
+    /* DOC STOCK REAL */
+    Route::post('movimientostock/buscar', 'MovimientostockController@buscar')->name('movimientostock.buscar');
+    Route::get('movimientostock/eliminar/{id}/{listarluego}', 'MovimientostockController@eliminar')->name('movimientostock.eliminar');
+    Route::resource('movimientostock', 'MovimientostockController');
+    Route::post('movimientostock/buscarproducto', 'MovimientostockController@buscarproducto')->name('movimientostock.buscarproducto');
+    Route::post('movimientostock/buscarproductobarra', 'MovimientostockController@buscarproductobarra')->name('movimientostock.buscarproductobarra');
+    Route::post('movimientostock/generarNumero', 'MovimientostockController@generarNumero')->name('movimientostock.generarNumero');
+    Route::post('movimientostock/cambiarSucursalDestino', 'MovimientostockController@cambiarSucursalDestino')->name('movimientostock.cambiarSucursalDestino');
 
     /* PROMOCION */
     Route::post('promocion/buscar', 'PromocionController@buscar')->name('promocion.buscar');
@@ -170,6 +194,8 @@ Route::group(['middleware' => 'auth'], function () {
     /* VENTA */
     Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');
     Route::get('venta/eliminar/{id}/{listarluego}', 'VentaController@eliminar')->name('venta.eliminar');
+    Route::get('venta/generarPagar/{id}/{listarluego}', 'VentaController@generarPagar')->name('venta.generarPagar');
+    Route::post('venta/pagar/{id}', 'VentaController@pagar')->name('venta.pagar');
     Route::resource('venta', 'VentaController');
     Route::post('venta/buscarproducto', 'VentaController@buscarproducto')->name('venta.buscarproducto');
     Route::post('venta/buscarproductobarra', 'VentaController@buscarproductobarra')->name('venta.buscarproductobarra');
@@ -178,20 +204,29 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('venta/imprimirVenta', 'VentaController@imprimirVenta')->name('venta.imprimirVenta');
     Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
     Route::get('venta/verpdf/{id}', 'VentaController@pdfTicket')->name('venta.verpdf');
+    Route::get('venta/viewCopiar/{id}/{listarluego}', 'VentaController@viewCopiar')->name('venta.viewCopiar');
+
 
     /* PEDIDO*/
     Route::post('pedido/buscar', 'PedidoController@buscar')->name('pedido.buscar');
+    Route::get('pedido/eliminar/{id}/{listarluego}', 'PedidoController@eliminar')->name('pedido.eliminar');
+    Route::get('pedido/siguienteEtapa/{id}/{listarluego}', 'PedidoController@siguienteEtapa')->name('pedido.siguienteEtapa');
+    Route::get('pedido/viewUpdate/{id}/{listarluego}', 'PedidoController@viewUpdate')->name('pedido.viewUpdate');
+    Route::get('pedido/aceptar/{id}', 'PedidoController@aceptar')->name('pedido.aceptar');
+    Route::get('pedido/enviar/{id}', 'PedidoController@enviar')->name('pedido.enviar');
+    Route::get('pedido/finalizar/{id}', 'PedidoController@finalizar')->name('pedido.finalizar');
+    Route::get('pedido/enviaryfinalizar/{id}', 'PedidoController@enviaryfinalizar')->name('pedido.enviaryfinalizar');
     Route::resource('pedido', 'PedidoController');
 
 
     /* REPORTE CAJA*/
     Route::get('cajareporte/excelCaja', 'CajareporteController@excelCaja')->name('cajareporte.excelCaja');
     Route::resource('cajareporte', 'CajareporteController', array('except' => array('show')));
-    
+
     /* REPORTE CATALOGO PRODUCTOS */
     Route::get('catalogoreporte/excelCatalogo', 'CatalogoreporteController@excelCatalogo')->name('catalogoreporte.excelCatalogo');
     Route::resource('catalogoreporte', 'CatalogoreporteController', array('except' => array('show')));
-    
+
     /* REPORTE DETALLE*/
     Route::get('detallereporte/excelDetalle', 'DetallereporteController@excelDetalle')->name('detallereporte.excelDetalle');
     Route::resource('detallereporte', 'DetallereporteController', array('except' => array('show')));

@@ -368,7 +368,7 @@ function buscarProducto(valor){
                 @if ($conf_codigobarra=="S")
                     strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
                 @endif   
-                strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+                strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Unid.</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
                 $("#divBusqueda").html(strTable);
                 var pag=parseInt($("#pag").val());
                 var d=0;
@@ -377,7 +377,7 @@ function buscarProducto(valor){
                     @if ($conf_codigobarra=="S")
                         a = a + "<td align='center'>"+datos[c].codigobarra+"</td>";
                     @endif 
-                    a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                    a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].unidad+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
                     $("#tbodyProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({

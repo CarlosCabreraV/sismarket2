@@ -30,28 +30,32 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 						  <div class="row w-100">
-                                <div class="col-lg-4 col-md-4  form-group">
+                                <div class="col-lg-3 col-md-3  form-group">
                                     {!! Form::label('fechainicio', 'Fecha inicio') !!}
                                     {!! Form::date('fechainicio', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechainicio')) !!}
                                 </div>
-                                <div class="col-lg-4 col-md-4  form-group">
+                                <div class="col-lg-3 col-md-3  form-group">
                                     {!! Form::label('fechafin', 'Fecha fin') !!}
                                     {!! Form::date('fechafin', '', array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
                                 </div>
-								<div class="col-lg-4 col-md-4  form-group">
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('cliente', 'Cliente') !!}
 									{!! Form::text('cliente', '', array('class' => 'form-control input-xs', 'id' => 'cliente')) !!}
                                 </div>
-                                
-							</div>
-							<div class="row w-100">
-                                <div class="col-lg-4 col-md-4  form-group">
+                                <div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('tipodocumento_id', 'Tipo documento') !!}
 									{!! Form::select('tipodocumento_id', $cboTipoDocumento, '', array('class' => 'form-control input-xs', 'id' => 'tipodocumento_id')) !!}
 								</div>
-								<div class="col-lg-4 col-md-4  form-group">
+							</div>
+							<div class="row w-100">
+                                
+								<div class="col-lg-3 col-md-3  form-group">
 									{!! Form::label('lblestado', 'Estado') !!}
 									{!! Form::select('estado',$cboEstados , '', array('class' => 'form-control input-xs', 'id' => 'estado')) !!}
+								</div>
+								<div class="col-lg-3 col-md-3  form-group">
+									{!! Form::label('lblestado', 'Tipo') !!}
+									{!! Form::select('tipo', [''=>'Todos','S'=>'Delivery','N'=>'Recoger en tienda'] , '', array('class' => 'form-control input-xs', 'id' => 'tipo')) !!}
 								</div>
 								<div class="col-lg-2 col-md-2  form-group" style="min-width: 150px;">
 									{!! Form::label('nombre', 'Filas a mostrar') !!}
@@ -68,7 +72,9 @@
 							<div class="card-header">
 							  <h3 class="card-title">{{$title}}</h3>
 							  <div class="card-tools">
-								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+								@if(!Auth::user()->isAdmin() && !Auth::user()->isSuperAdmin())
+									{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+								@endif 
 							  </div>
 							</div>
 							<!-- /.card-header -->
@@ -93,3 +99,30 @@
 	  <!-- /.content -->
 	
   </div>
+  <script>
+	$(document).ready(function () {
+		buscar('{{ $entidad }}');
+		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="cliente"]').keyup(function (e) {
+			var key = window.event ? e.keyCode : e.which;
+			if (key == '13') {
+				buscar('{{ $entidad }}');
+			}
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="estado"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipo"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="tipodocumento_id"]').change(function (e) {
+				buscar('{{ $entidad }}');
+		});
+	});
+</script>

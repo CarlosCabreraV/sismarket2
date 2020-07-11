@@ -75,7 +75,8 @@
 								  @if(!$current_user->isAdmin() && !$current_user->isSuperAdmin())
 									{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Agregar', array('class' => 'btn  btn-outline-primary', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 									@endif
-								</div>
+								{!! Form::button(' <i class="fa fa-plus fa-fw"></i> Emergencia', array('class' => 'btn  btn-outline-danger', 'style'=>'display:none', 'id' => 'btnEmergencia', 'onclick' => 'emergencia ();')) !!}
+							  </div>
 							</div>
 							<!-- /.card-header -->
 							<div class="card-body table-responsive px-3">

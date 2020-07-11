@@ -20,6 +20,7 @@ use App\Detallemovimiento;
 use App\Person;
 use App\Caja;
 use App\Librerias\Libreria;
+use App\Librerias\EnLetras;
 use App\Http\Controllers\Controller;
 use App\Sucursal;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,7 @@ class VentaController extends Controller
     protected $tituloAdmin     = 'Venta';
     protected $tituloRegistrar = 'Registrar venta';
     protected $tituloModificar = 'Modificar venta';
+    protected $tituloPagar  = 'Pagar venta';
     protected $tituloEliminar  = 'Anular venta';
     protected $tituloVer       = 'Ver Venta';
     protected $rutas           = array(
@@ -45,6 +47,9 @@ class VentaController extends Controller
         'delete' => 'venta.eliminar',
         'search' => 'venta.buscar',
         'index'  => 'venta.index',
+	'generarPagar'  => 'venta.generarPagar',
+        'viewUpdate'  => 'venta.viewUpdate',
+        'viewCopiar'  => 'venta.viewCopiar',
     );
 
 
@@ -62,7 +67,7 @@ class VentaController extends Controller
 
 
     /**
-     * Mostrar el resultado de búsquedas
+     * Mostrar el resultado de bÃºsquedas
      * 
      * @return Response 
      */
@@ -103,12 +108,14 @@ class VentaController extends Controller
         $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Cliente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+	$cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '5');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $titulo_ver       = $this->tituloVer;
+	$titulo_pagar       = $this->tituloPagar;
         $ruta             = $this->rutas;
         if (count($lista) > 0) {
             $clsLibreria     = new Libreria();
@@ -119,7 +126,7 @@ class VentaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver'));
+            return view($this->folderview . '.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver','titulo_pagar'));
         }
         return view($this->folderview . '.list')->with(compact('lista', 'entidad'));
     }
@@ -172,6 +179,76 @@ class VentaController extends Controller
         return view($this->folderview . '.mant')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'cboSucursal', 'conf_codigobarra'));
     }
 
+
+     public function generarPagar($id, $listarLuego)
+    {
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar = "NO";
+        if (!is_null(Libreria::obtenerParametro($listarLuego))) {
+            $listar = $listarLuego;
+        }
+        $modelo   = Movimiento::find($id);
+        $entidad  = 'Venta';
+        $formData = array('route' => array('venta.pagar', $id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton    = 'Pagar';
+        return view($this->folderview.'.generarPagar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function pagar(Request $request, $id)
+    {
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $reglas     = array(
+            'totalpagado' => 'required|numeric',
+        );
+        $mensajes = array(
+            'totalpagado.required'         => 'Es necesario indicar la cantidad a pagar.'
+        );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+        $user = Auth::user();
+        $error = DB::transaction(function () use ($request, $id , $user) {
+            $venta = Movimiento::find($id);
+            $venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+            $venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+            $venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+            $venta->save();
+
+            //PAGO A CAJA
+                    $movimiento        = new Movimiento();
+                    $movimiento->fecha = date("Y-m-d");
+                    $movimiento->numero = Movimiento::NumeroSigue(4, 6);
+                    $movimiento->responsable_id = $user->person_id;
+                    $movimiento->persona_id = $venta->persona_id;
+                    $movimiento->subtotal = 0;
+                    $movimiento->igv = 0;
+                    $movimiento->total = str_replace(",", "", $request->input('total'));
+                    $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                    $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                    $movimiento->tipomovimiento_id = 4;
+                    $movimiento->tipodocumento_id = 6;
+                    $movimiento->concepto_id = 3;
+                    $movimiento->voucher = '';
+                    $movimiento->comentario = 'Pago de Documento de Venta ' . $venta->numero;
+                    $movimiento->situacion = 'N';
+                    $movimiento->movimiento_id = $venta->id;
+
+                    $movimiento->sucursal_id = $venta->sucursal_id;
+                    $movimiento->caja_id = session('caja_sesion_id', '');
+                    $movimiento->save();
+            //PAGO A CAJA
+
+        });
+        return is_null($error) ? "OK" : $error;
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -211,6 +288,7 @@ class VentaController extends Controller
                     $Venta       = new Movimiento();
                     $Venta->fecha = $request->input('fecha');
                     $Venta->numero = $request->input('numero');
+
                     if ($request->input('tipodocumento') == "4" || $request->input('tipodocumento') == "3") { //FACTURA O BOLETA
                         $Venta->subtotal = round($request->input('total') / 1.18, 2); //82%
                         $Venta->igv = round($request->input('total') - $Venta->subtotal, 2); //18%
@@ -218,13 +296,32 @@ class VentaController extends Controller
                         $Venta->subtotal = $request->input('total');
                         $Venta->igv = 0;
                     }
+
+		    $Venta->descuento =Libreria::getParam(str_replace(",", "", $request->input('descuento')),'0.00');
+                   
                     $Venta->total = str_replace(",", "", $request->input('total'));
-                    $Venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
-                    $Venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                    $Venta->tipoventa= $request->input('tipoventa');
+                    if($Venta->tipoventa == 'CONTADO'){
+                        $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                        if($request->input('transferencia') == 'N'){
+                            $Venta->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                            $Venta->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                            $Venta->transferencia = '0.00';
+                        }else{
+                            $Venta->totalpagado ='0.00' ;
+                            $Venta->tarjeta = '0.00';
+                            $Venta->transferencia = $Venta->total = str_replace(",", "", $request->input('total'));
+                        }
+                    }else if($Venta->tipoventa == 'CREDITO'){
+                        $Venta->situacion = 'P'; //Pendiente => P / Cobrado => C / Boleteado => B
+                        $Venta->totalpagado = '0.00';
+                        $Venta->tarjeta = '0.00';
+                        $Venta->transferencia = '0.00';
+                    }
                     $Venta->tipomovimiento_id = 2; //VENTA
                     $Venta->tipodocumento_id = $request->input('tipodocumento');
                     $Venta->persona_id = $request->input('persona_id') == "0" ? 1 : $request->input('persona_id');
-                    $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                    
                     $Venta->voucher = '';
                     $Venta->comentario = '';
                     $Venta->responsable_id = $user->person_id;
@@ -406,6 +503,7 @@ class VentaController extends Controller
                 //-----------------------FIN DETALLES VENTA------------------------------
 
                 //----------------------CAJA--------------------------------
+                if ($Venta->tipoventa == 'CONTADO') {
                     $movimiento        = new Movimiento();
                     $movimiento->fecha = date("Y-m-d");
                     $movimiento->numero = Movimiento::NumeroSigue(4, 6);
@@ -414,8 +512,15 @@ class VentaController extends Controller
                     $movimiento->subtotal = 0;
                     $movimiento->igv = 0;
                     $movimiento->total = str_replace(",", "", $request->input('total'));
-                    $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
-                    $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                    if($request->input('transferencia') == 'N'){
+                        $movimiento->totalpagado = str_replace(",", "", $request->input('totalpagado'));
+                        $movimiento->tarjeta = str_replace(",", "", $request->input('tarjeta'));
+                        $movimiento->transferencia = '0.00';
+                    }else{
+                        $movimiento->totalpagado ='0.00';
+                        $movimiento->tarjeta = '0.00';
+                        $movimiento->transferencia = str_replace(",", "", $request->input('total'));
+                    }
                     $movimiento->tipomovimiento_id = 4;
                     $movimiento->tipodocumento_id = 6;
                     $movimiento->concepto_id = 3;
@@ -427,7 +532,9 @@ class VentaController extends Controller
                     $movimiento->sucursal_id = $request->input('sucursal_id');
                     $movimiento->caja_id = session('caja_sesion_id', '');
                     $movimiento->save();
+                }
                 //------------------------FIN CAJA--------------------------------
+
 
                 $dat[0] = array("respuesta" => "OK", "venta_id" => $Venta->id, "tipodocumento_id" => $Venta->tipodocumento_id);
             });
@@ -436,7 +543,6 @@ class VentaController extends Controller
         }
         return is_null($error) ? json_encode($dat) : $error;
     }
-
     /**
      * Display the specified resource.
      *
@@ -495,6 +601,64 @@ class VentaController extends Controller
         return view($this->folderview . '.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar', 'cboEspecialidad', 'cboCiclo'));
     }
 
+    public function viewUpdate(Request $request,$id){
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $venta = Movimiento::find($id);
+        $current_user = Auth::user();
+        $cliente= '';
+        if($venta->persona){
+            $cliente =$venta->persona->nombres.' '.$venta->persona->apellidopaterno.' '.$venta->persona->apellidomaterno;
+        }
+        $entidad             = 'Venta';
+        $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        } $formData            = array('venta.update', $id);
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton               = 'Modificar';
+        $conf_codigobarra = CODIGO_BARRAS;
+        
+        //$cuenta = Cuenta::where('movimiento_id','=',$compra->id)->orderBy('id','ASC')->first();
+        //$fechapago =  Date::createFromFormat('Y-m-d', $cuenta->fecha)->format('d/m/Y');
+        $detalles = Detallemovimiento::where('movimiento_id', '=', $venta->id)->get();
+        //$numerocuotas = count($cuentas);
+        return view($this->folderview . '.mantViewUpdate')->with(compact('conf_codigobarra','cboSucursal','venta', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'detalles','cliente'));
+     }
+    public function viewCopiar(Request $request,$id){
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $venta = Movimiento::find($id);
+        $current_user = Auth::user();
+        $cliente= '';
+        if($venta->persona){
+            $cliente =$venta->persona->nombres.' '.$venta->persona->apellidopaterno.' '.$venta->persona->apellidomaterno;
+        }
+        $entidad             = 'Venta';
+        $cboTipoDocumento = Tipodocumento::where('tipomovimiento_id', '=', 2)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboSucursal = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }
+        $formData = array('venta.store');
+        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off');
+        $boton               = 'Guardar';
+        $conf_codigobarra = CODIGO_BARRAS;
+        
+        //$cuenta = Cuenta::where('movimiento_id','=',$compra->id)->orderBy('id','ASC')->first();
+        //$fechapago =  Date::createFromFormat('Y-m-d', $cuenta->fecha)->format('d/m/Y');
+        $detalles = Detallemovimiento::where('movimiento_id', '=', $venta->id)->get();
+        //$numerocuotas = count($cuentas);
+        return view($this->folderview . '.mantViewCopiar')->with(compact('conf_codigobarra','cboSucursal','venta', 'formData', 'entidad', 'boton', 'listar', 'cboTipoDocumento', 'detalles','cliente'));
+     }
+
     /**
      * Update the specified resource in storage.
      *
@@ -546,13 +710,13 @@ class VentaController extends Controller
             $venta->save();
             $lst = Detallemovimiento::where('movimiento_id', '=', $id)->get();
             foreach ($lst as $key => $Detalle) {
-                if ($Detalle->producto_id && $Detalle->producto_id != null ) {
+                if ($Detalle->producto_id && $Detalle->producto_id != null) {
                     $detalleproducto = Detalleproducto::where('producto_id', '=', $Detalle->producto_id)->get();
                     if (count($detalleproducto) > 0) {
                         foreach ($detalleproducto as $key => $value) {
                             $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
                             if (count($stock) > 0) {
-                                $stock->cantidad = $stock->cantidad +($Detalle->cantidad * $value->cantidad);
+                                $stock->cantidad = $stock->cantidad + ($Detalle->cantidad * $value->cantidad);
                                 $stock->save();
                             } else {
                                 $stock = new Stockproducto();
@@ -577,15 +741,15 @@ class VentaController extends Controller
                     }
                 } else {
                     $detallespromocion = Detallepromocion::where('promocion_id', $Detalle->promocion_id)->get();
-                    foreach($detallespromocion as $key => $detallepromo){
+                    foreach ($detallespromocion as $key => $detallepromo) {
                         $presentaciones = Detalleproducto::where('producto_id', '=', $detallepromo->producto_id)->get();
-                        if(count($presentaciones)>0){
-                            foreach($presentaciones as $key => $presentacion){
-                                $stock = Stockproducto::where('producto_id', $presentacion->presentacion_id)->where('sucursal_id',$venta->sucursal_id)->first();
-                                if($stock){
+                        if (count($presentaciones) > 0) {
+                            foreach ($presentaciones as $key => $presentacion) {
+                                $stock = Stockproducto::where('producto_id', $presentacion->presentacion_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                                if ($stock) {
                                     $stock->cantidad = $stock->cantidad + ($Detalle->cantidad * $detallepromo->cantidad * $presentacion->cantidad);
                                     $stock->save();
-                                }else{
+                                } else {
                                     $stock = new StockProducto();
                                     $stock->producto_id = $presentacion->presentacion_id;
                                     $stock->sucursal_id = $venta->sucursal_id;
@@ -593,12 +757,12 @@ class VentaController extends Controller
                                     $stock->save();
                                 }
                             }
-                        }else{
-                            $stock = StockProducto::where('producto_id',$detallepromo->producto_id)->where('sucursal_id',$venta->sucursal_id)->first();
-                            if($stock){
+                        } else {
+                            $stock = StockProducto::where('producto_id', $detallepromo->producto_id)->where('sucursal_id', $venta->sucursal_id)->first();
+                            if ($stock) {
                                 $stock->cantidad = $stock->cantidad + ($Detalle->cantidad * $detallepromo->cantidad);
                                 $stock->save();
-                            }else{
+                            } else {
                                 $stock = new StockProducto();
                                 $stock->producto_id = $detallepromo->producto_id;
                                 $stock->sucursal_id = $venta->sucursal_id;
@@ -607,7 +771,6 @@ class VentaController extends Controller
                             }
                         }
                     }
-
                 }
             }
             $caja = Movimiento::where('movimiento_id', '=', $venta->id)->where('tipomovimiento_id', '=', '4')->first();
@@ -647,11 +810,13 @@ class VentaController extends Controller
         $data = array();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
                     'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
@@ -659,19 +824,20 @@ class VentaController extends Controller
                 $c++;
             }
         }
-        $resultado = Promocion::where('nombre','like','%'.strtoupper($descripcion).'%')->get();
-        if(count($resultado)>0){
-            foreach ($resultado as $key => $value){
+        $resultado = Promocion::where('nombre', 'like', '%' . strtoupper($descripcion) . '%')->get();
+        if (count($resultado) > 0) {
+            foreach ($resultado as $key => $value) {
                 $data[$c] = array(
-                        'producto' => $value->nombre,
-                        'codigobarra' => '',
-                        'precioventa' => $value->precioventa,
-                        'preciocompra' => 0,
-                        'idproducto' => $value->id,
-                        'tipo' => 'C',
-                        'stock' => 0,
-                    );
-                $c++;                
+                    'producto' => $value->nombre,
+                    'codigobarra' => '',
+                    'precioventa' => $value->precioventa,
+                    'preciocompra' => 0,
+                    'unidad' => '-',
+                    'idproducto' => $value->id,
+                    'tipo' => 'C',
+                    'stock' => 0,
+                );
+                $c++;
             }
         }
         return json_encode($data);
@@ -690,11 +856,13 @@ class VentaController extends Controller
         $data = array();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
                     'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
@@ -714,7 +882,7 @@ class VentaController extends Controller
             $caja->serie = 1;
         }
         $serie = str_pad($caja->serie, 3, '0', STR_PAD_LEFT);
-        $numeroventa = Movimiento::NumeroSigue(2, $request->input('tipodocumento'));
+        $numeroventa = Movimiento::NumeroSigue(2, $request->input('tipodocumento'), null, $serie);
         if ($request->input('tipodocumento') == 3) {
             echo "B" . $serie . "-" . $numeroventa;
         } elseif ($request->input('tipodocumento') == 4) {
@@ -734,6 +902,7 @@ class VentaController extends Controller
         $list      = $resultado->select('person.*')->get();
         $data = array();
         foreach ($list as $key => $value) {
+        $cliente = Person::where('id',$value->id)->first();
             $name = '';
             if ($value->bussinesname != null) {
                 $name = $value->bussinesname;
@@ -745,6 +914,7 @@ class VentaController extends Controller
                 'id'    => $value->id,
                 'value' => trim($name),
                 'ruc' => $value->ruc,
+                'ispersonal'=>$cliente->isPersonal()?'S':'N',
             );
         }
         return json_encode($data);
@@ -847,7 +1017,7 @@ class VentaController extends Controller
         $printer->setJustification(Printer::JUSTIFY_LEFT);
         $printer->text("Hora: " . date("H:i:s") . "\n");
         $printer->text("\n");
-        $printer->text(("Representación impresa del Comprobante Electrónico, consulte en https://facturae-garzasoft.com"));
+        $printer->text(("RepresentaciÃ³n impresa del Comprobante ElectrÃ³nico, consulte en https://facturae-garzasoft.com"));
         $printer->text("\n");
         $printer->text("\n");
         $printer->text("           GRACIAS POR SU PREFERENCIA" . "\n");
@@ -863,7 +1033,7 @@ class VentaController extends Controller
 
     public function declarar(Request $request)
     {
-        $lista = Movimiento::where('tipomovimiento_id', '=', 2)->get();
+        $lista = Movimiento::where('tipomovimiento_id', '=', 2)->whereIn('tipodocumento_id',[3,4])->orderBy('id','asc')->get();
         $dato = "";
         foreach ($lista as $key => $value) {
             $dato .= $value->id . "|" . $value->tipodocumento_id . "@";
@@ -872,15 +1042,18 @@ class VentaController extends Controller
     }
 
 
-    public function pdfTicket($id){
+    public function pdfTicket($id)
+    {
         $venta = Movimiento::where('id', $id)->first();
-        $detalles = Detallemovimiento::where('movimiento_id',$id)->get();
-        $pdf = PDF::loadView('app.venta.verpdf',compact('venta','detalles'))->setPaper(array(0,0,220,600));  
+        $detalles = Detallemovimiento::where('movimiento_id', $id)->get();
+        $clsEnLetras = new EnLetras();
+        $enletras = $clsEnLetras->ValorEnLetras($venta->total, "SOLES");
+        $pdf = PDF::loadView('app.venta.verpdf', compact('venta', 'detalles', 'enletras'))->setPaper(array(0, 0, 220, 600));
         //HOJA HORIZONTAL ->setPaper('a4', 'landscape')
-    //descargar
-       // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  
-    //Ver
-       return $pdf->stream('ticket.pdf');
-    
+        //descargar
+        // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  
+        //Ver
+        return $pdf->stream('ticket.pdf');
     }
 }
+

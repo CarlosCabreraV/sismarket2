@@ -16,13 +16,14 @@
       <div class="card login-card">
         <div class="row no-gutters">
           <div class="col-md-6">
-            <img src="dist/logo_images/canasta.jpg" alt="login" class="login-card-img">
+            <img src="dist/logo_images/logo-marakos.jpg" alt="login" class="login-card-img">
+            <!--<img src="dist/logo_images/canasta.jpg" alt="login" class="login-card-img">-->
            <!-- <img src="dist/logo_images/mercado.jpg" alt="login" class="login-card-img"> -->
           </div>
           <div class="col-md-6">
             <div class="card-body ">
               <div class="brand-wrapper">
-                <img src="dist/logo_images/logo.svg" alt="logo" class="logo">
+                <!--img src="dist/logo_images/logo.svg" alt="logo" class="logo"-->
               </div>
               <p class="login-card-description">Inicia sesión con tu cuenta</p>
               <form method="POST" id='formLogin' action="{{ route('login') }}">

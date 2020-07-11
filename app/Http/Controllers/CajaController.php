@@ -2472,6 +2472,7 @@ class CajaController extends Controller
         $totalVenta = 0; //OK
         $totalTarjeta = 0; //OK
         $totalEfectivo = 0; //OK
+        $totalTransferencia = 0; //OK
         $cajaInicio = 0; // OK
         $arrayIngresos = array();
         $totalIngresos = 0;
@@ -2494,6 +2495,7 @@ class CajaController extends Controller
                 $totalVenta = $totalVenta + $movcaja->total;
                 $totalTarjeta = $totalTarjeta +  $movcaja->tarjeta;
                 $totalEfectivo = $totalEfectivo + ($movcaja->total - $movcaja->tarjeta);
+                $totalTransferencia = $totalTransferencia + ($movcaja->transferencia && $movcaja->transferencia>0)?$movcaja->transferencia:0;
             } else if ($movcaja->concepto_id == 3 && $movcaja->situacion == "A") {
                 $detalles = Detallemovimiento::where("movimiento_id", "=", $movcaja->movimiento_id)->get();
                 foreach ($detalles as $key => $detalle) {
@@ -2528,7 +2530,7 @@ class CajaController extends Controller
         //     $arrayGastos,
         //     $totalGastos
         // );
-        $pdf = PDF::loadView('app.caja.pdfcierre', compact('usuario', 'arrayProductosN', 'arrayProductosA', 'totalVenta', 'totalTarjeta', 'totalEfectivo', 'cajaInicio', 'arrayIngresos', 'totalIngresos', 'arrayGastos', 'totalGastos'))->setPaper(array(0, 0, 220, 1800));
+        $pdf = PDF::loadView('app.caja.pdfcierre', compact('usuario', 'arrayProductosN', 'arrayProductosA', 'totalVenta', 'totalTarjeta', 'totalEfectivo', 'cajaInicio', 'arrayIngresos', 'totalIngresos', 'arrayGastos', 'totalGastos','totalTransferencia'))->setPaper(array(0, 0, 220, 1800));
         return $pdf->stream('ticket.pdf');
     }
 }

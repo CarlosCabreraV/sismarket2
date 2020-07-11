@@ -42,7 +42,7 @@
                 <tbody>
                 @foreach($detalles as $key => $value)
 					<tr>
-                        <td class="text-center">{!! number_format($value->cantidad,2,'.','') !!}</td>
+                        <td class="text-center">{!! number_format($value->cantidad,3,'.','') !!}</td>
                         @if(!is_null($value->producto_id) && $value->producto_id>0)
                             <td class="text-left">{!! $value->producto->nombre !!}</td>
                         @else
@@ -52,6 +52,14 @@
 						<td class="text-center">{!! number_format($value->precioventa*$value->cantidad,2,'.','') !!}</td>
 					</tr>
                 @endforeach
+		@if($venta->persona->isPersonal() && $venta->descuento)
+                            <tr  bgcolor="#0cfa7f" >
+                                <td  class="pl-3" style="font-style:italic;">DESCUENTO DEL 10% APLICADO</td>
+                                <td></td>
+                                <td></td>
+                                <td  style="font-style:italic;"> DESCUENTO: <b >{{$venta->descuento?$venta->descuento:'0.00'}}</b></td>
+                            </tr>
+                @endif
                 </tbody>
                 <tfoot>
                     <th class="text-right" colspan="3">Total</th>

@@ -31,9 +31,11 @@
             <td>{{ $value->tipodocumento->nombre }}</td>
             <td>{{ $value->motivo->nombre }}</td>
             <td>{{ $value->numero }}</td>
-			<td>{{ $value->comentario }}</td>
+	    <td>{{ $value->comentario }}</td>
             <td>{{ $value->sucursal->nombre }}</td>
-			<td>{{ $value->responsable2 }}</td>
+	    <td>{{ $value->responsable2 }}</td>
+            <td><a target="_blank" href="{{route('movimientoalmacen.pdf' ,['id' => $value->id])}}"><button class="btn btn-primary btn-sm"><i class="fa fa-file"></i> PDF</button></a></td>
+			
 			@if ($value->situacion == "P")
 				<td align="center">{!! Form::button('<div class="fas fa-check"></div> Confirmar', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-success btn-sm')) !!}</td>
 			@else

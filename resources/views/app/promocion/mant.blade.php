@@ -8,7 +8,24 @@
 			{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre')) !!}
 		</div>
 	</div>
-
+	<div class="row">
+		<div class="col-md-6 col-lg-6">
+			<div class="form-group">
+				{!! Form::label('fechainicio', 'Fecha Inicio:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					{!! Form::date('fechainicio', null, array('class' => 'form-control input-xs', 'id' => 'fechainicio')) !!}
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6 col-lg-6">
+			<div class="form-group">
+				{!! Form::label('fechafin', 'Fecha Fin:', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					{!! Form::date('fechafin', null, array('class' => 'form-control input-xs', 'id' => 'fechafin')) !!}
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group">

@@ -58,7 +58,7 @@ class Movimiento extends Model
 		return $this->belongsTo('App\MOvimiento', 'movimiento_id');
 	}
 
-	public function scopeNumeroSigue($query, $tipomovimiento_id, $tipodocumento_id = 0, $sucursal_id = null)
+	public function scopeNumeroSigue($query, $tipomovimiento_id, $tipodocumento_id = 0, $sucursal_id = null, $serie='')
 	{
 		if ($tipodocumento_id == 0) {
 			$rs = $query
@@ -66,12 +66,20 @@ class Movimiento extends Model
 					if (!is_null($sucursal_id) && strlen($sucursal_id) > 0) {
 						$subquery->where('sucursal_id', '=', $sucursal_id);
 					}
+				})->where(function ($subquery) use ($serie) {
+					if (!is_null($serie) && strlen($serie) > 0) {
+						$subquery->where('numero', 'like', '%'.$serie.'-%');
+					}
 				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,1,8),SIGNED integer) END)*1) AS maximo"))->first();
 		} else {
 			$rs = $query
 				->where(function ($subquery) use ($sucursal_id) {
 					if (!is_null($sucursal_id) && strlen($sucursal_id) > 0) {
 						$subquery->where('sucursal_id', '=', $sucursal_id);
+					}
+				})->where(function ($subquery) use ($serie) {
+					if (!is_null($serie) && strlen($serie) > 0) {
+						$subquery->where('numero', 'like', '%'.$serie.'-%');
 					}
 				})->where('tipomovimiento_id', '=', $tipomovimiento_id)->where('tipodocumento_id', '=', $tipodocumento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE convert(substr(numero,6,8),SIGNED  integer) END)*1) AS maximo"))->first();
 		}
@@ -142,11 +150,63 @@ class Movimiento extends Model
 	 * @param  string $numero
 	 * @return \Illuminate\Database\Eloquent\Builder
 	 */
-	public function scopelistarDocAlmacen($query, $sucursal, $fecinicio, $fecfin, $tipodocumento, $numero)
+	public function scopelistarDocAlmacen($query, $sucursal, $fecinicio, $fecfin, $tipodocumento, $numero, $producto_id = 0)
 	{
 		return $query->join('person', 'person.id', '=', 'movimiento.persona_id')
 			->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+			->join('detallemovimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')
 			->where('tipomovimiento_id', '=', 3)
+			->where(function ($subquery) use ($sucursal) {
+				if (!is_null($sucursal) && strlen($sucursal) > 0) {
+					$subquery->where('sucursal_id', '=', $sucursal);
+				}
+			})
+			->where(function ($subquery) use ($fecinicio) {
+				if (!is_null($fecinicio) && strlen($fecinicio) > 0) {
+					$subquery->where('fecha', '>=', $fecinicio);
+				}
+			})
+			->where(function ($subquery) use ($fecfin) {
+				if (!is_null($fecfin) && strlen($fecfin) > 0) {
+					$subquery->where('fecha', '<=', $fecfin);
+				}
+			})
+			->where(function ($subquery) use ($tipodocumento) {
+				if (!is_null($tipodocumento) && strlen($tipodocumento) > 0) {
+					$subquery->where('tipodocumento_id', '=', $tipodocumento);
+				}
+			})
+			->where(function ($subquery) use ($numero) {
+				if (!is_null($numero) && strlen($numero) > 0) {
+					$subquery->where('numero', 'LIKE', "%" . $numero . "%");
+				}
+			})
+			->where(function ($subquery) use ($producto_id) {
+				if ($producto_id > 0) {
+					$subquery->where('detallemovimiento.producto_id', '=', $producto_id);
+				}
+			})
+			->distinct('movimiento.id')
+			->select('movimiento.*', DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as cliente'), DB::raw('responsable.nombres as responsable2'))
+			->orderBy('movimiento.created_at', 'DESC');
+	}
+
+	/**
+	 * Función para listar las Movimientos de stock 
+	 *
+	 * @param  $this $query
+	 * @param  string $sucursal
+	 * @param  string $fecinicio
+	 * @param  string $fecfin
+	 * @param  string $tipodocumento
+	 * @param  string $numero
+	 * @return \Illuminate\Database\Eloquent\Builder
+	 */
+	public function scopelistarDocStock($query, $sucursal, $fecinicio, $fecfin, $tipodocumento, $numero)
+	{
+		return $query->join('person', 'person.id', '=', 'movimiento.persona_id')
+			->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+			->where('tipomovimiento_id', '=', 6)
 			->where(function ($subquery) use ($sucursal) {
 				if (!is_null($sucursal) && strlen($sucursal) > 0) {
 					$subquery->where('sucursal_id', '=', $sucursal);

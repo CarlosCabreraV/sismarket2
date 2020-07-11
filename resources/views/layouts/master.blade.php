@@ -28,7 +28,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 		
   </style>
   
-  <link  rel="icon"   href="dist/img/logo2.png" type="image/png" />
+  <!--link  rel="icon"   href="dist/img/logo2.png" type="image/png" /-->
+  <link  rel="icon"   href="dist/logo_images/logo-marakos.jpg" type="image/png" />
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->

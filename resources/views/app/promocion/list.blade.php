@@ -18,6 +18,8 @@
 		@foreach ($lista as $key => $value)
 		<tr>
 			<td>{{ $contador }}</td>
+            <td>{{ $value->fechainicio }}</td>
+            <td>{{ $value->fechafin }}</td>
             <td>{{ $value->nombre }}</td>
 			<td>{{ $value->categoria2 }}</td>
             <td>{{ $value->unidad2 }}</td>

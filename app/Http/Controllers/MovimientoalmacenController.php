@@ -22,6 +22,9 @@ use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Imports\DocAlmacenImport;
+use Excel;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class MovimientoalmacenController extends Controller
 {
@@ -38,6 +41,7 @@ class MovimientoalmacenController extends Controller
         'delete' => 'movimientoalmacen.eliminar',
         'search' => 'movimientoalmacen.buscar',
         'index'  => 'movimientoalmacen.index',
+        'import' => 'movimientoalmacen.import',
     );
 
 
@@ -70,7 +74,8 @@ class MovimientoalmacenController extends Controller
         $fecfin           = Libreria::getParam($request->input('fechafin'));
         $tipodocumento    = Libreria::getParam($request->input('tipodocumento'));
         $numero           = Libreria::getParam($request->input('numero'));
-        $resultado        = Movimiento::listarDocAlmacen($sucursal, $fecinicio, $fecfin, $tipodocumento, $numero);
+        $producto_id      = Libreria::getParam($request->input('producto_id'), 0);
+        $resultado        = Movimiento::listarDocAlmacen($sucursal, $fecinicio, $fecfin, $tipodocumento, $numero, $producto_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -81,7 +86,7 @@ class MovimientoalmacenController extends Controller
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Sucursal', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -118,11 +123,12 @@ class MovimientoalmacenController extends Controller
         $ruta             = $this->rutas;
         $cboTipoDocumento = array('' => 'Todos');
         $cboTipoDocumento = array('' => 'Todos') + Tipodocumento::where('tipomovimiento_id', '=', 3)->orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
+        $cboProducto = array('' => 'Todos') + Producto::orderBy('nombre', 'asc')->pluck('nombre', 'id')->all();
         $cboSucursal = ["" => "TODOS"] + Sucursal::pluck('nombre', 'id')->all();
         if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
             $cboSucursal = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
         }
-        return view($this->folderview . '.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento', 'sucursal', 'cboSucursal'));
+        return view($this->folderview . '.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboTipoDocumento', 'sucursal', 'cboSucursal', 'cboProducto'));
     }
 
     /**
@@ -577,12 +583,15 @@ class MovimientoalmacenController extends Controller
         $data = array();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;
@@ -612,12 +621,15 @@ class MovimientoalmacenController extends Controller
         $data = array();
         if (count($resultado) > 0) {
             foreach ($resultado as $key => $value) {
+                $producto = Producto::where('id',$value->id)->first();
                 $data[$c] = array(
                     'producto' => $value->nombre,
                     'codigobarra' => $value->codigobarra,
                     'precioventa' => $value->precioventa,
                     'preciocompra' => $value->preciocompra,
+                    'unidad' => $producto->unidad->nombre,
                     'idproducto' => $value->id,
+                    'tipo' => 'P',
                     'stock' => round($value->cantidad, 2),
                 );
                 $c++;
@@ -681,5 +693,87 @@ class MovimientoalmacenController extends Controller
             $cadena = $cadena . "<option value=" . $value->id . ">" . $value->nombre . "</option>";
         }
         return json_encode(array("sucursales" => $cadena));
+    }
+
+    /**
+     * Funcion para abrir modal de importar.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function import(Request $request)
+    {
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad             = "Movimientoalmacen";
+        $current_user        = Auth::User();
+        $movimiento          = null;
+        $formData            = array('movimientoalmacen.saveimport');
+        $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento' . $entidad, 'autocomplete' => 'off', 'enctype' => 'multipart/form-data');
+        $boton               = 'Importar';
+        $cboSucursal         = ["" => "SELECCIONE SUCURSAL"] + Sucursal::pluck('nombre', 'id')->all();
+        if (!$current_user->isAdmin() && !$current_user->isSuperAdmin()) {
+            $cboSucursal  = Sucursal::where('id', '=', $current_user->sucursal_id)->pluck('nombre', 'id')->all();
+        }
+        return view($this->folderview . '.mant2')->with(compact('movimiento', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal'));
+    }
+
+    /**
+     * Funcion para importar.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * 
+     */
+    public function saveimport(Request $request)
+    {
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $validacion = Validator::make(
+            $request->all(),
+            array(
+                'file'           => 'required',
+            ),
+            array(
+                'file.required'  => 'El campo Excel es necesario.',
+            )
+        );
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+        $error = DB::transaction(function () use ($request) {
+            if ($request->hasFile("file")) {
+                $file = $request->file("file");
+                if ($file->getClientMimeType() == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $file->getClientMimeType() == "application/vnd.ms-excel" || $file->getClientMimeType() == "application/octet-stream") {
+                    session(['import_docalmacen_sucursal_id' => $request->input("sucursal_id")]);
+                    $namefile = time() . $file->getClientOriginalName();
+                    $file->move(public_path() . '/imports/', $namefile);
+                    $data = Excel::import(new DocAlmacenImport, public_path() . '/imports/' . $namefile);
+                } else {
+                    echo json_encode(array("file" => array("El archivo debe ser formato xls o xlsx")));
+                    exit();
+                }
+            }
+        });
+        return is_null($error) ? "OK" : $error;
+    }
+
+    public function pdf($id){
+
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $movimiento = Movimiento::find($id);
+        $conf_codigobarra = CODIGO_BARRAS;
+        //$cuenta = Cuenta::where('movimiento_id','=',$compra->id)->orderBy('id','ASC')->first();
+        //$fechapago =  Date::createFromFormat('Y-m-d', $cuenta->fecha)->format('d/m/Y');
+        $detalles = Detallemovimiento::where('movimiento_id', '=', $movimiento->id)->get();
+        //$numerocuotas = count($cuentas);
+
+        $detalles = Detallemovimiento::where('movimiento_id',$id)->get();
+        $pdf = PDF::loadView('app.movimientoalmacen.pdf',compact('movimiento','detalles'))->setPaper('a4');  
+        //HOJA HORIZONTAL ->setPaper('a4', 'landscape')
+    //descargar
+       // return $pdf->download('F'.$cotizacion->documento->correlativo.'.pdf');  
+    //Ver
+       return $pdf->stream('docalmacen.pdf');
+    
     }
 }

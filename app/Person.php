@@ -11,6 +11,22 @@ class Person extends Model
     protected $table = 'person';
     protected $dates = ['deleted_at'];
 
+/**
+     * Funcón que retorna true si es personal
+     *
+     * @return boolean
+     */
+    public function isPersonal()
+    {
+        $rolpersonal = Rolpersona::where('rol_id',1)->where('person_id',$this->id)->first();
+        if($rolpersonal){
+            return true;
+        }else{
+            return false;
+
+        }
+    }
+
     /**
      * MÃ©todo para listar
      * @param  model $query modelo

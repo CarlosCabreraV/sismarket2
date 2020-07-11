@@ -47,6 +47,6 @@ class CatalogoreporteController extends Controller
 
     public function excelCatalogo(Request $request){
         setlocale(LC_TIME, 'spanish');
-        return Excel::download(new CatalogoExport($request->input('sucursal'), $request->input('categoria'), $request->input('subcategoria'), $request->input('marca'), $request->input('unidad'), $request->input('precioventa'), $request->input('stock')), 'catalogoproductos.xlsx');
+        return Excel::download(new CatalogoExport($request->input('sucursal_id'), $request->input('categoria'), $request->input('subcategoria'), $request->input('marca'), $request->input('unidad'), $request->input('precioventa'),$request->input('preciocompra'), $request->input('stock') ,$request->input('codigo'),$request->input('descripcion'),$request->input('abreviatura'),$request->input('precioventaespecial'),$request->input('precioventaespecial2'),$request->input('afectoigv'),$request->input('soloconstock'),$request->input('ganancia')), 'catalogoproductos.xlsx');
     }
 }

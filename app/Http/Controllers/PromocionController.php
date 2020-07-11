@@ -173,6 +173,8 @@ class PromocionController extends Controller
             $promocion->unidad_id = $request->input('unidad_id');
             $promocion->categoria_id = $request->input('categoria_id');
             $promocion->precioventa = $request->input('precioventa');
+            $promocion->fechainicio = $request->input('fechainicio');
+            $promocion->fechafin = $request->input('fechafin');
             $promocion->save();
 
             $arr = explode(",", $request->input('listProducto'));
@@ -261,6 +263,8 @@ class PromocionController extends Controller
             $promocion->unidad_id = $request->input('unidad_id');
             $promocion->categoria_id = $request->input('categoria_id');
             $promocion->precioventa = $request->input('precioventa');
+            $promocion->fechainicio = $request->input('fechainicio');
+            $promocion->fechafin = $request->input('fechafin');
             $promocion->save();
 
             $detalle = Detallepromocion::where('promocion_id', '=', $id)->get();

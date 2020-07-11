@@ -31,11 +31,19 @@
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							
 						  <div class="row">
-							<div class="col-lg-12 col-md-12  form-group">
-									{!! Form::label('lblsucursal', 'Sucursal') !!}
-                                    {!! Form::select('sucursal',$sucursales,'',array('class'=>'form-control ','id'=>'sucursal'))!!}
-							</div>
-                          </div>
+                <div class="col-lg-12 col-md-12  form-group">
+                    {!! Form::label('lblsucursal', 'Sucursal') !!}
+                    {!! Form::select('sucursal',$sucursales,'',array('class'=>'form-control ','id'=>'sucursal'))!!}
+                </div>
+              </div>
+              <div class="row ml-3 my-2">
+                <div class="form-group">
+                    <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                      <input checked type="checkbox" class="custom-control-input" id="soloconstock" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                      <label class="custom-control-label" for="soloconstock">SOLO PRODUCTOS CON STOCK</label>
+                    </div>
+                  </div>
+              </div>
                           <div class="card">
                               <div class="card-header bg-navy">
                                   <h6 class="card-title">Datos incluidos en el reporte</h6> 
@@ -78,8 +86,73 @@
                                         <div class="row">
                                           <div class="form-group">
                                               <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="codigo" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="codigo">Codigo</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="descripcion" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="descripcion">Descripcion</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="abreviatura" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="abreviatura">Abreviatura</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
                                                 <input checked type="checkbox" class="custom-control-input" id="precioventa" onchange="verificarChecked(this.id ,this.checked);" value='S'>
                                                 <label class="custom-control-label" for="precioventa">Precio de venta</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="precioventaespecial" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="precioventaespecial">Precio de venta especial</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="precioventaespecial2" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="precioventaespecial2">Precio de venta especial 2</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="preciocompra" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="preciocompra">Precio de compra</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="ganancia" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="ganancia">Ganancia</label>
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="form-group">
+                                              <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                                <input checked type="checkbox" class="custom-control-input" id="afectoigv" onchange="verificarChecked(this.id ,this.checked);" value='S'>
+                                                <label class="custom-control-label" for="afectoigv">Afecto IGV</label>
                                               </div>
                                             </div>
                                         </div>
@@ -122,7 +195,7 @@
 	});
 
     function imprimir(){
-        window.open("catalogoreporte/excelCatalogo?sucursal_id="+$('#sucursal').val()+"&categoria="+$('#categoria').val()+"&subcategoria="+$('#subcategoria').val()+"&marca="+$('#marca').val()+"&unidad="+$('#unidad').val()+"&precioventa="+$('#precioventa').val()+"&stock="+$('#stock').val(),"_blank");
+        window.open("catalogoreporte/excelCatalogo?sucursal_id="+$('#sucursal').val()+"&categoria="+$('#categoria').val()+"&subcategoria="+$('#subcategoria').val()+"&marca="+$('#marca').val()+"&unidad="+$('#unidad').val()+"&precioventa="+$('#precioventa').val()+"&preciocompra="+$('#preciocompra').val()+"&stock="+$('#stock').val()+"&codigo="+$('#codigo').val()+"&descripcion="+$('#descripcion').val()+"&abreviatura="+$('#abreviatura').val()+"&precioventaespecial="+$('#precioventaespecial').val()+"&precioventaespecial2="+$('#precioventaespecial2').val()+"&afectoigv="+$('#afectoigv').val()+"&soloconstock="+$('#soloconstock').val()+"&ganancia="+$('#ganancia').val(),"_blank");
     }
 /*
     function submitForm22 () {

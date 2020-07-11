@@ -1,7 +1,14 @@
+<?php 
+$current_user = Auth::user();
+$category_id = null;
+if($producto == null){
+	$category_id = 742;
+}
+?>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($producto, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
-	<div class="row d-none">
+	<div class="row">
 		<div class="col-md-6 col-lg-6">
 			<div class="form-group ">
 				{!! Form::label('codigobarra', 'Cod. Barra', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
@@ -10,7 +17,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6 col-lg-6">
+		<div class="col-md-6 col-lg-6" style="display:none">
 			<div class="form-group" >
 				{!! Form::label('imagen', 'Imagen', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
@@ -43,7 +50,7 @@
 			<div class="form-group">
 				{!! Form::label('category_id', 'Categoria', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::select('category_id', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'category_id')) !!}
+					{!! Form::select('category_id', $cboCategoria, 742, array('class' => 'form-control input-xs', 'id' => 'category_id')) !!}
 				</div>
 			</div>
 			
@@ -76,83 +83,85 @@
 			
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-					{!! Form::label('preciocompra', 'Precio compra', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
-					<div class="col-lg-12 col-md-12 col-sm-12">
-						{!! Form::text('preciocompra', null, array('class' => 'form-control input-xs', 'id' => 'preciocompra', 'onblur' => 'calcularPrecio();')) !!}
-					</div>
-			</div>
-			
-		</div>
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('precioventa', 'Precio venta', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::text('precioventa', null, array('class' => 'form-control input-xs', 'id' => 'precioventa')) !!}
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('stockminimo', 'Stock minimo', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::text('stockminimo', null, array('class' => 'form-control input-xs', 'id' => 'stockminimo')) !!}
-				</div>
-			</div>
-			
-		</div>
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('ganancia', '% Ganancia', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-					<div class="col-lg-12 col-md-12 col-sm-12">
-						{!! Form::text('ganancia', null, array('class' => 'form-control input-xs', 'id' => 'ganancia', 'onblur' => 'calcularPrecio();')) !!}
-					</div>
-			</div>
-			
-			
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('lbligv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::hidden('igv', 'N', array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
-					<input type="checkbox" name="chkIGV" id="chkIGV" onclick="Igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
+	<div id="divPrecios">
+		<div class="row">
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+						{!! Form::label('preciocompra', 'Precio compra', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							{!! Form::text('preciocompra', null, array('class' => 'form-control input-xs', 'id' => 'preciocompra', 'onblur' => 'calcularPrecio();')) !!}
+						</div>
 				</div>
 				
 			</div>
-		</div>
-		<div class="col-md-6 col-lg-6">
-			
-			
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group" style="display: none;">
-				{!! Form::label('precioventaespecial', 'P. Venta Especial:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12">
-					{!! Form::text('precioventaespecial', null, array('class' => 'form-control input-xs', 'id' => 'precioventaespecial')) !!}
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('ganancia', '% Ganancia', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							{!! Form::text('ganancia', null, array('class' => 'form-control input-xs', 'id' => 'ganancia', 'onblur' => 'calcularPrecio();')) !!}
+						</div>
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6 col-lg-6">
-			<div class="form-group">
-				{!! Form::label('consumo', 'Cons. Tienda:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label', 'style' => 'display:none;')) !!}
-				<div class="col-lg-12 col-md-12 col-sm-12" style="display: none;">
-					{!! Form::hidden('consumo', null, array('class' => 'form-control input-xs', 'id' => 'consumo')) !!}
-					<input type="checkbox" name="chkConsumo" id="chkConsumo" onclick="consumo(this.checked);" <?php if(!is_null($producto) && $producto->consumo=='S') echo 'checked';?>>
+		<div class="row">
+			<div class="col-md-6 col-lg-6" style="display:none;">
+				<div class="form-group">
+					{!! Form::label('stockminimo', 'Stock minimo', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::text('stockminimo', null, array('class' => 'form-control input-xs', 'id' => 'stockminimo')) !!}
+					</div>
+				</div>
+				
+			</div>
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('precioventa', 'Precio venta', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::text('precioventa', null, array('class' => 'form-control input-xs', 'id' => 'precioventa')) !!}
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('precioventaespecial', 'P. V. Kiosko:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::text('precioventaespecial', null, array('class' => 'form-control input-xs', 'id' => 'precioventaespecial')) !!}
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+		<div class="row">
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('precioventaespecial2', 'P. V. Mayorista:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::text('precioventaespecial2', null, array('class' => 'form-control input-xs', 'id' => 'precioventaespecial2')) !!}
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('lbligv', 'IGV', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						{!! Form::hidden('igv', 'N', array('class' => 'form-control input-xs', 'id' => 'igv')) !!}
+						<input type="checkbox" name="chkIGV" id="chkIGV" onclick="Igv(this.checked);" <?php if(!is_null($producto) && $producto->igv=='S') echo 'checked';?>>
+					</div>
+					
+				</div>
+			</div>
 	
+			<div class="col-md-6 col-lg-6">
+				<div class="form-group">
+					{!! Form::label('consumo', 'Cons. Tienda:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label', 'style' => 'display:none;')) !!}
+					<div class="col-lg-12 col-md-12 col-sm-12" style="display: none;">
+						{!! Form::hidden('consumo', null, array('class' => 'form-control input-xs', 'id' => 'consumo')) !!}
+						<input type="checkbox" name="chkConsumo" id="chkConsumo" onclick="consumo(this.checked);" <?php if(!is_null($producto) && $producto->consumo=='S') echo 'checked';?>>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
 	<div class="form-group">
 	    {!! Form::label('archivo', 'Imagen', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-3 col-md-3 col-sm-3">
@@ -167,50 +176,62 @@
 	</div>
 {!! Form::close() !!}
 <script type="text/javascript">
+
+
 $(document).ready(function() {
 	configurarAnchoModal('600');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciocompra"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventaespecial"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventaespecial2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ganancia"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="stockminimo"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+	@if(!$current_user->isAdmin() && !$current_user->isSuperAdmin())
+		$("#divPrecios").hide();
+	@endif
 	$('#category_id').select2({
-			ajax: {
-				url: "promocion/categoriaautocompletar2",
-				dataType: 'json',
-				delay: 250,
-				data: function(params){
-					return{
-						q: $.trim(params.term),
-					};
-				},
-				processResults: function(data){
-					return{
-						results: data
-					};
-				}
-				
+		dropdownParent: $('.modal'),
+		ajax: {
+			url: "promocion/categoriaautocompletar2",
+			dataType: 'json',
+			delay: 250,
+			data: function(params){
+				return{
+					q: $.trim(params.term),
+				};
+			},
+			processResults: function(data){
+				return{
+					results: data
+				};
 			}
-		});
-		$('#categoria_id').select2({
-			ajax: {
-				url: "promocion/subcategoriaautocompletar2",
-				dataType: 'json',
-				delay: 250,
-				data: function(params){
-					return{
-						q: $.trim(params.term),
-						idcat: ($('#category_id').val())?($('#category_id').val()):'0',
-					};
-				},
-				processResults: function(data){
-					return{
-						results: data
-					};
-				}
-				
+			
+		}
+	});
+	$('#categoria_id').select2({
+		dropdownParent: $('.modal'),
+		ajax: {
+			url: "promocion/subcategoriaautocompletar2",
+			dataType: 'json',
+			delay: 250,
+			data: function(params){
+				return{
+					q: $.trim(params.term),
+					idcat: ($('#category_id').val())?($('#category_id').val()):'0',
+				};
+			},
+			processResults: function(data){
+				return{
+					results: data
+				};
 			}
-		});
+			
+		}
+	});
+	$('#marca_id').select2({
+		dropdownParent: $('.modal'),
+	});
 
 	
 });
