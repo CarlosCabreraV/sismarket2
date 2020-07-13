@@ -49,6 +49,10 @@ $current_user = Auth::user();
 				$title='Cobrado';
 				$title2='Cobrado';
 				$bg='bg-success';
+			}else if($value->situacion == 'T'){
+				$title='Parcial';
+				$title2='Parcial';
+				$bg='bg-warning';
 			}
             ?>
         <tr title="{{ $title2 }}" style="{{ $color }};">
@@ -61,9 +65,15 @@ $current_user = Auth::user();
             <td>{{ number_format($value->total,2,'.','') }}</td>
             <td><span class="badge {{$bg}}"> {{$title}}</span></td>
             <td>{{ $value->responsable2 }}</td>
-      	    <td>{!! Form::button('<div class="fas fa-copy"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["viewCopiar"], array($value->id, 'listar'=>'SI')).'\', \''.'Guardar Venta'.'\', this);', 'class' => 'btn btn-sm btn-success','title'=>'Copiar')) !!}</td>
-			
-			<td>{!! Form::button('<div class="fas fa-eye"></div>', array('onclick' => 'modal
+            @if ($value->situacion == 'T')
+            <td colspan="3" align="CENTER" >{!! Form::button('<div class="fas fa-edit"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["viewParcial"], array($value->id, 'listar'=>'SI')).'\', \''.'Guardar Venta'.'\', this);', 'class' => 'btn btn-sm btn-warning','title'=>'Copiar')) !!}</td>
+            <td colspan="2" align="CENTER">{!! Form::button('<div class="fas fa-minus"></div>', array('onclick' => 'modal
+                        (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);',
+                        'class' => 'btn btn-sm btn-danger', 'title'=>'Anular')) !!}</td>
+            @else
+            <td>{!! Form::button('<div class="fas fa-copy"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["viewCopiar"], array($value->id, 'listar'=>'SI')).'\', \''.'Guardar Venta'.'\', this);', 'class' => 'btn btn-sm btn-success','title'=>'Copiar')) !!}</td>
+            
+            <td>{!! Form::button('<div class="fas fa-eye"></div>', array('onclick' => 'modal
                 (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);',
                 'class' => 'btn btn-sm btn-info')) !!}</td>
             <td><a target="_blank" href="{{route('venta.verpdf' , ['id'=> $value->id])}}"><button
@@ -75,14 +85,17 @@ $current_user = Auth::user();
                     @else
                     <td>{!! Form::button('<div class="fas fa-hand-holding-usd"></div> ', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-success disabled')) !!}</td>
                     @endif
-                @if($value->situacion!='A')
-            <td>{!! Form::button('<div class="fas fa-minus"></div>', array('onclick' => 'modal
-                (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);',
-                'class' => 'btn btn-sm btn-danger', 'title'=>'Anular')) !!}</td>
-            @else
-            <td>{!! Form::button('<div class="fas fa-minus"></div>', array('onclick' => 'return false', 'class'
-                => 'disabled btn btn-sm btn-default')) !!}</td>
-            @endif
+                    
+                    @if($value->situacion!='A')
+                    <td>{!! Form::button('<div class="fas fa-minus"></div>', array('onclick' => 'modal
+                        (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);',
+                        'class' => 'btn btn-sm btn-danger', 'title'=>'Anular')) !!}</td>
+                    @else
+                    <td>{!! Form::button('<div class="fas fa-minus"></div>', array('onclick' => 'return false', 'class'
+                        => 'disabled btn btn-sm btn-default')) !!}</td>
+                    @endif
+                @endif
+                
             @endif
         </tr>
         <?php

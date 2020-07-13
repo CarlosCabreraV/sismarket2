@@ -205,6 +205,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('venta/declarar', 'VentaController@declarar')->name('venta.declarar');
     Route::get('venta/verpdf/{id}', 'VentaController@pdfTicket')->name('venta.verpdf');
     Route::get('venta/viewCopiar/{id}/{listarluego}', 'VentaController@viewCopiar')->name('venta.viewCopiar');
+    Route::get('venta/viewParcial/{id}/{listarluego}', 'VentaController@viewParcial')->name('venta.viewParcial');
+    Route::post('venta/guardarParcial/{id}', 'VentaController@guardarParcial')->name('venta.guardarParcial');
 
 
     /* PEDIDO*/

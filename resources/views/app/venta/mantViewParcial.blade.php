@@ -8,9 +8,9 @@
     
     </style>
     <div id="divMensajeError{!! $entidad !!}"></div>
-    {!! Form::model($movimiento, $formData) !!}	
+    {!! Form::model($venta, $formData) !!}	
         {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
-        {!! Form::hidden('idventaparcial', "0", array('id' => 'idventaparcial')) !!}
+        {!! Form::hidden('idventaparcial', $venta->id, array('id' => 'idventaparcial')) !!}
         {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
     
         <div class="row">
@@ -21,7 +21,7 @@
                         <div class="form-group">
                             {!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                             <div class="col-lg-12 col-md-12 col-sm-12">
-                                {!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
+                                {!! Form::date('fecha',date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
                             </div>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                         <div class="form-group">
                             {!! Form::label('lblsucursal_id', 'Sucursal', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                             <div class="col-lg-12 col-md-12 col-sm-12">
-                                {!! Form::select('sucursal_id',$cboSucursal, null, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
+                                {!! Form::select('sucursal_id',$cboSucursal, $venta->sucursal_id, array('class' => 'form-control input-xs', 'id' => 'sucursal_id')) !!}
                             </div>
                         </div>
                     </div>
@@ -47,31 +47,48 @@
                         <div class="form-group">
                             {!! Form::label('lbltipodoc', 'Tipo doc.', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
                             <div class="col-lg-12 col-md-12 col-sm-12">
-                                {!! Form::select('tipodocumento',$cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero();')) !!}
+                                {!! Form::select('tipodocumento',$cboTipoDocumento, $venta->tipodocumento_id, array('class' => 'form-control input-xs ', 'id' => 'tipodocumento','onchange' => 'generarNumero();')) !!}
                             </div>
                         </div>
                     </div>
                 </div>
                 <!--DATOS VENTA -->
-               <!--DATOS CLIENTE -->
+                <!--DATOS CLIENTE -->
                 <div class="row   py-2 px-1 my-2">
                     <div class="col-md-12 col-lg-12 col-sm-12">
                         <div class="form-group ">
                             {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                            <div class="col-lg-12 col-md-12 col-sm-12 input-group">
-                                {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
-                                {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
-                                {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
-                                {!! Form::hidden('ispersonal', 'N', array('id' => 'ispersonal')) !!}
-                                <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
-                                    {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                            @if ($venta->persona != null)
+                                <div class="col-lg-12 col-md-12 col-sm-12 input-group">
+                                    {!! Form::hidden('persona_id', $venta->persona->id, array('id' => 'persona_id')) !!}
+                                    {!! Form::hidden('dni', $venta->persona->dni?$venta->persona->dni:'', array('id' => 'dni')) !!}
+                                    {!! Form::hidden('ruc', $venta->persona->dni?$venta->persona->ruc:'', array('id' => 'ruc')) !!}
+                                    {!! Form::hidden('ispersonal', $venta->persona->isPersonal()?'S':'N', array('id' => 'ispersonal')) !!}
+                                    <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                                        {!! Form::text('persona', $cliente, array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                                    </div>
+                                    <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                                        <span class="input-group-append">
+                                            {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
-                                    <span class="input-group-append">
-                                        {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
-                                    </span>
+                            @else
+                                <div class="col-lg-12 col-md-12 col-sm-12 input-group">
+                                    {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
+                                    {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
+                                    {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
+                                    {!! Form::hidden('ispersonal', 'N', array('id' => 'ispersonal')) !!}
+                                    <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                                        {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                                    </div>
+                                    <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                                        <span class="input-group-append">
+                                            {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                             
                         </div>
                     </div>
@@ -81,9 +98,11 @@
                 <div class="form-group py-2 mx-2 my-2 row">
                     <label class="col-md-1 col-form-label ">Tipo</label>
                     <div class="col-md-5">
-                        {!! Form::select('tipoventa',['CONTADO'=>'Contado','CREDITO'=>'Credito'], 'CONTADO', array('class' => 'form-control input-xs', 'id' => 'tipoventa','onchange'=>'cambioTipo(this.value);')) !!}
+                        {!! Form::select('tipoventa',['CONTADO'=>'Contado','CREDITO'=>'Credito'], $venta->tipoventa, array('class' => 'form-control input-xs', 'id' => 'tipoventa','onchange'=>'cambioTipo(this.value);')) !!}
                     </div>
-                </div>        </div>
+                </div>
+                <!--TIPO DE PAGO -->
+            </div>
             <div class="col-lg-7 col-md-7 ">
                 <!--DATOS PRODUCTO -->
                 <div class="row ">
@@ -114,7 +133,7 @@
         </div>
     
        
-            <div class="row   py-2 px-1 my-2" style="max-height: 400px; overflow: auto;">
+            <div class="row   py-2 px-1 my-2">
                 <table class="table table-sm table-condensed table-striped" id="tbDetalle">
                     <thead class="bg-navy">
                         <th class="text-center">Cant.</th>
@@ -122,7 +141,6 @@
                         <th class="text-center">Cod. Barra</th>
                         @endif
                         <th class="text-center">Producto</th>
-                        <th class="text-center">Stock</th>
                         <th class="text-center">Precio</th>
                         <th class="text-center">Subtotal</th>
                         <th class="text-center">Quitar</th>
@@ -132,24 +150,27 @@
                     
                 </table>
             </div>
-            <table class="table table-sm table-condensed table-striped d-none" id='divDescuento' >
-                {!! Form::hidden('descuento', '', array('id' => 'descuento')) !!}
-                <tbody>
-                    <tr >
-                        <td width='80' class="pl-3" bgcolor="#0cfa7f" style="font-style:italic;"> SE TE APLICAR&Aacute; UN DESCUENTO DEL 10%</td>
-                        <td width='20' bgcolor="#0cfa7f" style="font-style:italic;"> DESCUENTO: <b id="lblDescuento"></b></td>
-                    </tr>
-                </tbody>
-                
-            </table>
-    <div id='divPago'>
+        @if ($venta->persona)
+            <table class="table table-sm table-condensed table-striped {{$venta->persona->isPersonal()?'':'d-none'}}" id='divDescuento' >
+                    {!! Form::hidden('descuento', '', array('id' => 'descuento')) !!}
+                    <tbody>
+                        <tr >
+                            <td width='80' class="pl-3" bgcolor="#0cfa7f" style="font-style:italic;"> SE TE APLICAR&Aacute; UN DESCUENTO DEL 10%</td>
+                            <td width='20' bgcolor="#0cfa7f" style="font-style:italic;"> DESCUENTO: <b id="lblDescuento"></b></td>
+                        </tr>
+                    </tbody>
+                    
+                </table>
+            
+        @endif
+        <div id='divPago' class="{{$venta->tipoventa=='CREDITO'?'d-none':''}}">
                 <!--TOTAL , DINERO , VUELTO-->
     
-                <div class="row   py-2 px-1 my-2">
+                <div class="row   py-2 px-1 my-2" >
                     <div class="col-md-3 col-lg-3 form-group row">
                             {!! Form::label('lbltotal', 'TOTAL', array('class' => ' col-form-label col-lg-3 col-md-3 col-sm-3  bold' )) !!}
                         <div class="col-md-9 col-lg-9">
-                            {!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'false', 'style' => 'font-size:20px;color:white; background:#00028f;')) !!}
+                            {!! Form::text('total', $venta->total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'false', 'style' => 'font-size:20px;color:white; background:#00028f;')) !!}
                         </div>
                     </div>
                     <div class="col-md-3 col-lg-3 form-group row">
@@ -164,41 +185,33 @@
                             {!! Form::text('vuelto', null, array('class' => 'form-control input-xs', 'id' => 'vuelto', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:20px;color:darkblue;')) !!}
                         </div>
                     </div>
-                    <div class="col-md-3 col-lg-3 form-group row d-none">
+                    <div class="col-md-3 col-lg-3 form-group d-none">
                         <input type="hidden" name="acuenta" id="acuenta" value="N">
-                        <div class="col-md-1 col-lg-1">
-                            <input type="checkbox" id="chkCredito"  onclick="aCuenta(this.checked);" />
+                        {!! Form::label('lblcuenta', 'A CUENTA', array('class' => 'col-form-label col-lg-4 col-md-4 col-sm-4 bold')) !!}
+                        <div class="col-md-8 col-lg-8 mt-2">
+                            <input type="checkbox"  onclick="aCuenta(this.checked);" />
                         </div>
-                        {!! Form::label('lblCredito', 'CREDITO', array('class' => 'col-form-label col-lg-3 col-md-3 col-sm-12 bold')) !!}
                     </div>
                 </div>
-    
                 <!--TOTAL , DINERO , VUELTO-->
                    <!--EFECTIVO , VISA-->
                    <div class="row   py-2 px-1 my-2">
                         <div class="col-md-3 col-lg-3 form-group row">
                             {!! Form::label('lblefectivo', 'EFECTIVO', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
                             <div class="col-md-9 col-lg-9">
-                                {!! Form::text('totalpagado', null, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:30px;color:green;')) !!}
+                                {!! Form::text('totalpagado', $venta->totalpagado, array('class' => 'form-control input-xs', 'id' => 'totalpagado', 'size' => 3, 'readonly' => 'true', 'style' => 'font-size:30px;color:green;')) !!}
                             </div>
                         </div>
                         <div class="col-md-3 col-lg-3 form-group row">
                             {!! Form::label('lblvisa', 'TARJETA', array('class' => 'col-form-label col-lg-3 col-md-2 col-sm-3  bold')) !!}
                             <div class="col-md-9 col-lg-9">
-                                {!! Form::text('tarjeta', 0, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
+                                {!! Form::text('tarjeta', $venta->tarjeta, array('class' => 'form-control input-xs', 'id' => 'tarjeta', 'size' => 3, 'style' => 'font-size:30px;color:blue;' , 'onkeyup' => 'calcularTarjeta();')) !!}
                             </div>
                         </div>
-		    <div class="col-md-3 col-lg-3 form-group d-flex">
-                        <input type="hidden" name="transferencia" id="transferencia" value="N">
-                        {!! Form::label('lbltransferencia', 'TRANSFERENCIA', array('class' => 'col-form-label col-lg-6 col-md-6 bold')) !!}
-                        <div class="col-md-3 col-lg-3 mt-2">
-                            <input type="checkbox"  onclick="aTransferencia(this.checked);" />
-                        </div>
-                    </div>
                    </div>
                  
                <!--EFECTIVO, VISA-->
-    </div>
+            </div>
          <div class="form-group">
             <div class="col-lg-12 col-md-12 col-sm-12 text-right">
                 {!! Form::button('<i class="fa fa-edit fa-lg"></i> Venta Parcial', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPagoParcial(\''.$entidad.'\', this);')) !!}
@@ -231,7 +244,7 @@
         }
     
     </style>
-    <script type="text/javascript">
+  <script type="text/javascript">
     var valorbusqueda="";
     $(document).ready(function() {
         configurarAnchoModal('1300');
@@ -239,7 +252,7 @@
         $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
         $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dinero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
         $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="vuelto"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-        
+        generarNumero();
         var personas2 = new Bloodhound({
             datumTokenizer: function (d) {
                 return Bloodhound.tokenizers.whitespace(d.value);
@@ -354,6 +367,86 @@
         });
     
     }); 
+
+    function guardarPagoParcial (entidad, idboton) {
+        var band=true;
+        var msg="";
+    
+        if($("#person_id").val()==""){
+            band = false;
+            msg += " *No se selecciono un cliente \n";    
+        }
+        if(carro.length==0){
+            band = false;
+            msg += " *No se agreg� ning�n producto \n";    
+        }
+        // if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
+        //     if($("#dni").val().trim().length!=8){
+        //         band = false;
+        //         msg += " *El cliente debe tener DNI correcto \n";
+        //     }
+        // }   
+        // if($("#tipodocumento").val()=="4"){//FACTURA
+        //     var ruc = $("#ruc").val();
+        //     ruc = ruc.replace("_"," ");
+        //     console.log(ruc);
+        //     if(ruc.trim().length<11){
+        //         band = false;
+        //         msg += " *Debe registrar un correcto RUC \n";   
+        //     }
+        // }
+        if(parseFloat($("#tarjeta").val()) > parseFloat($('#total').val()) && carro.length != 0){
+            band = false;
+            msg += " *El monto de la tarjeta no debe superar al total \n";
+        }
+        if(band && contador==0){
+            contador=1;
+            var idformulario = IDFORMMANTENIMIENTO + entidad;
+            var data         = $.ajax({
+                url : "venta/guardarParcial/1",
+                data: new FormData($(idformulario)[0]),
+                type: "POST",
+                contentType: false,
+                processData: false
+            });
+            var respuesta    = '';
+            var error = '';
+            var btn = $(idboton);
+            btn.button('loading');
+            data.done(function(msg) {
+                respuesta = msg;
+            }).fail(function(xhr, textStatus, errorThrown) {
+                respuesta = 'ERROR';
+                contador=0;
+            }).always(function() {
+                btn.button('reset');
+                contador=0;
+                if(respuesta === 'ERROR'){
+                    console.log(error);
+                }else{
+                  //alert(respuesta);
+                    var dat = JSON.parse(respuesta);
+                    if(dat[0]!==undefined){
+                        resp=dat[0].respuesta;    
+                    }else{
+                        resp='VALIDACION';
+                    }
+                    
+                    if (resp === 'OK') {
+                        cerrarModal();
+                        buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+                        //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
+                    } else if(resp === 'ERROR') {
+                        toastr.error(dat[0].msg , 'Error');
+                    } else {
+                        mostrarErrores(respuesta, idformulario, entidad);
+                    }
+                }
+            });
+        }else{
+            toastr.error(msg , "Corrige los siguientes errores");
+        }
+    }
     
     function guardarHistoria (entidad, idboton) {
         var idformulario = IDFORMMANTENIMIENTO + entidad;
@@ -464,86 +557,6 @@
             toastr.error(msg , "Corrige los siguientes errores");
         }
     }
-
-    function guardarPagoParcial (entidad, idboton) {
-        var band=true;
-        var msg="";
-    
-        if($("#person_id").val()==""){
-            band = false;
-            msg += " *No se selecciono un cliente \n";    
-        }
-        if(carro.length==0){
-            band = false;
-            msg += " *No se agreg� ning�n producto \n";    
-        }
-        // if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
-        //     if($("#dni").val().trim().length!=8){
-        //         band = false;
-        //         msg += " *El cliente debe tener DNI correcto \n";
-        //     }
-        // }   
-        // if($("#tipodocumento").val()=="4"){//FACTURA
-        //     var ruc = $("#ruc").val();
-        //     ruc = ruc.replace("_"," ");
-        //     console.log(ruc);
-        //     if(ruc.trim().length<11){
-        //         band = false;
-        //         msg += " *Debe registrar un correcto RUC \n";   
-        //     }
-        // }
-        if(parseFloat($("#tarjeta").val()) > parseFloat($('#total').val()) && carro.length != 0){
-            band = false;
-            msg += " *El monto de la tarjeta no debe superar al total \n";
-        }
-        if(band && contador==0){
-            contador=1;
-            var idformulario = IDFORMMANTENIMIENTO + entidad;
-            var data         = $.ajax({
-                url : "venta/guardarParcial/1",
-                data: new FormData($(idformulario)[0]),
-                type: "POST",
-                contentType: false,
-                processData: false
-            });
-            var respuesta    = '';
-            var error = '';
-            var btn = $(idboton);
-            btn.button('loading');
-            data.done(function(msg) {
-                respuesta = msg;
-            }).fail(function(xhr, textStatus, errorThrown) {
-                respuesta = 'ERROR';
-                contador=0;
-            }).always(function() {
-                btn.button('reset');
-                contador=0;
-                if(respuesta === 'ERROR'){
-                    console.log(error);
-                }else{
-                  //alert(respuesta);
-                    var dat = JSON.parse(respuesta);
-                    if(dat[0]!==undefined){
-                        resp=dat[0].respuesta;    
-                    }else{
-                        resp='VALIDACION';
-                    }
-                    
-                    if (resp === 'OK') {
-                        cerrarModal();
-                        buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
-                        //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
-                    } else if(resp === 'ERROR') {
-                        toastr.error(dat[0].msg , 'Error');
-                    } else {
-                        mostrarErrores(respuesta, idformulario, entidad);
-                    }
-                }
-            });
-        }else{
-            toastr.error(msg , "Corrige los siguientes errores");
-        }
-    }
     
     function declarar(idventa,idtipodocumento){
         if(idtipodocumento==3){
@@ -572,7 +585,7 @@
             success: function(a) {
                 datos=JSON.parse(a);
                 if(datos.length > 0){
-                    seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock,datos[0].tipo,false);
+                    seleccionarProducto(datos[0].idproducto,datos[0].codigobarra,datos[0].producto,datos[0].preciocompra,datos[0].precioventa,datos[0].stock,datos[0].tipo);
                 }
             }
         });
@@ -595,17 +608,17 @@
                         @if($conf_codigobarra=="S")
                             strTable = strTable + "<th class='text-center'>Cod. Barra</th>";
                         @endif   
-                        strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Unid.</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
+                        strTable = strTable + "<th class='text-center'>Producto</th><th class='text-center'>Stock</th><th class='text-center'>P. Unit.</th></tr></thead><tbody id='tbodyProducto'></tbody></table>";
                         $("#divBusqueda").html(strTable);
                         
                         var pag=parseInt($("#pag").val());
                         var d=0;
                         for(c=0; c < datos.length; c++){
-                            var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"',true)\">";
+                            var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].codigobarra+"','"+datos[c].producto+"','"+datos[c].preciocompra+"','"+datos[c].precioventa+"','"+datos[c].stock+"','"+datos[c].tipo+"')\">";
                             @if ($conf_codigobarra=="S")
                                 a = a + "<td align='center'>"+datos[c].codigobarra+"</td>";
                             @endif 
-                            a = a + "<td>"+datos[c].producto+"</td><td align='center'>"+datos[c].unidad+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
+                            a = a + "<td>"+datos[c].producto+"</td><td align='right'>"+datos[c].stock+"</td><td align='right'>"+datos[c].precioventa+"</td></tr>";
                             $("#tbodyProducto").append(a);           
                         }
                         
@@ -627,7 +640,7 @@
     var carroDoc = new Array();
     var copia = new Array();
     var idant = 0;
-    function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock, tipo, band2){
+    function seleccionarProducto(idproducto,codigobarra,descripcion,preciocompra,precioventa,stock, tipo , cantidad = 1){
         var band=true;
         var id=idproducto;
         idproducto = idproducto+'-'+tipo;
@@ -637,14 +650,13 @@
             }      
         }
         if(band){
-            var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' /><input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' /><input type='text' data='numero3' style='width: 60px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>";
+            var strDetalle = "<tr id='tr"+idproducto+"'><td><input type='hidden' id='txtIdProducto"+idproducto+"' name='txtIdProducto"+idproducto+"' value='"+id+"' /><input type='hidden' id='txtTipo"+idproducto+"' name='txtTipo"+idproducto+"' value='"+tipo+"' /><input type='text' data='numero3' style='width: 80px;' class='form-control input-xs' id='txtCantidad"+idproducto+"' name='txtCantidad"+idproducto+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>";
             @if ($conf_codigobarra=="S")
                 strDetalle = strDetalle + "<td align='left'>"+codigobarra+"</td>";
             @endif
     
             strDetalle = strDetalle + "<td align='left'>"+descripcion+"</td>" + 
-        "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtStock"+idproducto+"' id='txtStock"+idproducto+"' value='"+stock+"' style='width: 80px;' /></td>"+
-            "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='text' size='5' readonly class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
+            "<td align='center'><input type='hidden' id='txtPrecioVenta"+idproducto+"' name='txtPrecioVenta"+idproducto+"' value='"+precioventa+"' /><input type='hidden' id='txtPrecioCompra"+idproducto+"' name='txtPrecioCompra"+idproducto+"' value='"+preciocompra+"' /><input readonly type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+idproducto+"' style='width: 80px;' name='txtPrecio"+idproducto+"' value='"+precioventa+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+idproducto+"')}\" onblur=\"calcularTotalItem('"+idproducto+"')\" /></td>"+
             "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idproducto+"' style='width: 80px;' id='txtTotal"+idproducto+"' value='"+precioventa+"' /></td>"+
             "<td><a href='#' onclick=\"quitarProducto('"+idproducto+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>";
            
@@ -659,7 +671,11 @@
             $("#tdDescripcion"+idproducto).css('color','');
             $("#tdDescripcion"+idproducto).css('font-weight','');
             idant=idproducto;
+            if(cantidad == 1){
             $('#txtCantidad'+idproducto).val("1");
+            }else{
+            $('#txtCantidad'+idproducto).val(cantidad);
+            }
             $('#txtCantidad'+idproducto).keyup(function (e) {
                 var key = window.event ? e.keyCode : e.which;
                 if (key == '13') {
@@ -670,10 +686,7 @@
             $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
             $(':input[data="numero3"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 3 });
 
-        if(band2){
-                $('#txtCantidad'+idproducto).focus();
-                $('#txtCantidad'+idproducto).select();
-        }
+            $('#txtCantidad'+idproducto).select();
             calcularTotal();
         }else{
             if(idant>0){
@@ -687,10 +700,7 @@
             idant=idproducto;
             var cant = parseInt($('#txtCantidad'+idproducto).val())+1; 
             $('#txtCantidad'+idproducto).val(cant);
-        if(band2){
-                $('#txtCantidad'+idproducto).focus();
-                $('#txtCantidad'+idproducto).select();
-        }
+            $('#txtCantidad'+idproducto).select();
             $('#txtCantidad'+idproducto).keyup(function (e) {
                 var key = window.event ? e.keyCode : e.which;
                 if (key == '13') {
@@ -702,24 +712,25 @@
         }
     }
     
-function calcularTotal(){
-    var total2=0;
-    for(c=0; c < carro.length; c++){
-        var tot=parseFloat($("#txtTotal"+carro[c]).val());
-        total2=Math.round((total2+tot) * 100) / 100;        
+    function calcularTotal(){
+        var total2=0;
+        for(c=0; c < carro.length; c++){
+            var tot=parseFloat($("#txtTotal"+carro[c]).val());
+            total2=Math.round((total2+tot) * 100) / 100;        
+        }
+        if($('#ispersonal').val() == 'S'){
+            $("#total").val(Math.round((total2) * 90) / 100); 
+            $("#totalpagado").val(Math.round((total2) * 90) / 100);
+            $("#descuento").val(Math.round((total2) * 10) / 100);
+            $("#lblDescuento").html(' S/ '+Math.round(total2 * 10) / 100);
+        }else if($('#ispersonal').val() == 'N'){
+            $("#total").val(total2); 
+            $("#totalpagado").val(total2);
+            $("#descuento").val('');
+            $("#lblDescuento").html('0.0');
+        }
     }
-    if($('#ispersonal').val() == 'S'){
-        $("#total").val(Math.round((total2) * 90) / 100); 
-        $("#totalpagado").val(Math.round((total2) * 90) / 100);
-        $("#descuento").val(Math.round((total2) * 10) / 100);
-        $("#lblDescuento").html(' S/ '+Math.round(total2 * 10) / 100);
-    }else if($('#ispersonal').val() == 'N'){
-        $("#total").val(total2); 
-        $("#totalpagado").val(total2);
-        $("#descuento").val('');
-        $("#lblDescuento").html('0.0');
-    }
-}    
+    
     function calcularTotalItem(id){
         var cant=parseFloat($("#txtCantidad"+id).val());
         var pv=parseFloat($("#txtPrecio"+id).val());
@@ -831,13 +842,6 @@ function calcularTotal(){
             $("#acuenta").val("N");
         }
     }
-    function aTransferencia(check){
-    	if(check){
-        	$("#transferencia").val("S");
-    	}else{
-        	$("#transferencia").val("N");
-    	}
-    }
     function cambioTipo(tipoventa){
         if(tipoventa=='CREDITO'){
             $('#divPago').addClass('d-none');
@@ -853,14 +857,23 @@ function calcularTotal(){
         var efe = Math.round((tot - tar)*100)/100;
         $("#totalpagado").val(efe);
     }
-    $("#tipodocumento option[value=3]").attr("selected",true);
-    @php
-    if(!is_null($movimiento)){
-        echo "agregarDetalle(".$movimiento->id.");";
-    }else{
-        echo "generarNumero()";
-    }
-    @endphp
-    
     
     </script>
+    @foreach($detalles as $detalle)
+    <?php 
+        $idproducto = $detalle->producto_id?$detalle->producto_id:$detalle->promocion_id;
+        $tipo = $detalle->producto_id?'P':'C';
+        $codigobarra = ($detalle->producto_id)?$detalle->producto->codigobarra:'';
+        $descripcion = ($detalle->producto_id)?$detalle->producto->nombre: $detalle->promocion->nombre;
+        $preciocompra = $detalle->preciocompra;   
+        $precioventa = $detalle->precioventa;  
+        $cantidad = $detalle->cantidad; 
+    ?>
+
+    <script>
+        seleccionarProducto('{{$idproducto}}','{{$codigobarra}}','{{$descripcion}}','{{$preciocompra}}','{{$precioventa}}',0, '{{$tipo}}','{{$cantidad}}');
+    </script>
+@endforeach
+<script>
+    calcularTotal();
+</script>

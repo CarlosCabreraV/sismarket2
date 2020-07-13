@@ -10,6 +10,7 @@
     <div id="divMensajeError{!! $entidad !!}"></div>
     {!! Form::model($venta, $formData) !!}	
         {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
+        {!! Form::hidden('idventaparcial', "0", array('id' => 'idventaparcial')) !!}
         {!! Form::hidden('listProducto', null, array('id' => 'listProducto')) !!}
     
         <div class="row">
@@ -57,20 +58,37 @@
                     <div class="col-md-12 col-lg-12 col-sm-12">
                         <div class="form-group ">
                             {!! Form::label('persona', 'Cliente', array('class' => 'col-lg-12 col-md-12 col-sm-12 control-label')) !!}
-                            <div class="col-lg-12 col-md-12 col-sm-12 input-group">
-                                {!! Form::hidden('persona_id', $venta->persona->id, array('id' => 'persona_id')) !!}
-                                {!! Form::hidden('dni', $venta->persona->dni?$venta->persona->dni:'', array('id' => 'dni')) !!}
-                                {!! Form::hidden('ruc', $venta->persona->dni?$venta->persona->ruc:'', array('id' => 'ruc')) !!}
-                                {!! Form::hidden('ispersonal', $venta->persona->isPersonal()?'S':'N', array('id' => 'ispersonal')) !!}
-                                <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
-                                    {!! Form::text('persona', $cliente, array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                            @if ($venta->persona != null)
+                                <div class="col-lg-12 col-md-12 col-sm-12 input-group">
+                                    {!! Form::hidden('persona_id', $venta->persona->id, array('id' => 'persona_id')) !!}
+                                    {!! Form::hidden('dni', $venta->persona->dni?$venta->persona->dni:'', array('id' => 'dni')) !!}
+                                    {!! Form::hidden('ruc', $venta->persona->dni?$venta->persona->ruc:'', array('id' => 'ruc')) !!}
+                                    {!! Form::hidden('ispersonal', $venta->persona->isPersonal()?'S':'N', array('id' => 'ispersonal')) !!}
+                                    <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                                        {!! Form::text('persona', $cliente, array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                                    </div>
+                                    <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                                        <span class="input-group-append">
+                                            {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
-                                    <span class="input-group-append">
-                                        {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
-                                    </span>
+                            @else
+                                <div class="col-lg-12 col-md-12 col-sm-12 input-group">
+                                    {!! Form::hidden('persona_id', 0, array('id' => 'persona_id')) !!}
+                                    {!! Form::hidden('dni', '', array('id' => 'dni')) !!}
+                                    {!! Form::hidden('ruc', '', array('id' => 'ruc')) !!}
+                                    {!! Form::hidden('ispersonal', 'N', array('id' => 'ispersonal')) !!}
+                                    <div class="col-lg-9 col-sm-9 col-md-9 pr-0">
+                                        {!! Form::text('persona', 'VARIOS', array('class' => 'form-control input-xs', 'id' => 'persona', 'placeholder' => 'Ingrese Cliente')) !!}
+                                    </div>
+                                    <div class="col-lg-3 col-sm-3 col-md-3 pl-0">
+                                        <span class="input-group-append">
+                                            {!! Form::button('<i class="fas fa-plus fa-fw"></i> Agregar', array('class' => 'btn btn-info btn-flat ', 'onclick' => 'modal (\''.URL::route('persona.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Person\', this);', 'title' => 'Nueva Persona')) !!}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                             
                         </div>
                     </div>
@@ -132,16 +150,19 @@
                     
                 </table>
             </div>
-        <table class="table table-sm table-condensed table-striped {{$venta->persona->isPersonal()?'':'d-none'}}" id='divDescuento' >
-                {!! Form::hidden('descuento', '', array('id' => 'descuento')) !!}
-                <tbody>
-                    <tr >
-                        <td width='80' class="pl-3" bgcolor="#0cfa7f" style="font-style:italic;"> SE TE APLICAR&Aacute; UN DESCUENTO DEL 10%</td>
-                        <td width='20' bgcolor="#0cfa7f" style="font-style:italic;"> DESCUENTO: <b id="lblDescuento"></b></td>
-                    </tr>
-                </tbody>
-                
-            </table>
+        @if ($venta->persona)
+            <table class="table table-sm table-condensed table-striped {{$venta->persona->isPersonal()?'':'d-none'}}" id='divDescuento' >
+                    {!! Form::hidden('descuento', '', array('id' => 'descuento')) !!}
+                    <tbody>
+                        <tr >
+                            <td width='80' class="pl-3" bgcolor="#0cfa7f" style="font-style:italic;"> SE TE APLICAR&Aacute; UN DESCUENTO DEL 10%</td>
+                            <td width='20' bgcolor="#0cfa7f" style="font-style:italic;"> DESCUENTO: <b id="lblDescuento"></b></td>
+                        </tr>
+                    </tbody>
+                    
+                </table>
+            
+        @endif
         <div id='divPago' class="{{$venta->tipoventa=='CREDITO'?'d-none':''}}">
                 <!--TOTAL , DINERO , VUELTO-->
     
@@ -193,6 +214,7 @@
             </div>
          <div class="form-group">
             <div class="col-lg-12 col-md-12 col-sm-12 text-right">
+                {!! Form::button('<i class="fa fa-edit fa-lg"></i> Venta Parcial', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPagoParcial(\''.$entidad.'\', this);')) !!}
                 {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-primary btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listProducto\').val(carro);guardarPago(\''.$entidad.'\', this);')) !!}
                 {!! Form::button('<i class="fa fa-undo fa-lg"></i> Cancelar', array('class' => 'btn btn-default btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
             </div>
@@ -388,7 +410,7 @@
         }
         if(carro.length==0){
             band = false;
-            msg += " *No se agregó ningún producto \n";    
+            msg += " *No se agregï¿½ ningï¿½n producto \n";    
         }
         if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
             if($("#dni").val().trim().length!=8){
@@ -439,8 +461,88 @@
                     if (resp === 'OK') {
                         if(dat[0].tipodocumento_id!="5"){
                             console.log('DECLARAR');
-                            //declarar(dat[0].venta_id,dat[0].tipodocumento_id);
+                            declarar(dat[0].venta_id,dat[0].tipodocumento_id);
                         }
+                        cerrarModal();
+                        buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+                        //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
+                    } else if(resp === 'ERROR') {
+                        toastr.error(dat[0].msg , 'Error');
+                    } else {
+                        mostrarErrores(respuesta, idformulario, entidad);
+                    }
+                }
+            });
+        }else{
+            toastr.error(msg , "Corrige los siguientes errores");
+        }
+    }
+
+    function guardarPagoParcial (entidad, idboton) {
+        var band=true;
+        var msg="";
+    
+        if($("#person_id").val()==""){
+            band = false;
+            msg += " *No se selecciono un cliente \n";    
+        }
+        if(carro.length==0){
+            band = false;
+            msg += " *No se agregï¿½ ningï¿½n producto \n";    
+        }
+        // if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="3"){//BOLETA
+        //     if($("#dni").val().trim().length!=8){
+        //         band = false;
+        //         msg += " *El cliente debe tener DNI correcto \n";
+        //     }
+        // }   
+        // if($("#tipodocumento").val()=="4"){//FACTURA
+        //     var ruc = $("#ruc").val();
+        //     ruc = ruc.replace("_"," ");
+        //     console.log(ruc);
+        //     if(ruc.trim().length<11){
+        //         band = false;
+        //         msg += " *Debe registrar un correcto RUC \n";   
+        //     }
+        // }
+        if(parseFloat($("#tarjeta").val()) > parseFloat($('#total').val()) && carro.length != 0){
+            band = false;
+            msg += " *El monto de la tarjeta no debe superar al total \n";
+        }
+        if(band && contador==0){
+            contador=1;
+            var idformulario = IDFORMMANTENIMIENTO + entidad;
+            var data         = $.ajax({
+                url : "venta/guardarParcial/1",
+                data: new FormData($(idformulario)[0]),
+                type: "POST",
+                contentType: false,
+                processData: false
+            });
+            var respuesta    = '';
+            var error = '';
+            var btn = $(idboton);
+            btn.button('loading');
+            data.done(function(msg) {
+                respuesta = msg;
+            }).fail(function(xhr, textStatus, errorThrown) {
+                respuesta = 'ERROR';
+                contador=0;
+            }).always(function() {
+                btn.button('reset');
+                contador=0;
+                if(respuesta === 'ERROR'){
+                    console.log(error);
+                }else{
+                  //alert(respuesta);
+                    var dat = JSON.parse(respuesta);
+                    if(dat[0]!==undefined){
+                        resp=dat[0].respuesta;    
+                    }else{
+                        resp='VALIDACION';
+                    }
+                    
+                    if (resp === 'OK') {
                         cerrarModal();
                         buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                         //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
