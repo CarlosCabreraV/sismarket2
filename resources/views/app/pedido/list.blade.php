@@ -25,6 +25,7 @@
 		 POR RECOGER: bg-
 		-->
 		<?php
+			$user = Auth::user();
 			$textoEstado = '';
 			$backgroundClase ='';
 			$opcionEliminar ='';
@@ -87,21 +88,27 @@
 			@endif
             <td><span class="badge {{$backgroundClase}}"> {{$textoEstado}}</span></td>
 			<td>{{ number_format($value->total,2)}}</td>
-			@if($opcionSiguienteEtapa == 'S')
-			<td>{!! Form::button('<div class="fas fa-redo"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["siguiente"], array($value->id, 'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success' , 'title'=>$textoSiguienteEtapa)) !!}</td>
+			
+			@if(!$user->isAdmin() && !$user->isSuperAdmin() )
+
+				@if($opcionSiguienteEtapa == 'S')
+				<td>{!! Form::button('<div class="fas fa-redo"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["siguiente"], array($value->id, 'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-sm btn-outline-success' , 'title'=>$textoSiguienteEtapa)) !!}</td>
+				@else
+				<td>{!! Form::button('<div class="fas fa-redo"></div> ', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-success disabled')) !!}</td>
+				@endif
+				<td>{!! Form::button('<div class="fas fa-eye"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-sm btn-outline-primary','title'=>'Ver detalles del pedido')) !!}</td>
+				@if($opcionEditar == 'S')
+				<td>{!! Form::button('<div class="fas fa-edit"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["viewUpdate"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificarPedido.'\', this);', 'class' => 'btn btn-sm btn-outline-success','title'=>'Editar el pedido')) !!}</td>
+				@else
+				<td>{!! Form::button('<div class="fas fa-edit"></div> ', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-success disabled')) !!}</td>
+				@endif
+				@if($opcionEliminar == 'S')
+				<td>{!! Form::button('<div class="fas fa-trash-alt"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger','title'=>'Rechazar el pedido')) !!}</td>
+				@else
+				<td>{!! Form::button('<div class="fas fa-trash-alt"></div>', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-danger disabled')) !!}</td>
+				@endif
 			@else
-			<td>{!! Form::button('<div class="fas fa-redo"></div> ', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-success disabled')) !!}</td>
-			@endif
-			<td>{!! Form::button('<div class="fas fa-eye"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-sm btn-outline-primary','title'=>'Ver detalles del pedido')) !!}</td>
-			@if($opcionEditar == 'S')
-			<td>{!! Form::button('<div class="fas fa-edit"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["viewUpdate"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificarPedido.'\', this);', 'class' => 'btn btn-sm btn-outline-success','title'=>'Editar el pedido')) !!}</td>
-			@else
-			<td>{!! Form::button('<div class="fas fa-edit"></div> ', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-success disabled')) !!}</td>
-			@endif
-			@if($opcionEliminar == 'S')
-			<td>{!! Form::button('<div class="fas fa-trash-alt"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-sm btn-outline-danger','title'=>'Rechazar el pedido')) !!}</td>
-			@else
-			<td>{!! Form::button('<div class="fas fa-trash-alt"></div>', array('onclick' => 'return false', 'class' => 'btn btn-sm btn-outline-danger disabled')) !!}</td>
+				<td colspan="4">-</td>
 			@endif
 		</tr>
         

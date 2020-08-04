@@ -66,7 +66,7 @@ class PedidoController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Pedido';
         $resultado        = Pedido::join('person as cliente','cliente.id','=','pedido.cliente_id')
-                                ->join('person as responsable','responsable.id','=','pedido.responsable_id');
+                                ->leftjoin('person as responsable','responsable.id','=','pedido.responsable_id');
         if($request->input('fechainicio')!=""){
             $resultado = $resultado->where('pedido.created_at','>=',$request->input('fechainicio'));
         }
@@ -262,7 +262,7 @@ class PedidoController extends Controller
                                 if (count($detalleproducto) > 0) {
                                     //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                                     foreach ($detalleproducto as $key => $value) {
-                                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
+                                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                         //SI TIENE STOCK REGISTRADO
                                         if (count($stock) > 0) {
                                             //SI EL STOCK ES SUFICIENTE
@@ -299,7 +299,7 @@ class PedidoController extends Controller
                                 }
                                 //SI ES UN PRODUCTO
                                 else {
-                                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
+                                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                     // SI TIENE STOCK REGISTRADO
                                     if (count($stock) > 0) {
                                         if ($stock->cantidad >= $Detalle->cantidad) {
@@ -340,7 +340,7 @@ class PedidoController extends Controller
                                 if (count($presentaciones) > 0) {
                                     //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                                     foreach ($presentaciones as $key => $presentacion) {
-                                        $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->first();
+                                        $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                         //SI TIENE STOCK REGISTRADO
                                         if (count($stock) > 0) {
                                             //SI EL STOCK ES SUFICIENTE
@@ -376,7 +376,7 @@ class PedidoController extends Controller
                                 }
                                 //SI ES UN PRODUCTO
                                 else {
-                                    $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->first();
+                                    $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                     // SI TIENE STOCK REGISTRADO
                                     if (count($stock) > 0) {
                                         if ($stock->cantidad >= $Detalle->cantidad*$detallepromo->cantidad) {
@@ -672,7 +672,7 @@ class PedidoController extends Controller
                                 if (count($detalleproducto) > 0) {
                                     //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                                     foreach ($detalleproducto as $key => $value) {
-                                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
+                                        $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                         //SI TIENE STOCK REGISTRADO
                                         if (count($stock) > 0) {
                                             //SI EL STOCK ES SUFICIENTE
@@ -709,7 +709,7 @@ class PedidoController extends Controller
                                 }
                                 //SI ES UN PRODUCTO
                                 else {
-                                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
+                                    $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                     // SI TIENE STOCK REGISTRADO
                                     if (count($stock) > 0) {
                                         if ($stock->cantidad >= $Detalle->cantidad) {
@@ -750,7 +750,7 @@ class PedidoController extends Controller
                                 if (count($presentaciones) > 0) {
                                     //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                                     foreach ($presentaciones as $key => $presentacion) {
-                                        $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->first();
+                                        $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                         //SI TIENE STOCK REGISTRADO
                                         if (count($stock) > 0) {
                                             //SI EL STOCK ES SUFICIENTE
@@ -786,7 +786,7 @@ class PedidoController extends Controller
                                 }
                                 //SI ES UN PRODUCTO
                                 else {
-                                    $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->first();
+                                    $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->where('sucursal_id',$request->input('sucursal_id'))->first();
                                     // SI TIENE STOCK REGISTRADO
                                     if (count($stock) > 0) {
                                         if ($stock->cantidad >= $Detalle->cantidad*$detallepromo->cantidad) {
@@ -890,6 +890,11 @@ class PedidoController extends Controller
                 $ruta = 'enviaryfinalizar';
                 $boton = 'Finalizar';
                 $texto = 'El pedido cambiará de estado a FINALIZADO, se registrará la venta y el ingreso a caja correspondiente.';
+            }else if ($modelo->estado == 'N'){
+                $bg_class = 'primary';
+                $ruta = 'aceptar';
+                $boton = 'Aceptar';
+                $texto = 'El pedido cambiará de estado a ACEPTADO, esto implica que se ha revisado que los datos proporcionados por el cliente son correctos.';
             }
         }
 
@@ -906,7 +911,10 @@ class PedidoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function () use ($id) {
+        $user = Auth::user();
+        $dat = array();
+    try{  
+        $error = DB::transaction(function () use ($id , &$dat ,$user) {
             $pedido = Pedido::find($id);
             if($pedido->delivery == 'S'){
                 $pedido->estado = 'A';
@@ -914,6 +922,7 @@ class PedidoController extends Controller
                 $pedido->estado = 'PR';
             }
             $pedido->fechaaceptado = new DateTime();
+            $pedido->responsable_id = $user->person_id;
             $pedido->save();
 
             $detallespedido = Detallepedido::where('pedido_id',$pedido->id)->get();
@@ -926,7 +935,7 @@ class PedidoController extends Controller
                         if (count($detalleproducto) > 0) {
                             //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                             foreach ($detalleproducto as $key => $value) {
-                                $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->first();
+                                $stock = Stockproducto::where('producto_id', '=', $value->presentacion_id)->where('sucursal_id',$pedido->sucursal_id)->first();
                                 //SI TIENE STOCK REGISTRADO
                                 if (count($stock) > 0) {
                                     //SI EL STOCK ES SUFICIENTE
@@ -963,7 +972,7 @@ class PedidoController extends Controller
                         }
                         //SI ES UN PRODUCTO
                         else {
-                            $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->first();
+                            $stock = Stockproducto::where('producto_id', '=', $Detalle->producto_id)->where('sucursal_id',$pedido->sucursal_id)->first();
                             // SI TIENE STOCK REGISTRADO
                             if (count($stock) > 0) {
                                 if ($stock->cantidad >= $Detalle->cantidad) {
@@ -1004,7 +1013,7 @@ class PedidoController extends Controller
                         if (count($presentaciones) > 0) {
                             //REDUCIR STOCK EN CADA UNO DE LOS PRODUCTOS DE LA PRESENTACION
                             foreach ($presentaciones as $key => $presentacion) {
-                                $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->first();
+                                $stock = Stockproducto::where('producto_id', '=', $presentacion->presentacion_id)->where('sucursal_id',$pedido->sucursal_id)->first();
                                 //SI TIENE STOCK REGISTRADO
                                 if (count($stock) > 0) {
                                     //SI EL STOCK ES SUFICIENTE
@@ -1040,7 +1049,7 @@ class PedidoController extends Controller
                         }
                         //SI ES UN PRODUCTO
                         else {
-                            $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->first();
+                            $stock = Stockproducto::where('producto_id', '=', $detallepromo->producto_id)->where('sucursal_id',$pedido->sucursal_id)->first();
                             // SI TIENE STOCK REGISTRADO
                             if (count($stock) > 0) {
                                 if ($stock->cantidad >= $Detalle->cantidad*$detallepromo->cantidad) {
@@ -1073,9 +1082,12 @@ class PedidoController extends Controller
                     }
                 }
             }
-
+            $dat[0] = array("respuesta" => "OK");
         });
-        return is_null($error) ? "OK" : $error;
+    } catch (\Exception $e) {
+        return $e->getMessage();
+    }
+    return is_null($error) ? json_encode($dat) : $error;
 
      }  
      public function enviar( $id){
@@ -1083,7 +1095,9 @@ class PedidoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function () use ($id) {
+        $dat = array();
+        $error = DB::transaction(function () use ($id , &$dat) {
+            $user = Auth::user();
             $pedido = Pedido::find($id);
             $pedido->estado = 'E';
             $pedido->fechaenviado=new DateTime();
@@ -1114,7 +1128,7 @@ class PedidoController extends Controller
             $Venta->situacion = 'P'; //Pendiente => P / Cobrado => C / Boleteado => B
             $Venta->voucher = '';
             $Venta->comentario = 'Venta generada a partir de un pedido';
-            $Venta->responsable_id = $pedido->responsable_id;
+            $Venta->responsable_id = $user->person_id;
             $Venta->pedido_id = $pedido->id;
             $Venta->sucursal_id = $pedido->sucursal_id;
             $Venta->save();
@@ -1132,9 +1146,9 @@ class PedidoController extends Controller
                 $detallemov->preciocompra = $detalle->preciocompra;
                 $detallemov->save();
             }
-
+            $dat[0] = array("respuesta" => "OK");
         });
-        return is_null($error) ? "OK" : $error;
+        return is_null($error) ? json_encode($dat) : $error;
 
      }  
      public function finalizar( $id){
@@ -1142,39 +1156,57 @@ class PedidoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function () use ($id) {
-            $pedido = Pedido::find($id);
-            $pedido->estado = 'F';
-            $pedido->fechafinalizado = new DateTime();
-            $pedido->save();
+        $dat = array();
+        $caja_sesion_id     = session('caja_sesion_id', '0');
+        $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
+        $estado_caja        = $caja_sesion->estado;
 
-            $venta = Movimiento::where('pedido_id',$pedido->id)->first();
-            $venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
-            //----------------------CAJA--------------------------------
-            $movimiento        = new Movimiento();
-            $movimiento->fecha = date("Y-m-d");
-            $movimiento->numero = Movimiento::NumeroSigue(4, 6);
-            $movimiento->responsable_id =$venta->responsable_id;
-            $movimiento->persona_id = $venta->persona_id;
-            $movimiento->subtotal = 0;
-            $movimiento->igv = 0;
-            $movimiento->total = $venta->total;
-            $movimiento->totalpagado = $venta->totalpagado;
-            $movimiento->tarjeta = $venta->tarjeta;
-            $movimiento->tipomovimiento_id = 4;
-            $movimiento->tipodocumento_id = 6;
-            $movimiento->concepto_id = 3;
-            $movimiento->voucher = '';
-            $movimiento->comentario = 'Pago de Documento de Venta ' . $venta->numero;
-            $movimiento->situacion = 'N';
-            $movimiento->movimiento_id = $venta->id;
+        try {
+            if (!$caja_sesion || $estado_caja == 'CERRADA') {
+                $dat[0] = array("respuesta" => "ERROR", "msg" => "CAJA CERRADA");
+                throw new \Exception(json_encode($dat));
+            }
 
-            $movimiento->sucursal_id = $venta->sucursal_id;
-            $movimiento->caja_id = session('caja_sesion_id', '');
-            $movimiento->save();
-        //------------------------FIN CAJA--------------------------------
-        });
-        return is_null($error) ? "OK" : $error;
+            $error = DB::transaction(function () use ($id , &$dat) {
+                $user = Auth::user();
+                $pedido = Pedido::find($id);
+                $pedido->estado = 'F';
+                $pedido->fechafinalizado = new DateTime();
+                $pedido->save();
+
+                $venta = Movimiento::where('pedido_id', $pedido->id)->first();
+                $venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                //----------------------CAJA--------------------------------
+                $movimiento        = new Movimiento();
+                $movimiento->fecha = date("Y-m-d");
+                $movimiento->numero = Movimiento::NumeroSigue(4, 6);
+                $movimiento->responsable_id =$user->person_id;
+                $movimiento->persona_id = $venta->persona_id;
+                $movimiento->subtotal = 0;
+                $movimiento->igv = 0;
+                $movimiento->total = $venta->total;
+                $movimiento->totalpagado = $venta->totalpagado;
+                $movimiento->tarjeta = $venta->tarjeta;
+                $movimiento->tipomovimiento_id = 4;
+                $movimiento->tipodocumento_id = 6;
+                $movimiento->concepto_id = 3;
+                $movimiento->voucher = '';
+                $movimiento->comentario = 'Pago de Documento de Venta ' . $venta->numero;
+                $movimiento->situacion = 'N';
+                $movimiento->movimiento_id = $venta->id;
+
+                $movimiento->sucursal_id = $venta->sucursal_id;
+                $movimiento->caja_id = session('caja_sesion_id', '');
+                $movimiento->save();
+                //------------------------FIN CAJA--------------------------------
+                $dat[0] = array("respuesta" => "OK");
+            });
+        }
+        catch(\Exception $e){
+            return $e->getMessage();
+        }
+
+        return is_null($error) ? json_encode($dat) : $error;
      }
 
      public function enviaryfinalizar($id){
@@ -1182,83 +1214,98 @@ class PedidoController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function () use ($id) {
-            $pedido = Pedido::find($id);
-            $pedido->estado = 'F';
-            $pedido->fechaenviado=new DateTime();
-            $pedido->fechafinalizado=new DateTime();
-            $pedido->save();
 
-            //GENERAR VENTA 
-            $Venta       = new Movimiento();
-            $Venta->fecha =  Date('Y-m-d');
-            $Venta->numero = $this->generarNumero($pedido->tipodocumento_id);
-            if ($pedido->tipodocumento_id == "4" || $pedido->tipodocumento_id == "3") { //FACTURA O BOLETA
-                $Venta->subtotal = round($pedido->total / 1.18, 2); //82%
-                $Venta->igv = round($pedido->total - $Venta->subtotal, 2); //18%
-            } else { //TICKET
-                $Venta->subtotal = $pedido->total;
-                $Venta->igv = 0;
-            }
-            $Venta->total = $pedido->total;
-            if($pedido->modopago == 'EFECTIVO'){
-                $Venta->tarjeta = "";
-                $Venta->totalpagado = $pedido->total;
-            }else {
-                $Venta->tarjeta = $pedido->total;
-                $Venta->totalpagado = "0.00";
-            }
-            $Venta->tipomovimiento_id = 2; //VENTA
-            $Venta->tipodocumento_id = $pedido->tipodocumento_id;
-            $Venta->persona_id = $pedido->cliente_id?$pedido->cliente_id:'1';
-            $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
-            $Venta->voucher = '';
-            $Venta->comentario = 'Venta generada a partir de un pedido';
-            $Venta->responsable_id = $pedido->responsable_id;
-            $Venta->pedido_id = $pedido->id;
-            $Venta->sucursal_id = $pedido->sucursal_id;
-            $Venta->save();
+        $dat = array();
+        $caja_sesion_id     = session('caja_sesion_id', '0');
+        $caja_sesion        = Caja::where('id', $caja_sesion_id)->first();
+        $estado_caja        = $caja_sesion->estado;
 
-            foreach($pedido->detalles as $detalle){
-                $detallemov = new Detallemovimiento();
-                $detallemov->movimiento_id = $Venta->id;
-                if($detalle->producto_id){
-                    $detallemov->producto_id = $detalle->producto_id;
-                }else{
-                    $detallemov->promocion_id = $detalle->promocion_id;
+        try {
+            if (!$caja_sesion || $estado_caja == 'CERRADA') {
+                $dat[0] = array("respuesta" => "ERROR", "msg" => "CAJA CERRADA");
+                throw new \Exception(json_encode($dat));
+            }
+            $error = DB::transaction(function () use ($id , &$dat) {
+                $user = Auth::user();
+                $pedido = Pedido::find($id);
+                $pedido->estado = 'F';
+                $pedido->fechaenviado=new DateTime();
+                $pedido->fechafinalizado=new DateTime();
+                $pedido->save();
+
+                //GENERAR VENTA
+                $Venta       = new Movimiento();
+                $Venta->fecha =  Date('Y-m-d');
+                $Venta->numero = $this->generarNumero($pedido->tipodocumento_id);
+                if ($pedido->tipodocumento_id == "4" || $pedido->tipodocumento_id == "3") { //FACTURA O BOLETA
+                    $Venta->subtotal = round($pedido->total / 1.18, 2); //82%
+                    $Venta->igv = round($pedido->total - $Venta->subtotal, 2); //18%
+                } else { //TICKET
+                    $Venta->subtotal = $pedido->total;
+                    $Venta->igv = 0;
                 }
-                $detallemov->cantidad = $detalle->cantidad;
-                $detallemov->precioventa = $detalle->precioventa;
-                $detallemov->preciocompra = $detalle->preciocompra;
-                $detallemov->save();
-            }
+                $Venta->total = $pedido->total;
+                if ($pedido->modopago == 'EFECTIVO') {
+                    $Venta->tarjeta = "";
+                    $Venta->totalpagado = $pedido->total;
+                } else {
+                    $Venta->tarjeta = $pedido->total;
+                    $Venta->totalpagado = "0.00";
+                }
+                $Venta->tipomovimiento_id = 2; //VENTA
+                $Venta->tipodocumento_id = $pedido->tipodocumento_id;
+                $Venta->persona_id = $pedido->cliente_id?$pedido->cliente_id:'1';
+                $Venta->situacion = 'C'; //Pendiente => P / Cobrado => C / Boleteado => B
+                $Venta->voucher = '';
+                $Venta->comentario = 'Venta generada a partir de un pedido';
+                $Venta->responsable_id = $user->person_id;
+                $Venta->pedido_id = $pedido->id;
+                $Venta->sucursal_id = $pedido->sucursal_id;
+                $Venta->save();
 
-            //----------------------CAJA--------------------------------
-            $movimiento        = new Movimiento();
-            $movimiento->fecha = date("Y-m-d");
-            $movimiento->numero = Movimiento::NumeroSigue(4, 6);
-            $movimiento->responsable_id =$Venta->responsable_id;
-            $movimiento->persona_id = $Venta->persona_id;
-            $movimiento->subtotal = 0;
-            $movimiento->igv = 0;
-            $movimiento->total = $Venta->total;
-            $movimiento->totalpagado = $Venta->totalpagado;
-            $movimiento->tarjeta = $Venta->tarjeta;
-            $movimiento->tipomovimiento_id = 4;
-            $movimiento->tipodocumento_id = 6;
-            $movimiento->concepto_id = 3;
-            $movimiento->voucher = '';
-            $movimiento->comentario = 'Pago de Documento de Venta ' . $Venta->numero;
-            $movimiento->situacion = 'N';
-            $movimiento->movimiento_id = $Venta->id;
+                foreach ($pedido->detalles as $detalle) {
+                    $detallemov = new Detallemovimiento();
+                    $detallemov->movimiento_id = $Venta->id;
+                    if ($detalle->producto_id) {
+                        $detallemov->producto_id = $detalle->producto_id;
+                    } else {
+                        $detallemov->promocion_id = $detalle->promocion_id;
+                    }
+                    $detallemov->cantidad = $detalle->cantidad;
+                    $detallemov->precioventa = $detalle->precioventa;
+                    $detallemov->preciocompra = $detalle->preciocompra;
+                    $detallemov->save();
+                }
 
-            $movimiento->sucursal_id = $Venta->sucursal_id;
-            $movimiento->caja_id = session('caja_sesion_id', '');
-            $movimiento->save();
-        //------------------------FIN CAJA--------------------------------
+                //----------------------CAJA--------------------------------
+                $movimiento        = new Movimiento();
+                $movimiento->fecha = date("Y-m-d");
+                $movimiento->numero = Movimiento::NumeroSigue(4, 6);
+                $movimiento->responsable_id =$user->person_id;
+                $movimiento->persona_id = $Venta->persona_id;
+                $movimiento->subtotal = 0;
+                $movimiento->igv = 0;
+                $movimiento->total = $Venta->total;
+                $movimiento->totalpagado = $Venta->totalpagado;
+                $movimiento->tarjeta = $Venta->tarjeta;
+                $movimiento->tipomovimiento_id = 4;
+                $movimiento->tipodocumento_id = 6;
+                $movimiento->concepto_id = 3;
+                $movimiento->voucher = '';
+                $movimiento->comentario = 'Pago de Documento de Venta ' . $Venta->numero;
+                $movimiento->situacion = 'N';
+                $movimiento->movimiento_id = $Venta->id;
 
-        });
-        return is_null($error) ? "OK" : $error;
+                $movimiento->sucursal_id = $Venta->sucursal_id;
+                $movimiento->caja_id = session('caja_sesion_id', '');
+                $movimiento->save();
+                //------------------------FIN CAJA--------------------------------
+                $dat[0] = array("respuesta" => "OK");
+            });
+        }catch(\Exception $e){
+            return $e->getMessage();
+        }
+        return is_null($error) ? json_encode($dat) : $error;
      }
      
      public function generarNumero($tipodocumento_id)
@@ -1268,7 +1315,7 @@ class PedidoController extends Controller
             $caja->serie = 1;
         }
         $serie = str_pad($caja->serie, 3, '0', STR_PAD_LEFT);
-        $numeroventa = Movimiento::NumeroSigue(2, $tipodocumento_id);
+        $numeroventa = Movimiento::NumeroSigue(2, $tipodocumento_id , null , $serie );
         if ($tipodocumento_id == 3) {
             return "B" . $serie . "-" . $numeroventa;
         } elseif ($tipodocumento_id == 4) {
