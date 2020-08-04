@@ -16,8 +16,8 @@ $person                = Person::find($user->person_id);
     <a href="index3.html" class="brand-link">
       <!--img src="dist/img/logo2.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8"-->
-      <img src="dist/logo_images/logo-marakos.jpg" alt="Marakos Market" class="brand-image img-circle elevation-3"
-           style="opacity: .8">
+      <!--img src="dist/logo_images/logo2.png" alt="Marakos Market" class="brand-image img-circle elevation-3"
+           style="opacity: .8"-->
       <span class="brand-text font-weight-light">{{ config('app.name', 'Mercadito') }}</span>
     </a>
     <!-- Sidebar -->

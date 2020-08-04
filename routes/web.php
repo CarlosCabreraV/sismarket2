@@ -27,6 +27,15 @@ Route::get('/asd', function () {
     return view('auth.login');
 });
 
+
+Route::get('webservices/cargarMegaMenu', 'WebServicesController@cargarMegaMenu')->middleware('cors');
+Route::get('webservices/principal', 'WebServicesController@principal')->middleware('cors');
+Route::get('webservices/catalogo', 'WebServicesController@catalogo')->middleware('cors');
+Route::get('webservices/buscarProducto', 'WebServicesController@buscarProducto')->middleware('cors');
+Route::get('webservices/productoautocompletar', 'WebServicesController@productoautocompletar')->middleware('cors');
+Route::get('webservices/producto', 'WebServicesController@producto')->middleware('cors');
+Route::post('webservices/registrarPedido', 'WebServicesController@registrarPedido')->middleware('cors');
+
 Auth::routes();
 
 //Route::get('/home', 'HomeController@index')->name('home');
