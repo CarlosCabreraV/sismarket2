@@ -16,7 +16,7 @@
       <div class="card login-card">
         <div class="row no-gutters">
           <div class="col-md-6">
-            <img src="dist/logo_images/logo-marakos.jpg" alt="login" class="login-card-img">
+            <img src="dist/logo_images/canasta.jpg" alt="login" class="login-card-img">
             <!--<img src="dist/logo_images/canasta.jpg" alt="login" class="login-card-img">-->
            <!-- <img src="dist/logo_images/mercado.jpg" alt="login" class="login-card-img"> -->
           </div>
