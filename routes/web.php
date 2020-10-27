@@ -217,6 +217,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('venta/viewParcial/{id}/{listarluego}', 'VentaController@viewParcial')->name('venta.viewParcial');
     Route::post('venta/guardarParcial/{id}', 'VentaController@guardarParcial')->name('venta.guardarParcial');
 
+    /* NotaCredito  */
+    Route::post('notacredito/buscar', 'NotacreditoController@buscar')->name('notacredito.buscar');
+    Route::get('notacredito/eliminar/{id}/{listarluego}', 'NotacreditoController@eliminar')->name('notacredito.eliminar');
+    Route::resource('notacredito', 'NotacreditoController', array('except' => array('show')));
+    Route::get('notacredito/documentoautocompletar', 'NotacreditoController@documentoautocompletar')->name('notacredito.documentoautocompletar');
+    Route::get('notacredito/obtenerCliente', 'NotacreditoController@obtenerCliente')->name('notacredito.obtenerCliente');
+
 
     /* PEDIDO*/
     Route::post('pedido/buscar', 'PedidoController@buscar')->name('pedido.buscar');
@@ -228,6 +235,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('pedido/finalizar/{id}', 'PedidoController@finalizar')->name('pedido.finalizar');
     Route::get('pedido/enviaryfinalizar/{id}', 'PedidoController@enviaryfinalizar')->name('pedido.enviaryfinalizar');
     Route::resource('pedido', 'PedidoController');
+
+
 
 
     /* REPORTE CAJA*/
